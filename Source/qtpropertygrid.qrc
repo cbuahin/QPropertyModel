@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/QtPropertyGrid">
+        <file alias="resetInactive">Images/resetInactive.png</file>
+        <file alias="resetActive">Images/resetactive.png</file>
+    </qresource>
+</RCC>
