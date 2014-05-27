@@ -23,10 +23,10 @@
 #include "stdafx.h"
 #include "qboolvariantproperty.h"
 
-QBoolVariantProperty::QBoolVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
+QBoolVariantProperty::QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
 	: QVariantProperty(value,metaProperty,parent)
 {
-
+	defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 QBoolVariantProperty::~QBoolVariantProperty()
@@ -40,19 +40,18 @@ QVariant QBoolVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	{
 		switch (role)
 		{
-		case Qt::DecorationRole:
-			return QVariant();
-			break;
+		
 		case Qt::DisplayRole:
-			return QVariant();
-			break;
 		case Qt::EditRole:
 			return QVariant();
 			break;
 		case Qt::ToolTipRole:
 		case Qt::StatusTipRole:
 		case Qt::WhatsThisRole:
-		return value;
+		     return value;
+			break;
+		case Qt::DecorationRole:
+			return QVariant();
 			break;
 		case Qt::FontRole:
 			return QVariant();
@@ -67,15 +66,11 @@ QVariant QBoolVariantProperty::getData(Qt::ItemDataRole role , Column column)
 			return QVariant();
 			break;
 		case Qt::CheckStateRole:
-			if(value.toBool())
-			{
-				return Qt::CheckState::Checked;
-
-			}
-			else
-			{
+			//return QVariant();
+			if(value.toInt() == 0)
 				return Qt::CheckState::Unchecked;
-			}
+			else
+				return Qt::CheckState::Checked;
 			break;
 		case Qt::AccessibleTextRole:
 			return QVariant();
@@ -100,49 +95,111 @@ QVariant QBoolVariantProperty::getData(Qt::ItemDataRole role , Column column)
 
 bool QBoolVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role, Column column)
 {
-
 	if(metaProperty.isValid())
 	{
-
 		QObject* parent = QVariantProperty::parent();
 
-		if(parent != nullptr && (role == Qt::CheckStateRole || role == Qt::EditRole) && column == Column::PropertyValueColumn)
+		if(parent != nullptr && column == Column::PropertyValueColumn)
 		{
-			QVariantProperty* parentProp = qobject_cast<QVariantProperty*>(parent);
-
-			QVariant temp = value.toInt() == 0 ? QVariant(false) : QVariant(true);
-
-			if(parentProp != nullptr)
+			switch(role)
 			{
-				QObject* head  = qvariant_cast<QObject*>(parentProp->getData());
-
-				if(head != nullptr)
+			case Qt::EditRole:
 				{
-					bool written = metaProperty.write(head, temp);
-					this->value = temp;
-					return written;
+					QVariantProperty* parentProp = qobject_cast<QVariantProperty*>(parent);
+
+					if(parentProp != nullptr)
+					{
+						QObject* head  = parentProp->getObject();
+
+						if(head != nullptr)
+						{
+							bool written = metaProperty.write(head, qvariant_cast<bool>(value));
+							
+							if(written)
+							{
+								this->value = value.toBool();
+								emit valueChangedSignal(propertyName,this->value);
+								emit valueChangedSignal();
+							}
+							
+							return written;
+						}
+					}
+				}
+				break;
+			case Qt::CheckStateRole:
+				{
+					QVariantProperty* parentProp = qobject_cast<QVariantProperty*>(parent);
+
+					if(parentProp != nullptr)
+					{
+						QObject* head  = parentProp->getObject();
+
+						if(head != nullptr)
+						{
+							bool v = value.toInt() == 0 ? false : true;
+							bool written = metaProperty.write(head, v);
+
+							if(written)
+							{
+								this->value = v;
+								emit valueChangedSignal(propertyName,this->value);
+								emit valueChangedSignal();
+							}
+
+							return written;
+						}
+					}
 				}
 			}
 		}
 	}
 	else
 	{
-		this->value = value;
-		emit valueChangedSignal(propertyName,value);
+		switch(role)
+		{
+		case Qt::EditRole:
+			{
+				this->value = value.toBool();
+			}
+			break;
+		case Qt::CheckStateRole:
+			{
+				bool v = value.toInt() == 0 ? false : true;
+				this->value = v;
+				emit valueChangedSignal(propertyName,this->value);
+			}
+		}
+
+		emit valueChangedSignal(propertyName,this->value);
 		emit valueChangedSignal();
 		return true;
 	}
 
-	return false;
+}
+
+void QBoolVariantProperty::setDefaultFlags(Qt::ItemFlags flags)
+{
+
+	defaultFlags = Qt::ItemIsSelectable;
+
+	if(flags.testFlag(Qt::ItemIsEditable))
+		defaultFlags |= Qt::ItemIsEnabled| Qt::ItemIsUserCheckable;
 }
 
 Qt::ItemFlags QBoolVariantProperty::flags() const
 {
-	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled ;
+	Qt::ItemFlags flags = Qt::ItemIsSelectable ;
 
-	if(metaProperty.isValid() && metaProperty.isWritable())
+	if(metaProperty.isValid()) 
 	{
-		flags = flags |Qt::ItemIsEnabled | Qt::ItemIsEditable;
+		if(metaProperty.isWritable())
+			flags = flags | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable   ;
 	}
+	else
+	{
+		return defaultFlags ;
+	}
+
 	return flags;
 }

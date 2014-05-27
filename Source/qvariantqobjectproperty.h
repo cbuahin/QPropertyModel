@@ -41,7 +41,7 @@ public:
 	 Qt::ItemFlags flags() const;
 	 virtual bool hasChildren() ;
 
-private :
+protected :
 	 void setupChildProperties();
 	
 protected:

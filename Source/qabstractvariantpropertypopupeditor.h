@@ -12,7 +12,6 @@ public:
 	virtual ~QAbstractVariantPropertyPopUpEditor();
 
 protected:
-	void resizeEvent (QResizeEvent * event );
 
 protected:
 	QPushButton* openEditorButton;

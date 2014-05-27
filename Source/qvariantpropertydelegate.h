@@ -36,8 +36,9 @@ public:
 	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	void setEditorData ( QWidget * editor, const QModelIndex & index ) const;
 	void setModelData ( QWidget * editor, QAbstractItemModel * model, const QModelIndex & index ) const;
-
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	bool registerCustomEditorCreator(QString &qproperty, QItemEditorCreatorBase* const & editor);
+    void updateEditorGeometry ( QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
 private:
 	QItemEditorCreatorBase*  getRegisteredCustomEditorCreator(QString& qproperty) const;

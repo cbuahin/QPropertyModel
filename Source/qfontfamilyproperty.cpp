@@ -74,7 +74,7 @@ QVariant QFontFamilyProperty::getData(Qt::ItemDataRole role , Column column)
 		case Qt::DisplayRole:
 			{
 				QFont temp = qvariant_cast<QFont>(value);
-				QString name = "[" + temp.family() +", "+ QString::number(temp.pointSize()) + " ]";
+				QString name = "[" + temp.family() +"]";
 				return name;
 			}
 			break;

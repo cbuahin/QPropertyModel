@@ -20,9 +20,6 @@ public:
 private:
 	
 };
-
-
-
 Q_DECLARE_METATYPE(QFontFamilyProperty*);
 
 #endif // QFONTFAMILYPROPERTY_H

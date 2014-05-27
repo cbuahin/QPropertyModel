@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "qcolorvariantproperty.h"
 
-QColorVariantProperty::QColorVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
+QColorVariantProperty::QColorVariantProperty(const QColor& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
 	: QVariantProperty(value, metaProperty, parent)
 {
 
@@ -94,8 +94,8 @@ QVariant QColorVariantProperty::getData(Qt::ItemDataRole role , Column column)
 			break;
 		case Qt::BackgroundRole:
 			{
-			QColor c = qvariant_cast<QColor>(value);
-			return value;
+				QColor c = qvariant_cast<QColor>(value);
+				return c;
 			}
 			break;
 		case Qt::ForegroundRole:

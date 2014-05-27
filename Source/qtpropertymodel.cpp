@@ -24,6 +24,8 @@
 #include "qtpropertymodel.h"
 #include <qvariantproperty.h>
 #include <qvariantqobjectproperty.h>
+#include <qboolvariantproperty.h>
+#include <qfontvariantproperty.h>
 
 QtPropertyModel::QtPropertyModel(QObject *parent)
 	: QAbstractItemModel (parent)
@@ -31,6 +33,12 @@ QtPropertyModel::QtPropertyModel(QObject *parent)
 	rootProperty = nullptr;
 	rootProperty = new QVariantQObjectProperty(parent,QMetaProperty(), nullptr);
 	rootProperty->setModel(this);
+
+	
+    const QMetaObject& mo = StaticQtMetaObject::get();
+    int index = mo.indexOfEnumerator("Alignment");
+    QMetaEnum me = mo.enumerator(index);
+
 }
 
 QtPropertyModel::QtPropertyModel(const QVariant& parent)
@@ -40,6 +48,7 @@ QtPropertyModel::QtPropertyModel(const QVariant& parent)
 	switch (parent.userType())
 	{
 	case QMetaType::Bool:
+		rootProperty = new QBoolVariantProperty(parent.toBool(), QMetaProperty());
 		break;
 	case QMetaType::Void:
 	case QMetaType::Int:
@@ -61,10 +70,11 @@ QtPropertyModel::QtPropertyModel(const QVariant& parent)
 	case QMetaType::QDate:
 	case QMetaType::QTime:
 	case QMetaType::QDateTime:
-	case QMetaType::QStringList:
 	case QMetaType::QByteArray:
 	case QMetaType::QBitArray:
 	case QMetaType::QUrl:
+		rootProperty = new QVariantProperty(parent, QMetaProperty());
+		break;
 	case QMetaType::QLocale:
 	case QMetaType::QRect:
 	case QMetaType::QRectF:
@@ -88,6 +98,8 @@ QtPropertyModel::QtPropertyModel(const QVariant& parent)
 	case QMetaType::QVariantList:
 	case QMetaType::QVariantHash:
 	case QMetaType::QFont:
+		rootProperty = new QFontVariantProperty(qvariant_cast<QFont>(parent), QMetaProperty());
+		break;
 	case QMetaType::QPixmap:
 	case QMetaType::QBrush:
 	case QMetaType::QColor:
@@ -110,22 +122,34 @@ QtPropertyModel::QtPropertyModel(const QVariant& parent)
 	case QMetaType::QVector4D:
 	case QMetaType::QQuaternion:
 	case QMetaType::QPolygonF:
+	case QMetaType::QStringList:
 	case QMetaType::QSizePolicy:
 		break;
 	case QMetaType::QObjectStar:
+		{
+			QObject* tempobject = qvariant_cast<QObject*>(parent);
+			if(tempobject != nullptr)
+			{
+				rootProperty = new QVariantQObjectProperty(tempobject,QMetaProperty(), nullptr);
+			}
+		}
+		break;
 	case QMetaType::UnknownType:
 	case QMetaType::User:
-		/*				{
-		QObject* inval = qvariant_cast<QObject*>(tvalue);
-		if(inval != nullptr)
+	default:
 		{
-		propn = new QVariantQObjectProperty(inval, prop , this);
-		}
-		}*/
-		break;
+			QObject* tempobject = qvariant_cast<QObject*>(parent);
+			if(tempobject != nullptr)
+			{
+				rootProperty = new QVariantQObjectProperty(tempobject,QMetaProperty(), nullptr);
+			}
+			
 
+		}
+		break;
 	}
 
+	rootProperty->setModel(this);
 	//rootProperty = new QVariantProperty(parent,parent,QMetaProperty(), nullptr);
 	//rootProperty->setModel(this);
 }
@@ -149,7 +173,10 @@ bool QtPropertyModel::hasChildren(const QModelIndex & parent) const
 
 QModelIndex QtPropertyModel::index(int row, int column, const QModelIndex & parent) const	
 {
-	if (!hasIndex(row, column, parent) || (parent.isValid() && parent.column() > 0))
+	bool validParent = parent.isValid();
+	bool hasindex = hasIndex(row, column, parent);
+
+	if (!hasIndex(row, column, parent))
 		return QModelIndex();
 
 	QVariantProperty* parentItem = nullptr ;
@@ -165,6 +192,7 @@ QModelIndex QtPropertyModel::index(int row, int column, const QModelIndex & pare
 	{
 		QVariantProperty *temp = children[row];
 		QModelIndex tempindex = createIndex(row, column, temp);
+		if(column == 1)
 		temp->setModelIndex(tempindex);
 		return tempindex;
 	}
@@ -196,7 +224,7 @@ QModelIndex QtPropertyModel::parent(const QModelIndex &index) const
 				}
 				else
 				{
-					return 	createIndex(qproperty->getRowInParent(),0, parentProp);
+					return 	createIndex(qproperty->getRowInParent(),1, parentProp);
 				}
 			}
 		}
@@ -253,6 +281,8 @@ QVariant  QtPropertyModel::data(const QModelIndex & index, int role) const
 
 bool QtPropertyModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {	
+	if(index.column() == 0)
+		return false;
 	QVariantProperty* qproperty = getProperty(index);
 
 	if(qproperty)
@@ -262,6 +292,7 @@ bool QtPropertyModel::setData(const QModelIndex & index, const QVariant & value,
 		if(valid)
 		{
 			emit dataChanged(index,index);
+			
 			return valid;
 		}
 	}

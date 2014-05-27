@@ -24,12 +24,13 @@
 
 #include <qvariantproperty.h>
 
+
 class QFontVariantProperty : public QVariantProperty
 {
 	Q_OBJECT
 
 public:
-	QFontVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QFontVariantProperty(const QFont& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
 	~QFontVariantProperty();
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
@@ -37,8 +38,11 @@ public:
 private slots:
 	virtual void childPropertyValueChanged(const QString& propertyName, const QVariant& value);
 
+protected:
+	 void setupChildProperties();
+
 private:
-	virtual void setupChildProperties();
+	
 };
 
 #endif // QFONTVARIANTPROPERTY_H

@@ -24,6 +24,21 @@
 #include <qboolvariantproperty.h>
 #include <qcolorvariantproperty.h>
 #include <qfontvariantproperty.h>
+#include <qsizevariantproperty.h>
+#include <qsizefvariantproperty.h>
+#include <qrectvariantproperty.h>
+#include <qrectfvariantproperty.h>
+#include <qpointvariantproperty.h>
+#include <qpointfvariantproperty.h>
+#include <qlinevariantproperty.h>
+#include <qlinefvariantproperty.h>
+#include <qvector2dvariantproperty.h>
+#include <qvector3dvariantproperty.h>
+#include <qvector4dvariantproperty.h>
+#include <qpixmapvariantproperty.h>
+#include <qbitmapvariantproperty.h>
+#include <qenumvariantproperty.h>
+#include <qflagsvariantproperty.h>
 
 QVariantObjectSuperClassProperty::QVariantObjectSuperClassProperty(QObject* const &object, const  QMetaObject* superClassMetaObject, int rowInParent,  QVariantProperty *parent)
 	: QVariantQObjectProperty(object,QMetaProperty(),parent)
@@ -96,7 +111,7 @@ QVariant QVariantObjectSuperClassProperty::getData(Qt::ItemDataRole  role , Colu
 
 bool QVariantObjectSuperClassProperty::setData(const QVariant & value, Qt::ItemDataRole  role, Column column)
 {
-	return false;
+	return true;
 }
 
 Qt::ItemFlags  QVariantObjectSuperClassProperty::flags() const
@@ -105,7 +120,7 @@ Qt::ItemFlags  QVariantObjectSuperClassProperty::flags() const
 
 	if(metaProperty.isValid() && metaProperty.isWritable())
 	{
-		flags = flags |Qt::ItemIsEnabled | Qt::ItemIsEditable;
+		flags = flags |Qt::ItemIsEnabled;
 	}
 	return flags;
 }
@@ -142,6 +157,22 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 		{
 			QMetaProperty prop = superClassMetaObject->property(i);
 			QString name (prop.name());
+		
+			//if(name == "QtTestEnumFlags")
+			//{
+			//	qDebug() << "test";
+			//	
+			//}
+
+			//if(prop.isEnumType())
+			//{
+			//	qDebug() << "test";
+			//}
+
+			//if( prop.isFlagType())
+			//{
+			//	qDebug() << "test";
+			//}
 
 			if( prop.isReadable())
 			{	
@@ -149,22 +180,44 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				QVariant tvalue = prop.read(object);
 				QVariantProperty* propn = nullptr;
 
-
-				switch (prop.userType())
+				int type = prop.userType();
+				switch (type)
 				{
 				case QMetaType::Bool:
-					propn = new QBoolVariantProperty(tvalue, prop , this);
+					propn = new QBoolVariantProperty(tvalue.toBool(), prop , this);
 					break;
 				case QMetaType::QFont:
-					propn = new QFontVariantProperty(tvalue, prop , this);
+					propn = new QFontVariantProperty(qvariant_cast<QFont>(tvalue), prop , this);
 					break;
 				case QMetaType::QColor:
-					propn = new QColorVariantProperty(tvalue, prop , this);
+					propn = new QColorVariantProperty(qvariant_cast<QColor>(tvalue), prop , this);
 					break;	
-				case QMetaType::QPixmap:
 				case QMetaType::QBrush:
 				case QMetaType::Void:
 				case QMetaType::Int:
+					{
+						if(prop.isEnumType())
+						{
+
+							if(prop.isFlagType())
+							{
+								propn = new QFlagsVariantProperty(tvalue, prop.enumerator(), prop, this);
+							}
+							else
+							{
+								propn = new QEnumVariantProperty(tvalue, prop.enumerator(), prop, this);
+							}
+						}
+						else if(prop.isFlagType())
+						{
+							propn = new QFlagsVariantProperty(tvalue, prop.enumerator(), prop, this);
+						}
+						else
+						{
+							propn = new QVariantProperty(tvalue, prop , this);
+						}
+					}
+					break;
 				case QMetaType::UInt:
 				case QMetaType::LongLong:
 				case QMetaType::ULongLong:
@@ -188,14 +241,48 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QBitArray:
 				case QMetaType::QUrl:
 				case QMetaType::QLocale:
+					propn = new QVariantProperty(tvalue, prop , this);
+					break;
 				case QMetaType::QRect:
+					propn = new QRectVariantProperty(qvariant_cast<QRect>(tvalue), prop , this);
+					break;	
 				case QMetaType::QRectF:
+					propn = new QRectFVariantProperty(qvariant_cast<QRectF>(tvalue), prop , this);
+					break;
 				case QMetaType::QSize:
+					propn = new QSizeVariantProperty(qvariant_cast<QSize>(tvalue), prop , this);
+					break;	
 				case QMetaType::QSizeF:
+					propn = new QSizeFVariantProperty(qvariant_cast<QSizeF>(tvalue), prop , this);
+					break;	
 				case QMetaType::QLine:
+					propn = new QLineVariantProperty(qvariant_cast<QLine>(tvalue), prop , this);
+					break;	
 				case QMetaType::QLineF:
+					propn = new QLineFVariantProperty(qvariant_cast<QLineF>(tvalue), prop , this);
+					break;	
 				case QMetaType::QPoint:
+					propn = new QPointVariantProperty(qvariant_cast<QPoint>(tvalue), prop , this);
+					break;	
 				case QMetaType::QPointF:
+					propn = new QPointFVariantProperty(qvariant_cast<QPointF>(tvalue), prop , this);
+					break;	
+				case QMetaType::QVector2D:
+					propn = new QVector2DVariantProperty(qvariant_cast<QVector2D>(tvalue), prop , this);
+					break;	
+				case QMetaType::QVector3D:
+					propn = new QVector3DVariantProperty(qvariant_cast<QVector3D>(tvalue), prop , this);
+					break;	
+				case QMetaType::QVector4D:
+					propn = new QVector4DVariantProperty(qvariant_cast<QVector4D>(tvalue), prop , this);
+					break;	
+				case QMetaType::QBitmap:
+					propn = new QBitmapVariantProperty(qvariant_cast<QBitmap>(tvalue), prop , this);
+					break;
+				case QMetaType::QImage:
+				case QMetaType::QPixmap:
+					propn = new QPixmapVariantProperty(qvariant_cast<QPixmap>(tvalue), prop , this);
+					break;	
 				case QMetaType::QRegExp:
 				case QMetaType::QEasingCurve:
 				case QMetaType::QUuid:
@@ -211,10 +298,8 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QVariantHash:
 				case QMetaType::QPalette:
 				case QMetaType::QIcon:
-				case QMetaType::QImage:
 				case QMetaType::QPolygon:
 				case QMetaType::QRegion:
-				case QMetaType::QBitmap:
 				case QMetaType::QCursor:
 				case QMetaType::QKeySequence:
 				case QMetaType::QPen:
@@ -223,9 +308,6 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QMatrix:
 				case QMetaType::QTransform:
 				case QMetaType::QMatrix4x4:
-				case QMetaType::QVector2D:
-				case QMetaType::QVector3D:
-				case QMetaType::QVector4D:
 				case QMetaType::QQuaternion:
 				case QMetaType::QPolygonF:
 				case QMetaType::QSizePolicy:
@@ -234,6 +316,7 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QObjectStar:
 				case QMetaType::UnknownType:
 				case QMetaType::User:
+				default:
 					{
 						QObject* inval = qvariant_cast<QObject*>(tvalue);
 						if(inval != nullptr)

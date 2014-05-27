@@ -5,29 +5,17 @@ QPropertyFromListEditor::QPropertyFromListEditor(QWidget *parent)
 	: QAbstractPropertyEditor(parent)
 {
 	comboBox = new QComboBox(this);
+	QHBoxLayout* layout = new QHBoxLayout(this);
+	layout->setMargin(0);
+	layout->addWidget(comboBox);
+
 	comboBox->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 	connect(comboBox , SIGNAL(currentIndexChanged(int)), this,SLOT(currentIndexChanged(int)));
 }
 
 QPropertyFromListEditor::~QPropertyFromListEditor()
 {
-	
-}
-
-void QPropertyFromListEditor::setupModel(QMetaType::Type type)
-{
-	
-	if(type == QMetaType::type("QFontFamilyProperty"))
-	{
-		QFontDatabase dbase;
-		QStringList familyList = dbase.families(QFontDatabase::WritingSystem::Any);
-		comboBox->addItems(familyList);
-
-		for(int i = 0 ; i < familyList.count() ; i++)
-		{
-			comboBox->setItemData(i,familyList[i],Qt::FontRole);
-		}
-	}
+	delete comboBox;
 }
 
 void QPropertyFromListEditor::setValue(const QVariant& value)
@@ -46,11 +34,11 @@ void QPropertyFromListEditor::setValue(const QVariant& value)
 
 QVariant QPropertyFromListEditor::getValue() const
 {
-    return comboBox->itemData(comboBox->currentIndex() , Qt::EditRole);
+	QVariant value = comboBox->itemData(comboBox->currentIndex() , Qt::EditRole);
+    return value;
 }
 
 void QPropertyFromListEditor::currentIndexChanged(int index)
 {
-	
 	emit valueChanged();
 }

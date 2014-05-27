@@ -27,8 +27,10 @@ TestObject::TestObject(QObject *parent)
 	: QObject(parent), date(QDate::currentDate()), dateTime(QDateTime::currentDateTime()), name("Test")
 {
 
-	qobject = new QGraphicsItemAnimation(nullptr);
-	qwidget = new QTreeView(nullptr);
+	qobject = new QGraphicsItemAnimation(this);
+	qwidget = new QTreeView();
+	testEnum = TestEnum::TestA;
+	flags = TestA | TestC;
 }
 
 TestObject::~TestObject()
@@ -341,19 +343,12 @@ QBrush TestObject::getQBrush() const
 	return brush;
 }
 
-void TestObject::setQImage(const  QImage & image)
-{
-	this->image = image;
-}
-QImage TestObject::getQImage() const
-{
-	return image;
-}
 
 void TestObject::setQSizePolicy(const  QSizePolicy & sizepolicy)
 {
 	this->sizepolicy = sizepolicy;
 }
+
 QSizePolicy TestObject::getQSizePolicy() const
 {
 	return sizepolicy;
@@ -363,6 +358,7 @@ void TestObject::setQMatrix(const  QMatrix & matrix)
 {
 	this->matrix = matrix;
 }
+
 QMatrix TestObject::getQMatrix() const
 {
 	return this->matrix;
@@ -372,6 +368,7 @@ void TestObject::setQTransform(const  QTransform & transform)
 {
 	this->transform = transform;
 }
+
 QTransform TestObject::getQTransform() const
 {
 	return transform;
@@ -381,6 +378,7 @@ void TestObject::setQMatrix4x4(const  QMatrix4x4 & matrix4x4)
 {
 	this->matrix4x4 = matrix4x4;
 }
+
 QMatrix4x4 TestObject::getQMatrix4x4() const
 {
 	return matrix4x4;
@@ -390,6 +388,7 @@ void TestObject::setQVector2D(const  QVector2D & vector2D)
 {
 	this->vector2D = vector2D;
 }
+
 QVector2D TestObject::getQVector2D() const
 {
 	return vector2D;
@@ -415,10 +414,71 @@ QVector4D TestObject::getQVector4D() const
 	return vector4D;
 }
 
+void TestObject::setTestEnum(TestEnum testEnum)
+{
+	this->testEnum = testEnum;
+}
+
+TestObject::TestEnum TestObject::getTestEnum() const
+{
+	return testEnum;
+}
+
+void TestObject::setTestEnumFlags(TestEnums flags)
+{
+	this->flags = flags;
+}
+
+TestObject::TestEnums TestObject::getTestEnumFlags() const
+{
+	return this->flags;
+}
+
+void TestObject::setKeySequence(const QKeySequence& sequence)
+{
+	this->sequence =  sequence;
+}
+
+QKeySequence TestObject::getKeySequence() const
+{
+	return sequence;
+}
+
+void TestObject::setQPixmap(const QPixmap& pixmap)
+{
+	this->pixmap = pixmap;
+}
+
+QPixmap TestObject::getQPixmap() const
+{
+	return pixmap;
+}
+
+void TestObject::setQImage(const QImage& image)
+{
+	this->image = image;
+}
+
+QImage TestObject::getQImage() const
+{
+	return image;
+}
+
+void TestObject::setQBitmap(const QBitmap& bitmap)
+{
+	this->bitmap = bitmap;
+}
+
+QBitmap TestObject::getQBitmap() const
+{
+	return bitmap;
+}
+
 void TestObject::reset()
 {
 	name ="resetName";
 	date = QDate::currentDate();
 	dateTime = QDateTime::currentDateTime();
 	url = QUrl("http://www.gthsansa.com");
+	boolv = false;
 }

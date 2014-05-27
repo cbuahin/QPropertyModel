@@ -24,10 +24,13 @@
 #define TESTOBJECT_H
 
 #include <QObject>
+#include <qabstractitemview.h>
 
 class TestObject : public QObject
 {
 	Q_OBJECT
+	Q_ENUMS(TestEnum);
+	Q_FLAGS(TestEnums)
 	Q_PROPERTY(QString QtString READ getName WRITE setName RESET reset)
 	Q_PROPERTY(QDate QtDate READ getDate WRITE setDate RESET reset)
 	Q_PROPERTY(QDateTime QtDateTime READ getDateTime WRITE setDateTime RESET reset)
@@ -42,24 +45,24 @@ class TestObject : public QObject
 	Q_PROPERTY(QWidget*  QtWidget READ getQWidget WRITE setQWidget)
 	Q_PROPERTY(QCursor  QtCursor READ getCursor WRITE setCursor)
 	Q_PROPERTY(QSize  QtSize READ getSize WRITE setSize)
+	Q_PROPERTY(QSizeF  QtSizeF READ getSizeF WRITE setSizeF)
 	Q_PROPERTY(QList<QVariant>  QtList READ getList WRITE setList)
 	Q_PROPERTY(QPolygon  QtPolygon READ getPolygon  WRITE setPolygon )
 	Q_PROPERTY(QColor  QtColor READ getColor WRITE setColor)
-	Q_PROPERTY(QSizeF  QtSizeF READ getSizeF WRITE setSizeF)
+	Q_PROPERTY(QRect  QtRect READ getQRect WRITE setQRect)
 	Q_PROPERTY(QRectF  QtRectF READ getQRectF WRITE setQRectF)
     Q_PROPERTY(QStringList  QtStringList READ getQStringList WRITE setQStringList)
 	Q_PROPERTY(QVariantMap  QtVariantMap READ getQVariantMap WRITE setQVariantMap)
 	Q_PROPERTY(QVariantHash  QtVariantHash READ getQVariantHash WRITE setQVariantHash)
 	Q_PROPERTY(QIcon  QtQIcon READ getQIcon WRITE setQIcon)
+	Q_PROPERTY(QLine  QtLine READ getQLine WRITE setQLine)
 	Q_PROPERTY(QLineF  QtLineF READ getQLineF WRITE setQLineF)
-	Q_PROPERTY(QRect  QtRect READ getQRect WRITE setQRect)
 	Q_PROPERTY(QPoint  QtPoint READ getQPoint WRITE setQPoint)
 	Q_PROPERTY(QRegExp  QtRegExp READ getQRegExp WRITE setQRegExp)
 	Q_PROPERTY(QPointF  QtPointF READ getQPointf WRITE setQPointf)
 	Q_PROPERTY(QPalette  QtPalette READ getQPalette WRITE setQPalette)
 	Q_PROPERTY(QFont  QtFont READ getQFont WRITE setQFont)
 	Q_PROPERTY(QBrush  QtBrush READ getQBrush WRITE setQBrush)
-	Q_PROPERTY(QImage  QtImage READ getQImage WRITE setQImage)
 	Q_PROPERTY(QSizePolicy  QtSizePolicy READ getQSizePolicy WRITE setQSizePolicy)
 	Q_PROPERTY(QMatrix  QtMatrix READ getQMatrix WRITE setQMatrix)
 	Q_PROPERTY(QTransform  QtTransform READ getQTransform WRITE setQTransform)
@@ -67,8 +70,25 @@ class TestObject : public QObject
 	Q_PROPERTY(QVector2D  QtVector2D READ getQVector2D WRITE setQVector2D)
 	Q_PROPERTY(QVector3D  QtVector3D READ getQVector3D WRITE setQVector3D)
 	Q_PROPERTY(QVector4D  QtVector4D READ getQVector4D WRITE setQVector4D)
-
+	Q_PROPERTY(QKeySequence  QtKeySequence READ getKeySequence WRITE setKeySequence)
+	Q_PROPERTY(TestEnum  QtTestEnum READ getTestEnum WRITE setTestEnum)
+	Q_PROPERTY(TestEnums  QtTestEnumFlags READ getTestEnumFlags WRITE setTestEnumFlags)
+	Q_PROPERTY(QPixmap  QtPixmap READ getQPixmap WRITE setQPixmap)
+	Q_PROPERTY(QImage  QtImage READ getQImage WRITE setQImage)
+	Q_PROPERTY(QBitmap  QtBitmap READ getQBitmap WRITE setQBitmap)
 public:
+	enum TestEnum
+	{
+		TestA = 1,
+		TestB = 2,
+		TestC = 4,
+		TestD = 8,
+		TestE = 31,
+		TestF = 33,
+	};
+
+	Q_DECLARE_FLAGS(TestEnums, TestEnum)
+
 	TestObject(QObject *parent);
 	~TestObject();
 
@@ -167,9 +187,6 @@ public:
 	void setQBrush(const  QBrush & brush);
 	QBrush getQBrush() const;
 
-	void setQImage(const  QImage & image);
-	QImage getQImage() const;
-	
 	void setQSizePolicy(const  QSizePolicy & sizepolicy);
 	QSizePolicy getQSizePolicy() const;
 
@@ -190,6 +207,24 @@ public:
 
 	void setQVector4D(const  QVector4D & vector4D);
 	QVector4D getQVector4D() const;
+
+	void setTestEnum(TestEnum testEnum);
+	TestEnum getTestEnum() const;
+
+	void setTestEnumFlags(TestEnums flags);
+	TestEnums getTestEnumFlags() const;
+
+	void setKeySequence(const QKeySequence& sequence);
+	QKeySequence getKeySequence() const;
+
+	void setQPixmap(const QPixmap& pixmap);
+	QPixmap getQPixmap() const;
+
+	void setQImage(const  QImage & image);
+	QImage getQImage() const;
+
+	void setQBitmap(const QBitmap& bitmap);
+	QBitmap getQBitmap() const;
 
 	void reset();
 
@@ -212,12 +247,12 @@ private:
 	QSizeF sizef;
 	QRectF rectf;
 	QLine line;
+	QLineF linef;
 	QTextLength textLength;
 	QStringList stringList;
 	QVariantMap variantMap;
 	QVariantHash variantHash;
 	QIcon icon;
-	QLineF linef;
 	QRect rect;
 	QPoint point;
 	QRegExp qRegex;
@@ -234,9 +269,17 @@ private:
 	QVector3D vector3D;
 	QVector4D vector4D;
 	uint uintb;
+	TestEnum testEnum;
+	QKeySequence sequence;
+	QLine qline;
+	QLineF qlinef;
+	QPixmap pixmap;
+	QBitmap bitmap;
+	TestEnums flags;
 };
-Q_DECLARE_METATYPE(QTreeView*)
-Q_DECLARE_METATYPE(TestObject*)
 
+Q_DECLARE_METATYPE(QTreeView*)
+Q_DECLARE_METATYPE(TestObject*) 
+Q_DECLARE_OPERATORS_FOR_FLAGS(TestObject::TestEnums)
 
 #endif // TESTOBJECT_H

@@ -69,6 +69,7 @@ QtPropertyGrid::QtPropertyGrid(QWidget *parent)
 	//QtPropertyModel* model = new QtPropertyModel(ui.treeView);
 	QVariantPropertyDelegate* itemDelegate = new QVariantPropertyDelegate(ui.treeView);
 	QtPropertyModel* model = new QtPropertyModel(temp);
+	connect(model,SIGNAL(dataChanged(QModelIndex,QModelIndex)),ui.treeView,SLOT(repaint()));
 	ui.treeView->setModel(model);
 	ui.treeView->setEditTriggers(QAbstractItemView:: AllEditTriggers);
 	ui.treeView->setItemDelegate(itemDelegate);
@@ -76,8 +77,7 @@ QtPropertyGrid::QtPropertyGrid(QWidget *parent)
 	ui.treeView->setAlternatingRowColors(true);
 	ui.treeView->resizeColumnToContents(0);
 	ui.treeView->resizeColumnToContents(1);
-	ui.tableView->setModel(model);
-	ui.listView->setModel(model);
+
 	
 }
 

@@ -4,7 +4,9 @@
 QColorPropertyEditor::QColorPropertyEditor(QWidget *parent)
 	: QAbstractVariantPropertyPopUpEditor(parent)
 {
+	
 	colorDialog = new QColorDialog(this);
+  	
 	colorDialog->setOptions(QColorDialog::ColorDialogOption::ShowAlphaChannel);
 	connect(openEditorButton, SIGNAL(clicked()), colorDialog , SLOT(show()));
 	connect(colorDialog , SIGNAL(colorSelected(QColor)),this,SLOT(colorSelected(QColor)));

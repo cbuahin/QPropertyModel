@@ -39,7 +39,7 @@ public:
 
 	 bool hasChildren() ;
 
-private:
+protected:
 	 void setupChildProperties() ;
 
 private:

@@ -24,17 +24,21 @@
 #include "qvariantpropertybaseeditor.h"
 
 
-int QVariantPropertyBaseEditor::tcount = 0;
 
-QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget* const editorWidget,const QByteArray& name, const QStyleOptionViewItem &option, const QModelIndex &index)
+QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget* const editorWidget,const QString& name, const QStyleOptionViewItem &option, const QModelIndex &index)
 	: QWidget(parent)
 {
+	if(parent != nullptr)
+	{
+		parent->setObjectName("t");
+	}
+	this->setSizePolicy(QSizePolicy::Expanding , QSizePolicy::Expanding);
 	
+
 	valuePropertyName = name;
 	this->editorWidget = editorWidget;
 	int maxHeight = option.rect.height() - this->contentsMargins().bottom() - this->contentsMargins().top();
 	this->index = index;
-
 
 	const QMetaObject* editorMetaObject = editorWidget->metaObject();
 
@@ -58,20 +62,20 @@ QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget*
 				{
 				  QMetaMethod signalMethod = tempProp.notifySignal();
 				  QMetaMethod slotMethod = this->metaObject()->method(this->metaObject()->indexOfSlot("valueChangedSlot()"));
-				  connect(editorWidget,signalMethod, this, slotMethod);
+				  connect(editorWidget,signalMethod, this, slotMethod,Qt::DirectConnection);
 				}
 
-				
+				editorWidget->blockSignals(true);
 				editorMetaProperty.write(editorWidget,value);
+				editorWidget->blockSignals(false);
 				
 				break;
 			}
 		}
 	}
 
-
 	editorWidget->setParent(this);
-	editorWidget->setSizePolicy(QSizePolicy::Expanding , QSizePolicy::Fixed);
+	editorWidget->setSizePolicy(QSizePolicy::Expanding , QSizePolicy::Expanding);
 
 	QIcon eng;
 	eng.addFile(":/QtPropertyGrid/resetInactive", QSize(100,100), QIcon::Mode::Disabled,QIcon::State::Off);
@@ -82,23 +86,21 @@ QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget*
     resetButton = new QPushButton(this);
 	resetButton->setIcon(eng);
 
-	this->setToolTip("Reset");
-	this->setStatusTip("Reset");
+	this->setToolTip("Reset Property");
+	this->setStatusTip("Reset Property");
 	this->setWhatsThis("Reset Property");
-	resetButton->setEnabled(property->canRefresh());
+	resetButton->setEnabled(property->canReset());
 		
-	resetButton->setFixedWidth(maxHeight);
-	QSizePolicy refreshPolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+	resetButton->setFixedWidth(20);
+	resetButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
 	QHBoxLayout* layout = new QHBoxLayout(this);
-	
-	layout->setAlignment(Qt::AlignCenter);
-	layout->setMargin(0);
+	layout->setSpacing(0);
+	layout->setAlignment(Qt::AlignBottom);
+	layout->setContentsMargins(0,0,0,0);
 	layout->addWidget(editorWidget);
 	layout->addWidget(resetButton);
-	
-	//	
-	this->setSizePolicy(QSizePolicy::Expanding , QSizePolicy::Expanding);
+
 	connect(resetButton, SIGNAL(clicked()), property , SLOT(refreshDataSlot())); 
 }
 
@@ -114,25 +116,24 @@ void QVariantPropertyBaseEditor::setValue(const QVariant& value)
 
 QVariant QVariantPropertyBaseEditor::getValue() const 
 {
-   return editorMetaProperty.read(editorWidget);
+   QVariant prop = editorMetaProperty.read(editorWidget);
+   return prop ;
 } 
 
 void QVariantPropertyBaseEditor::focusInEvent(QFocusEvent * event)
 {
-	editorWidget->setFocus(Qt::FocusReason::TabFocusReason);
+	editorWidget->setFocus(Qt::FocusReason::MouseFocusReason);
 }
 
-void QVariantPropertyBaseEditor::resizeEvent ( QResizeEvent * event)
+void QVariantPropertyBaseEditor:: hideEvent(QHideEvent * event)
 {
-	int maxHeight = height() - this->contentsMargins().bottom() - this->contentsMargins().top();
-	int minimumWidth = width() - this->contentsMargins().right() - this->contentsMargins().left() - maxHeight;
-
-	this->editorWidget->setFixedWidth(minimumWidth);
+	QVariant value = editorMetaProperty.read(editorWidget);
+	property->setData(value);
+	emit valueChangedSignal();
 }
 
 void QVariantPropertyBaseEditor::valueChangedSlot()
 { 
-	//update model;
 	QVariant value = editorMetaProperty.read(editorWidget);
 	property->setData(value);
 	emit valueChangedSignal();

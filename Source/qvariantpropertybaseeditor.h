@@ -33,7 +33,7 @@ class QVariantPropertyBaseEditor : public QWidget
 	Q_PROPERTY(QVariant Value READ  getValue WRITE setValue  NOTIFY valueChangedSignal  USER true);
 
 public:
-	QVariantPropertyBaseEditor(QWidget *parent, QWidget* const editorWidget, const QByteArray& name, const QStyleOptionViewItem &option, const QModelIndex &index);
+	QVariantPropertyBaseEditor(QWidget *parent, QWidget* const editorWidget, const QString& name, const QStyleOptionViewItem &option, const QModelIndex &index);
 	~QVariantPropertyBaseEditor();
 
 	void setValue(const QVariant& value);
@@ -41,12 +41,10 @@ public:
 
 protected:
 	void focusInEvent(QFocusEvent * event);
-	void resizeEvent ( QResizeEvent * event );
 
 private slots:
-	//void refreshButtonClicked();
-	//immediate update of property and model
     void valueChangedSlot();
+	void hideEvent(QHideEvent * event);
 
 signals:
 	void valueChangedSignal();
@@ -54,11 +52,10 @@ signals:
 protected:
 	QWidget* editorWidget;
 	QMetaProperty editorMetaProperty;
-	QByteArray valuePropertyName;
+	QString valuePropertyName;
 	QVariantProperty* property;
 	QPushButton* resetButton;
 	QModelIndex index;
-	static int tcount;
 };
 
 Q_DECLARE_METATYPE(QVariantPropertyBaseEditor*);

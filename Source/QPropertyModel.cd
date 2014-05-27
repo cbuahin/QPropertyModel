@@ -1,67 +1,284 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="QVariantObjectSuperClassProperty">
-    <Position X="3.25" Y="12.25" Width="2.75" />
+    <Position X="3.25" Y="14.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAEQAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAACAAQAAw=</HashCode>
+      <HashCode>AAEQAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAACAAwAAQ=</HashCode>
       <FileName>qvariantobjectsuperclassproperty.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="QVariantQObjectProperty">
-    <Position X="3.5" Y="8.75" Width="2.25" />
+    <Position X="3.5" Y="11" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAEQAAAAgCAAAAAAACAAAAAAAAAAAAAAAAAACAAAAAw=</HashCode>
+      <HashCode>AAEQAAAAgCAAAAAAACAAAAAAAAAAAAAAAAAACAAgAAQ=</HashCode>
       <FileName>qvariantqobjectproperty.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="QtPropertyModel">
-    <Position X="8.25" Y="1.5" Width="1.5" />
+  <Class Name="QtPropertyModel" Collapsed="true">
+    <Position X="50.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAEAQBAAQAAAAAJAAAAAAAAAAAABAAAAAAAQCAABAAQ=</HashCode>
+      <HashCode>AAEAQBAAQAAAAAZAAAACAAAAAAABAAAAAAAQCAABAAQ=</HashCode>
       <FileName>qtpropertymodel.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="QVariantProperty">
-    <Position X="5.25" Y="1.5" Width="1.75" />
+    <Position X="24.25" Y="1.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>ICEYAoAAQEgAAARAACAAgAIBIAAAASAAIAAACIAKAAw=</HashCode>
+      <HashCode>YGE4AuAAQAwAAQRCACAAgAIBJAAAASYAIAAACEAqAAY=</HashCode>
       <FileName>qvariantproperty.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="QBoolVariantProperty">
-    <Position X="6.75" Y="8.75" Width="2" />
+    <Position X="9.5" Y="11" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAEYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <HashCode>AAEYACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
       <FileName>qboolvariantproperty.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="QVariantPropertyBaseEditor">
-    <Position X="10.5" Y="1.5" Width="2.25" />
+  <Class Name="QVariantPropertyBaseEditor" Collapsed="true">
+    <Position X="52" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AQgAAAAAAAAAACAgAAIAAAAAAACAICQAAACAAAABAAE=</HashCode>
+      <HashCode>AQgAAAAAAAAAACAgAAIBAAAAAAAAAAQAAACAAAABAAE=</HashCode>
       <FileName>qvariantpropertybaseeditor.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="TestObject">
-    <Position X="10.25" Y="6.75" Width="2.5" />
+  <Class Name="TestObject" Collapsed="true">
+    <Position X="55.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>MBEJowAEwJIMwCkIAIAgAmIILgDNoMTIBQwEgyIdMDc=</HashCode>
-      <FileName>TestObject.h</FileName>
+      <HashCode>MBMJYxCcxpYcwTkII6IgImIEfwjPoOTARQ4sgyYNcjY=</HashCode>
+      <FileName>testobject.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="QtPropertyGrid">
-    <Position X="13.25" Y="5.5" Width="1.5" />
+  <Class Name="QtPropertyGrid" Collapsed="true">
+    <Position X="48.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAEAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>qtpropertygrid.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="QVariantPropertyDelegate">
-    <Position X="13.25" Y="1.5" Width="2.5" />
+  <Class Name="QVariantPropertyDelegate" Collapsed="true">
+    <Position X="53.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAABAAgAAACAgAAAAAABAAAEAAAAAAAAAQAAgA=</HashCode>
+      <HashCode>AAgAAAAABAAgAAACAgIAAAAABAAAEAAAAAAAAAQAAgA=</HashCode>
       <FileName>qvariantpropertydelegate.h</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="QColorVariantProperty">
+    <Position X="6.75" Y="11" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>qcolorvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QFontVariantProperty">
+    <Position X="12.25" Y="11" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAgAAA=</HashCode>
+      <FileName>qfontvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QLineFVariantProperty">
+    <Position X="27" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAgEAAAAAAAAAAAAAAAAAAAAAAACAAAgAAQ=</HashCode>
+      <FileName>qlinefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QLineVariantProperty">
+    <Position X="15" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>CAIQAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAgAAQ=</HashCode>
+      <FileName>qlinevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QPointFVariantProperty">
+    <Position X="33.25" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQEAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAgAAU=</HashCode>
+      <FileName>qpointfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QPointVariantProperty">
+    <Position X="18" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAwAAAAAAAAAAAAAAAAAAAAgAAAAAAAAACAAAAgAAQ=</HashCode>
+      <FileName>qpointvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QRectFVariantProperty">
+    <Position X="36.25" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AIAQAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAgAAQ=</HashCode>
+      <FileName>qrectfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QRectVariantProperty">
+    <Position X="21" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAIYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAIQ=</HashCode>
+      <FileName>qrectvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QSizeFVariantProperty">
+    <Position X="39.25" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAEQAAgAAQ=</HashCode>
+      <FileName>qsizefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QSizeVariantProperty">
+    <Position X="24" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABAQAQAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgAAQ=</HashCode>
+      <FileName>qsizevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QVector2DVariantProperty">
+    <Position X="42.25" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAABAAAAABAAAQAAAAAAAAgAAQ=</HashCode>
+      <FileName>qvector2dvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QVector3DVariantProperty">
+    <Position X="45.25" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAABAAAAABAAAQAAAAAAAAgAAQ=</HashCode>
+      <FileName>qvector3dvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="QFontFamilyProperty">
+    <Position X="30" Y="11" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAACABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qfontfamilyproperty.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Typedef Name="SetQLineFProperty" Collapsed="true">
+    <Position X="48.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qlinefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQLineFProperty" Collapsed="true">
+    <Position X="50.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qlinefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQLineProperty" Collapsed="true">
+    <Position X="50.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qlinevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQLineProperty" Collapsed="true">
+    <Position X="52" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qlinevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQPointFProperty" Collapsed="true">
+    <Position X="52" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qpointfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQPointFProperty" Collapsed="true">
+    <Position X="53.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qpointfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQPointProperty" Collapsed="true">
+    <Position X="53.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qpointvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQPointProperty" Collapsed="true">
+    <Position X="55.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qpointvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQRectFProperty" Collapsed="true">
+    <Position X="55.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qrectfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQRectFProperty" Collapsed="true">
+    <Position X="48.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qrectfvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQRectProperty" Collapsed="true">
+    <Position X="48.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qrectvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQRectProperty" Collapsed="true">
+    <Position X="50.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qrectvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQSizeFProperty" Collapsed="true">
+    <Position X="50.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qsizefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetQSizeFProperty" Collapsed="true">
+    <Position X="52" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qsizefvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetQSizeProperty" Collapsed="true">
+    <Position X="52" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qsizevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetSizeProperty" Collapsed="true">
+    <Position X="53.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qsizevariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SetPropertyValue" Collapsed="true">
+    <Position X="55.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qvector2dvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="GetPropertyValue" Collapsed="true">
+    <Position X="48.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>qvector2dvariantproperty.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

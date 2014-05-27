@@ -19,15 +19,24 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>
 **
 ****************************************************************************/
+
+
+
 #ifndef QVARIANTPROPERTY_H
 #define QVARIANTPROPERTY_H
+
+struct StaticQtMetaObject : public QObject
+{
+    static inline const QMetaObject& get() {return staticQtMetaObject;}
+};
 
 #include <QObject>
 
 class QVariantProperty : public QObject
 {
 	Q_OBJECT
-	
+
+	//register common enums;
 
 public:
 	enum Column
@@ -51,7 +60,7 @@ public:
 	QAbstractItemModel* getModel() const;
 	QModelIndex getModelIndex() const;
 
-	virtual bool canRefresh();
+	virtual bool canReset();
 	
 
 	void setModel(QAbstractItemModel* const& model);
@@ -64,17 +73,19 @@ public:
 	void setPropertyName(const QString& propName);
 	QString getPropertyName() const;
 
-	virtual bool hasChildren()  ;
+	virtual bool hasChildren() ;
 
 	int getRowCount() const;
     int getColumnCount() const;
 
 	virtual Qt::ItemFlags flags() const;
 
+	virtual void setDefaultFlags(Qt::ItemFlags flags);
+
 	virtual QString getQualifiedVariantPropertyName() const;
 
 
-private:
+protected:
 	virtual void setupChildProperties();
 	
 
@@ -105,8 +116,12 @@ protected:
 	int columnCount;
 	int rowInParent;
     bool propertiesSet;
-	bool resettable;
-	boolean editable;
+	bool canreset;
+	bool editable;
+	bool childPropertyCalledUpdate;
+	QVariant resetValue;
+	Qt::ItemFlags defaultFlags;
+
 };
 
 Q_DECLARE_METATYPE(QVariantProperty*);

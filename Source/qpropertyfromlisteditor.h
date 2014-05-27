@@ -10,22 +10,19 @@ class QPropertyFromListEditor : public QAbstractPropertyEditor
 
 public:
 	QPropertyFromListEditor(QWidget *parent);
-	~QPropertyFromListEditor();
+	virtual ~QPropertyFromListEditor();
 
-	void setupModel(QMetaEnum enumeration);
-	void setupModel(QMetaType::Type type);
-
-    void setValue(const QVariant& value) = 0; 
-    QVariant getValue() const= 0; 
+    void setValue(const QVariant& value) ; 
+    QVariant getValue() const; 
 
 
 private slots:
     void currentIndexChanged(int index);
 	
 
-private:
+protected:
 	QComboBox* comboBox;
-	QStringListModel* model;
+	//QStringListModel* model;
 };
 
 #endif // QPROPERTYFROMLISTEDITOR_H

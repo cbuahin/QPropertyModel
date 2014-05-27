@@ -29,13 +29,14 @@ class QBoolVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QBoolVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
 	~QBoolVariantProperty();
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
-	virtual bool setData(const QVariant & value,Qt::ItemDataRole role, Column column);
+	bool setData(const QVariant & value,Qt::ItemDataRole role, Column column);
 
 	Qt::ItemFlags flags() const;
+    void setDefaultFlags(Qt::ItemFlags flags);
 
 private:
 

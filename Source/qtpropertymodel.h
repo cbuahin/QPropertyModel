@@ -22,6 +22,8 @@
 #ifndef QTPROPERTYMODEL_H
 #define QTPROPERTYMODEL_H
 
+
+
 #include <QAbstractItemModel>
 #include <qvariantproperty.h>
 
@@ -58,6 +60,8 @@ public:
 private:
 	QVariantProperty* getProperty(const QModelIndex &parent = QModelIndex()) const;
 	QVariantProperty* rootProperty;
+	QVector<int> roles;   	
+
 };
 
 #endif // QTPROPERTYMODEL_H
