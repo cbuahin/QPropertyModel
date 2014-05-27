@@ -44,7 +44,7 @@ public:
 		PropertyNameColumn = 0,
 		PropertyValueColumn = 1,
 	};
-
+	
 	QVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
 	virtual ~QVariantProperty();
 

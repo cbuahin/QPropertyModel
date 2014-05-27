@@ -89,13 +89,13 @@ QWidget *QVariantPropertyDelegate::createEditor(QWidget *parent, const QStyleOpt
 		editor = editorBase->createWidget(parent);
 		propName = "Value";
 
-		QEnumVariantProperty* enumProperty = static_cast<QEnumVariantProperty*>(property);
-
-		if(enumProperty != nullptr)
+		//set properties for custom editors
+		if(property->getQualifiedVariantPropertyName() == QEnumVariantProperty::QualifiedVariantPropertyName)
 		{
 			QEnumPropertyEditor* editorSpecial = static_cast<QEnumPropertyEditor*>(editor);
-			
-			if(editorSpecial != nullptr)
+			QEnumVariantProperty* enumProperty =(QEnumVariantProperty*)property;
+
+			if(editorSpecial != nullptr && enumProperty != nullptr)
 			{
 				editorSpecial->setupModel(enumProperty->getMetaEnum());
 			}

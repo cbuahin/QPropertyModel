@@ -153,6 +153,8 @@ bool QBoolVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role,
 				}
 			}
 		}
+
+		return false;
 	}
 	else
 	{
