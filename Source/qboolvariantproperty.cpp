@@ -40,7 +40,6 @@ QVariant QBoolVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	{
 		switch (role)
 		{
-		
 		case Qt::DisplayRole:
 		case Qt::EditRole:
 			return QVariant();
@@ -66,7 +65,6 @@ QVariant QBoolVariantProperty::getData(Qt::ItemDataRole role , Column column)
 			return QVariant();
 			break;
 		case Qt::CheckStateRole:
-			//return QVariant();
 			if(value.toInt() == 0)
 				return Qt::CheckState::Unchecked;
 			else

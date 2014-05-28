@@ -19,18 +19,18 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>
 **
 ****************************************************************************/
-#ifndef QPIXMAPPROPERTYEDITOR_H
-#define QPIXMAPPROPERTYEDITOR_H
+#ifndef QICONPROPERTYEDITOR_H
+#define QICONPROPERTYEDITOR_H
 
 #include <qabstractvariantpropertypopupeditor.h>
 
-class QPixmapPropertyEditor : public QAbstractVariantPropertyPopUpEditor
+class QIconPropertyEditor : public QAbstractVariantPropertyPopUpEditor
 {
 	Q_OBJECT
 
 public:
-	QPixmapPropertyEditor(QWidget *parent);
-	~QPixmapPropertyEditor();
+	QIconPropertyEditor(QWidget *parent);
+	~QIconPropertyEditor();
 
 	void setValue(const QVariant& value); 
 	QVariant getValue() const;
@@ -39,8 +39,8 @@ private slots:
 	void buttonClicked();
 
 private:
-	QPixmap pixmap;
+	QIcon icon;
 	
 };
 
-#endif // QPIXMAPPROPERTYEDITOR_H
+#endif // QICONPROPERTYEDITOR_H

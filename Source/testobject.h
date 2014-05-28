@@ -26,8 +26,10 @@
 #include <QObject>
 #include <qabstractitemview.h>
 
+
 class TestObject : public QObject
 {
+
 	Q_OBJECT
 	Q_ENUMS(TestEnum);
 	Q_FLAGS(TestEnums)
@@ -61,8 +63,10 @@ class TestObject : public QObject
 	Q_PROPERTY(QRegExp  QtRegExp READ getQRegExp WRITE setQRegExp)
 	Q_PROPERTY(QPointF  QtPointF READ getQPointf WRITE setQPointf)
 	Q_PROPERTY(QPalette  QtPalette READ getQPalette WRITE setQPalette)
+	Q_PROPERTY(QPen  QtPen READ getQPen WRITE setQPen)
 	Q_PROPERTY(QFont  QtFont READ getQFont WRITE setQFont)
 	Q_PROPERTY(QBrush  QtBrush READ getQBrush WRITE setQBrush)
+	Q_PROPERTY(QBrush  QtBrushTest READ getQBrushTest WRITE setQBrushTest)
 	Q_PROPERTY(QSizePolicy  QtSizePolicy READ getQSizePolicy WRITE setQSizePolicy)
 	Q_PROPERTY(QMatrix  QtMatrix READ getQMatrix WRITE setQMatrix)
 	Q_PROPERTY(QTransform  QtTransform READ getQTransform WRITE setQTransform)
@@ -76,6 +80,7 @@ class TestObject : public QObject
 	Q_PROPERTY(QPixmap  QtPixmap READ getQPixmap WRITE setQPixmap)
 	Q_PROPERTY(QImage  QtImage READ getQImage WRITE setQImage)
 	Q_PROPERTY(QBitmap  QtBitmap READ getQBitmap WRITE setQBitmap)
+
 public:
 	enum TestEnum
 	{
@@ -86,7 +91,7 @@ public:
 		TestE = 31,
 		TestF = 33,
 	};
-
+	
 	Q_DECLARE_FLAGS(TestEnums, TestEnum)
 
 	TestObject(QObject *parent);
@@ -187,6 +192,12 @@ public:
 	void setQBrush(const  QBrush & brush);
 	QBrush getQBrush() const;
 
+	void setQBrushTest(const  QBrush & brushtest);
+	QBrush getQBrushTest() const;
+
+	void setQPen (const  QPen & pen);
+	QPen getQPen () const;
+
 	void setQSizePolicy(const  QSizePolicy & sizepolicy);
 	QSizePolicy getQSizePolicy() const;
 
@@ -259,7 +270,7 @@ private:
 	QPointF pointf;
 	QPalette palette;
 	QFont font;
-	QBrush brush;
+	QBrush brush, brushtest;
 	QImage image;
 	QSizePolicy sizepolicy;
 	QMatrix matrix;
@@ -276,6 +287,7 @@ private:
 	QPixmap pixmap;
 	QBitmap bitmap;
 	TestEnums flags;
+	QPen pen;
 };
 
 Q_DECLARE_METATYPE(QTreeView*)

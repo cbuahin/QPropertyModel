@@ -26,7 +26,6 @@ QVariant QEnumVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	case QVariantProperty::PropertyNameColumn:
 		switch (role)
 		{
-			break;
 		case Qt::DecorationRole:
 			return QVariant();
 			break;
@@ -84,6 +83,7 @@ QVariant QEnumVariantProperty::getData(Qt::ItemDataRole role , Column column)
 		case Qt::StatusTipRole:
 		case Qt::WhatsThisRole:
 			{
+			
 				QString name = enumProperty.valueToKey(value.toInt());
 				return name;
 			}

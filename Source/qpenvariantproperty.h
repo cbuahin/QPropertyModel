@@ -19,28 +19,29 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>
 **
 ****************************************************************************/
-#ifndef QPIXMAPPROPERTYEDITOR_H
-#define QPIXMAPPROPERTYEDITOR_H
 
-#include <qabstractvariantpropertypopupeditor.h>
+#ifndef QPENVARIANTPROPERTY_H
+#define QPENVARIANTPROPERTY_H
 
-class QPixmapPropertyEditor : public QAbstractVariantPropertyPopUpEditor
+#include <qvariantproperty.h>
+
+class QPenVariantProperty : public QVariantProperty
 {
 	Q_OBJECT
 
 public:
-	QPixmapPropertyEditor(QWidget *parent);
-	~QPixmapPropertyEditor();
+	QPenVariantProperty(const QPen& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	~QPenVariantProperty();
 
-	void setValue(const QVariant& value); 
-	QVariant getValue() const;
+	QVariant getData(Qt::ItemDataRole role , Column column);
+	Qt::ItemFlags flags() const;
 
 private slots:
-	void buttonClicked();
-
-private:
-	QPixmap pixmap;
+	void childPropertyValueChanged(const QString& propertyName, const QVariant& value);
+	
+protected:
+	void setupChildProperties();
 	
 };
 
-#endif // QPIXMAPPROPERTYEDITOR_H
+#endif // QPENVARIANTPROPERTY_H

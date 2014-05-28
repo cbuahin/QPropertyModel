@@ -106,7 +106,9 @@ QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget*
 
 QVariantPropertyBaseEditor::~QVariantPropertyBaseEditor()
 {
+	
 	delete editorWidget;
+
 }
 
 void QVariantPropertyBaseEditor::setValue(const QVariant& value)

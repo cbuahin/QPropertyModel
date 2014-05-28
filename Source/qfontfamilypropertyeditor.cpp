@@ -18,7 +18,7 @@ void QFontFamilyPropertyEditor::setupModel()
 {
 	QFontDatabase dbase;
 	QStringList familyList = dbase.families(QFontDatabase::WritingSystem::Any);
-
+	comboBox->clear();
 	comboBox->blockSignals(true);
 
 	comboBox->addItems(familyList);

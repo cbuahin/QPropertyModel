@@ -14,13 +14,11 @@ QColorVariantProperty::~QColorVariantProperty()
 
 QVariant QColorVariantProperty::getData(Qt::ItemDataRole role , Column column)
 {
-		switch (column)
+	switch (column)
 	{
 	case QVariantProperty::PropertyNameColumn:
 		switch (role)
 		{
-	
-			break;
 		case Qt::DecorationRole:
 			return QVariant();
 			break;

@@ -21,7 +21,6 @@ QVariant QFlagsVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	case QVariantProperty::PropertyNameColumn:
 		switch (role)
 		{
-			break;
 		case Qt::DecorationRole:
 			return QVariant();
 			break;
@@ -216,7 +215,7 @@ void QFlagsVariantProperty::childPropertyValueChanged(const QString& propertyNam
 			}
 		}
 
-
+		childPropertyCalledUpdate = true;
 		this->value = tvalue;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);

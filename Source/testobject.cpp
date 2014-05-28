@@ -343,6 +343,27 @@ QBrush TestObject::getQBrush() const
 	return brush;
 }
 
+void TestObject::setQBrushTest(const  QBrush & brushtest)
+{
+	this->brushtest = brushtest;
+}
+
+QBrush TestObject::getQBrushTest() const
+{
+	return this->brushtest;
+}
+
+
+void TestObject::setQPen(const  QPen & pen)
+{
+	this->pen = pen;
+}
+
+QPen TestObject::getQPen() const
+{
+	return this->pen;
+}
+
 
 void TestObject::setQSizePolicy(const  QSizePolicy & sizepolicy)
 {

@@ -25,7 +25,6 @@ QVariant QVector2DVariantProperty::getData(Qt::ItemDataRole role , Column column
 	case QVariantProperty::PropertyNameColumn:
 		switch (role)
 		{
-			break;
 		case Qt::DecorationRole:
 			return QVariant();
 			break;

@@ -19,28 +19,47 @@
 **  along with this program.  If not, see <http://www.gnu.org/licenses/>
 **
 ****************************************************************************/
-#ifndef QPIXMAPPROPERTYEDITOR_H
-#define QPIXMAPPROPERTYEDITOR_H
+#include "stdafx.h"
+#include "qiconpropertyeditor.h"
 
-#include <qabstractvariantpropertypopupeditor.h>
-
-class QPixmapPropertyEditor : public QAbstractVariantPropertyPopUpEditor
+QIconPropertyEditor::QIconPropertyEditor(QWidget *parent)
+	: QAbstractVariantPropertyPopUpEditor(parent)
 {
-	Q_OBJECT
+		connect(openEditorButton, SIGNAL(clicked()), this , SLOT(buttonClicked()));
+}
 
-public:
-	QPixmapPropertyEditor(QWidget *parent);
-	~QPixmapPropertyEditor();
+QIconPropertyEditor::~QIconPropertyEditor()
+{
 
-	void setValue(const QVariant& value); 
-	QVariant getValue() const;
+}
 
-private slots:
-	void buttonClicked();
+void QIconPropertyEditor::setValue(const QVariant& value)
+{
+	if(value.canConvert<QPixmap>())
+	{
+		icon = qvariant_cast<QIcon>(value);
+	 
+	}
+}
+QVariant QIconPropertyEditor::getValue() const
+{
+	return icon;
+}
 
-private:
-	QPixmap pixmap;
-	
-};
-
-#endif // QPIXMAPPROPERTYEDITOR_H
+void QIconPropertyEditor::buttonClicked()
+{
+	QString filename = QFileDialog::getOpenFileName( 
+        this, 
+        tr("Open Pixmap"), 
+        QDir::currentPath(), 
+        tr("All Pixmaps (*.bmp *.gif *.ico *.jpeg *.jpg *.mng *.pbm *.pgm *.svg *.svgz *.ico *.tga *.tif *.tiff *.wbmp *.xbm *.xpm)") );
+    if( !filename.isNull())
+	{
+		QIcon temp = QIcon(filename);
+		if(!temp.isNull())
+		{
+			icon = temp;
+			emit valueChanged();
+		}
+	}
+}

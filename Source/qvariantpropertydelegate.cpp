@@ -33,6 +33,7 @@
 #include <qbitmappropertyeditor.h>
 #include <qenumpropertyeditor.h>
 #include <qenumvariantproperty.h>
+#include <qiconpropertyeditor.h>
 
 QVariantPropertyDelegate::QVariantPropertyDelegate(QObject *parent)
 	: QStyledItemDelegate(parent)
@@ -60,6 +61,9 @@ QVariantPropertyDelegate::QVariantPropertyDelegate(QObject *parent)
 
 	 QItemEditorCreatorBase* keySeq = new QItemEditorCreator<QKeySequenceEdit>("keySequence");
 	 factory->registerEditor(QMetaType::QKeySequence, keySeq);
+
+	 QItemEditorCreatorBase* ico = new QStandardItemEditorCreator<QIconPropertyEditor>();
+	 factory->registerEditor(QMetaType::QIcon, ico);
 
 	 QItemEditorCreatorBase* fontfam = new QStandardItemEditorCreator<QFontFamilyPropertyEditor>();
 	 registerCustomEditorCreator(QFontFamilyProperty::QualifiedVariantPropertyName,fontfam);
@@ -97,9 +101,13 @@ QWidget *QVariantPropertyDelegate::createEditor(QWidget *parent, const QStyleOpt
 
 			if(editorSpecial != nullptr && enumProperty != nullptr)
 			{
+				QMetaEnum enumerator = enumProperty->getMetaEnum();
 				editorSpecial->setupModel(enumProperty->getMetaEnum());
+				editorSpecial->setValue(property->getData());
 			}
 		}
+
+		
 	}
 
 	if(editor == nullptr)
@@ -137,6 +145,8 @@ void QVariantPropertyDelegate::setModelData ( QWidget * editor, QAbstractItemMod
 
 void QVariantPropertyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+	painter->setBrush(QBrush());
+	painter->setPen(QPen());
 	if(index.column() == 0)
 	{
 		QStyledItemDelegate::paint(painter, option, index);
@@ -198,7 +208,6 @@ void QVariantPropertyDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 	case QMetaType::QVariantHash:
 	case QMetaType::QFont:
 	case QMetaType::QPixmap:
-	case QMetaType::QBrush:
 	case QMetaType::QPalette:
 	case QMetaType::QIcon:
 	case QMetaType::QImage:
@@ -207,7 +216,6 @@ void QVariantPropertyDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 	case QMetaType::QBitmap:
 	case QMetaType::QCursor:
 	case QMetaType::QKeySequence:
-	case QMetaType::QPen:
 	case QMetaType::QTextLength:
 	case QMetaType::QTextFormat:
 	case QMetaType::QMatrix:
@@ -223,24 +231,51 @@ void QVariantPropertyDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 	case QMetaType::User:
 		QStyledItemDelegate::paint(painter, option, index);
 		break;
+	case QMetaType::QPen:
+		{
+			QPen pen = qvariant_cast<QPen>(value);
+
+			if(pen.widthF() > option.rect.height()-2)
+			{
+			    pen.setWidth(option.rect.height()-2);
+			}
+			
+			painter->setPen(pen);
+
+    		QRect test(option.rect.x() , option.rect.y()+1 , option.rect.width()-2, option.rect.height()-2);
+			int yhalf  = test.y() + (test.height())*1.0/2.0;
+			
+			QPoint p1(test.x()+20,yhalf);
+			QPoint p2(test.x()+ test.width()-20,yhalf);
+
+			painter->drawLine(p1,p2);
+			
+			
+		}
+		break;
+	case QMetaType::QBrush:
+		{
+			QBrush brush = qvariant_cast<QBrush>(value);
+			QRect test(option.rect.x()+1 , option.rect.y()+1 , option.rect.width()-2, option.rect.height()-2);
+			painter->setBrush(brush);
+			painter->drawRect(test);
+		}
+		break;
 	case QMetaType::QColor:
 		{
 		  QStyle* appstyle = QApplication::style();
-		
 		  QColor color = qvariant_cast<QColor>(value);
-
 		  QStyleOption toption(option);
 		  QBrush brush(color, Qt::BrushStyle::SolidPattern);
 		  painter->setBrush(brush);
 
-		  QRect test(toption.rect.x() , toption.rect.y() , 40 , toption.rect.height()-1);
+		  QRect test(toption.rect.x()+1 , toption.rect.y()+1 , 40 , toption.rect.height()-2);
 		  painter->drawRect(test);
 
-		  test.setRect(toption.rect.x() + 50 , toption.rect.y(),toption.rect.width() - 50, toption.rect.height()-1);
+		  test.setRect(toption.rect.x() + 50 , toption.rect.y()+1,toption.rect.width() - 50, toption.rect.height()-2);
 		  appstyle->drawItemText(painter,test,Qt::AlignmentFlag::AlignLeft,toption.palette, true,value.toString(),QPalette::ColorRole::Text);
 		 
 		}
-		//QStyledItemDelegate::paint(painter, option, index);
 		break;
 	default:
 		QStyledItemDelegate::paint(painter, option, index);
@@ -278,5 +313,5 @@ QItemEditorCreatorBase* QVariantPropertyDelegate::getRegisteredCustomEditorCreat
 
 void QVariantPropertyDelegate::updateEditorGeometry ( QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index ) const
 {
-	  editor->setGeometry(option.rect);
+	editor->setGeometry(option.rect);
 }

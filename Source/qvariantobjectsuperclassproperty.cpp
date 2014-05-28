@@ -39,6 +39,9 @@
 #include <qbitmapvariantproperty.h>
 #include <qenumvariantproperty.h>
 #include <qflagsvariantproperty.h>
+#include <qiconvariantproperty.h>
+#include <qbrushvariantproperty.h>
+#include <qpenvariantproperty.h>
 
 QVariantObjectSuperClassProperty::QVariantObjectSuperClassProperty(QObject* const &object, const  QMetaObject* superClassMetaObject, int rowInParent,  QVariantProperty *parent)
 	: QVariantQObjectProperty(object,QMetaProperty(),parent)
@@ -157,22 +160,6 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 		{
 			QMetaProperty prop = superClassMetaObject->property(i);
 			QString name (prop.name());
-		
-			//if(name == "QtTestEnumFlags")
-			//{
-			//	qDebug() << "test";
-			//	
-			//}
-
-			//if(prop.isEnumType())
-			//{
-			//	qDebug() << "test";
-			//}
-
-			//if( prop.isFlagType())
-			//{
-			//	qDebug() << "test";
-			//}
 
 			if( prop.isReadable())
 			{	
@@ -181,6 +168,7 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				QVariantProperty* propn = nullptr;
 
 				int type = prop.userType();
+
 				switch (type)
 				{
 				case QMetaType::Bool:
@@ -192,8 +180,6 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QColor:
 					propn = new QColorVariantProperty(qvariant_cast<QColor>(tvalue), prop , this);
 					break;	
-				case QMetaType::QBrush:
-				case QMetaType::Void:
 				case QMetaType::Int:
 					{
 						if(prop.isEnumType())
@@ -218,30 +204,8 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 						}
 					}
 					break;
-				case QMetaType::UInt:
-				case QMetaType::LongLong:
-				case QMetaType::ULongLong:
-				case QMetaType::Double:
-				case QMetaType::Long:
-				case QMetaType::Short:
-				case QMetaType::Char:
-				case QMetaType::ULong:
-				case QMetaType::UShort:
-				case QMetaType::UChar:
-				case QMetaType::Float:
-				case QMetaType::SChar:
-				case QMetaType::VoidStar:
-				case QMetaType::QChar:
-				case QMetaType::QString:
-				case QMetaType::QDate:
-				case QMetaType::QTime:
-				case QMetaType::QDateTime:
-				case QMetaType::QStringList:
-				case QMetaType::QByteArray:
-				case QMetaType::QBitArray:
-				case QMetaType::QUrl:
-				case QMetaType::QLocale:
-					propn = new QVariantProperty(tvalue, prop , this);
+				case QMetaType::QBrush:
+					propn = new QBrushVariantProperty(qvariant_cast<QBrush>(tvalue), prop , this);
 					break;
 				case QMetaType::QRect:
 					propn = new QRectVariantProperty(qvariant_cast<QRect>(tvalue), prop , this);
@@ -280,9 +244,41 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 					propn = new QBitmapVariantProperty(qvariant_cast<QBitmap>(tvalue), prop , this);
 					break;
 				case QMetaType::QImage:
+					propn = new QPixmapVariantProperty(qvariant_cast<QPixmap>(tvalue), prop , this);
+					break;	
 				case QMetaType::QPixmap:
 					propn = new QPixmapVariantProperty(qvariant_cast<QPixmap>(tvalue), prop , this);
 					break;	
+				case QMetaType::QIcon:
+					propn = new QIconVariantProperty(qvariant_cast<QIcon>(tvalue), prop , this);
+					break;	
+				case QMetaType::QPen:
+					propn = new QPenVariantProperty(qvariant_cast<QPen>(tvalue), prop , this);
+					break;
+				case QMetaType::Void:
+				case QMetaType::UInt:
+				case QMetaType::LongLong:
+				case QMetaType::ULongLong:
+				case QMetaType::Double:
+				case QMetaType::Long:
+				case QMetaType::Short:
+				case QMetaType::Char:
+				case QMetaType::ULong:
+				case QMetaType::UShort:
+				case QMetaType::UChar:
+				case QMetaType::Float:
+				case QMetaType::SChar:
+				case QMetaType::VoidStar:
+				case QMetaType::QChar:
+				case QMetaType::QString:
+				case QMetaType::QDate:
+				case QMetaType::QTime:
+				case QMetaType::QDateTime:
+				case QMetaType::QStringList:
+				case QMetaType::QByteArray:
+				case QMetaType::QBitArray:
+				case QMetaType::QUrl:
+				case QMetaType::QLocale:
 				case QMetaType::QRegExp:
 				case QMetaType::QEasingCurve:
 				case QMetaType::QUuid:
@@ -297,12 +293,10 @@ void QVariantObjectSuperClassProperty::setupChildProperties()
 				case QMetaType::QVariantList:
 				case QMetaType::QVariantHash:
 				case QMetaType::QPalette:
-				case QMetaType::QIcon:
 				case QMetaType::QPolygon:
 				case QMetaType::QRegion:
 				case QMetaType::QCursor:
 				case QMetaType::QKeySequence:
-				case QMetaType::QPen:
 				case QMetaType::QTextLength:
 				case QMetaType::QTextFormat:
 				case QMetaType::QMatrix:

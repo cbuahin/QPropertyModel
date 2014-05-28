@@ -274,7 +274,7 @@ void QVariantProperty::setModelIndex(const QModelIndex& modelIndex)
 
 QVariant QVariantProperty::getData() const
 {
-	return value;
+	return this->value;
 }
 
 QObject* QVariantProperty::getObject() const

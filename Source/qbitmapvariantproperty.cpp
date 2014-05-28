@@ -20,8 +20,6 @@ QVariant QBitmapVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	case QVariantProperty::PropertyNameColumn:
 		switch (role)
 		{
-	
-			break;
 		case Qt::DecorationRole:
 			return QVariant();
 			break;
@@ -73,7 +71,6 @@ QVariant QBitmapVariantProperty::getData(Qt::ItemDataRole role , Column column)
 			return QVariant();
 			break;
 		case Qt::DecorationRole:
-
 			return QIcon(qvariant_cast<QBitmap>(value));
 			break;
 		case Qt::EditRole:
@@ -116,7 +113,6 @@ QVariant QBitmapVariantProperty::getData(Qt::ItemDataRole role , Column column)
 			return QVariant();
 			break;
 		}
-
 		break;
 	}
 

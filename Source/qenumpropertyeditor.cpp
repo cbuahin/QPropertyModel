@@ -36,7 +36,7 @@ QVariant QEnumPropertyEditor::getValue() const
 void QEnumPropertyEditor::setupModel(const QMetaEnum& metaProp)
 {
 	this->metaEnum = metaProp;
-
+	comboBox->clear();
 	comboBox->blockSignals(true);
 
 	int max = metaProp.keyCount();
