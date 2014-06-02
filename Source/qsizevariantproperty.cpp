@@ -2,8 +2,8 @@
 #include "qsizevariantproperty.h"
 
 
-QSizeVariantProperty::QSizeVariantProperty(const QSize& value, const QMetaProperty& metaProperty, QVariantProperty *parent )
-	: QVariantProperty(value,metaProperty,parent)
+QSizeVariantProperty::QSizeVariantProperty(const QSize& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent )
+	: QVariantProperty(value,metaProperty,model,row ,parent)
 {
 	setQSizePropertyFunctions["Height"] = & QSize::setHeight;
 	setQSizePropertyFunctions["Width"] = & QSize::setWidth;
@@ -16,6 +16,11 @@ QSizeVariantProperty::~QSizeVariantProperty()
 {
 	setQSizePropertyFunctions.clear();
 	getQSizePropertyFunctions.clear();
+}
+
+bool QSizeVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QSizeVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -147,54 +152,59 @@ Qt::ItemFlags QSizeVariantProperty::flags() const
 void QSizeVariantProperty::setupChildProperties()
 {
 	QSize& currentSize = qvariant_cast<QSize>(value);
-
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		qDeleteAll(children);
-		children.clear();
+
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
 		QStringList properties = getQSizePropertyFunctions.keys(); 
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
+
 		for(int i =0 ; i < properties.count() ; i++)
 		{
 			QString propName = properties[i];
 			GetSizeProperty prop =getQSizePropertyFunctions[propName];
 			int value = (currentSize.*prop)();
-			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),this);
+			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),model, i, this);
 			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
+
 			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
 			children.append(tempProp);
 
 
 			connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 				SLOT(childPropertyValueChanged(QString , QVariant)));
 		}
-
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-		for(int i = 0 ; i < children.count() ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* child =  children[i];
-			QString propertyName = child->getPropertyName();
-
-			if(getQSizePropertyFunctions.contains(propertyName))
+			for(int i =0 ; i < children.count() ;i++)
 			{
-				child->blockSignals(true);
-				GetSizeProperty function = getQSizePropertyFunctions[propertyName];
-				int v = (currentSize.*function)();
-				child->setData(v);
-				child->blockSignals(false);
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				GetSizeProperty propf =getQSizePropertyFunctions[propertyName];
+				QVariant tval = (currentSize.*propf)(); ;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
+
 			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
+
 }
 
 void QSizeVariantProperty::childPropertyValueChanged(const QString& propertyName, const QVariant& value)
@@ -203,10 +213,11 @@ void QSizeVariantProperty::childPropertyValueChanged(const QString& propertyName
 	{
 
 		QSize currentSize = qvariant_cast<QSize>(this->value);
+
 		if(setQSizePropertyFunctions.contains(propertyName))
 		{
 			SetQSizeProperty method = setQSizePropertyFunctions[propertyName];
-		    childPropertyCalledUpdate = true;
+		    
    
 			(currentSize.*method)(value.toInt());
 		}
@@ -214,6 +225,6 @@ void QSizeVariantProperty::childPropertyValueChanged(const QString& propertyName
 		this->value = currentSize;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
+		
 	}
 }

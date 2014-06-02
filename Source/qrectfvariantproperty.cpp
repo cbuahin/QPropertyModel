@@ -1,8 +1,29 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
 #include "stdafx.h"
 #include "qrectfvariantproperty.h"
 
-QRectFVariantProperty::QRectFVariantProperty(const QRectF& value, const QMetaProperty& metaProperty, QVariantProperty *parent )
-	: QVariantProperty(value,metaProperty,parent)
+QRectFVariantProperty::QRectFVariantProperty(const QRectF& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent )
+	: QVariantProperty(value,metaProperty,model, row ,parent)
 {
 	setQRectFPropertyFunctions["X"] = & QRectF::setX;
 	setQRectFPropertyFunctions["Y"] = &  QRectF::setY;
@@ -19,6 +40,11 @@ QRectFVariantProperty::~QRectFVariantProperty()
 {
 	setQRectFPropertyFunctions.clear();
 	getQRectFPropertyFunctions.clear();
+}
+
+bool QRectFVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QRectFVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -140,7 +166,7 @@ Qt::ItemFlags QRectFVariantProperty::flags() const
 		}
 		else
 		{
-		   return flags  ;
+			return flags  ;
 		}
 	}
 
@@ -151,16 +177,20 @@ void QRectFVariantProperty::setupChildProperties()
 {
 	QRectF& currentSize = qvariant_cast<QRectF>(value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		qDeleteAll(children);
-		children.clear();
+
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
 		QStringList properties = getQRectFPropertyFunctions.keys(); 
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
 
 		for(int i =0 ; i < properties.count() ; i++)
@@ -168,11 +198,9 @@ void QRectFVariantProperty::setupChildProperties()
 			QString propName = properties[i];
 			GetQRectFProperty prop =getQRectFPropertyFunctions[propName];
 			qreal value = (currentSize.*prop)();
-			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),this);
+			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),model, i, this);
 			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
 			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
 			children.append(tempProp);
 
 
@@ -180,23 +208,25 @@ void QRectFVariantProperty::setupChildProperties()
 				SLOT(childPropertyValueChanged(QString , QVariant)));
 		}
 
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-		for(int i = 0 ; i < children.count() ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* child =  children[i];
-			QString propertyName = child->getPropertyName();
-
-			if(getQRectFPropertyFunctions.contains(propertyName))
+			for(int i =0 ; i < children.count() ;i++)
 			{
-				child->blockSignals(true);
-				GetQRectFProperty function = getQRectFPropertyFunctions[propertyName];
-				qreal v = (currentSize.*function)();
-				child->setData(v);
-				child->blockSignals(false);
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				GetQRectFProperty propf =getQRectFPropertyFunctions[propertyName];
+				QVariant tval = (currentSize.*propf)(); ;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
+
 			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
 }
@@ -210,15 +240,13 @@ void QRectFVariantProperty::childPropertyValueChanged(const QString& propertyNam
 		if(setQRectFPropertyFunctions.contains(propertyName))
 		{
 			SetQRectFProperty method = setQRectFPropertyFunctions[propertyName];
-		    childPropertyCalledUpdate = true;
-   
+
+
 			(currentSize.*method)(value.toReal());
 		}
 
 		this->value = currentSize;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
-		
 	}
 }

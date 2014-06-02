@@ -3,8 +3,8 @@
 
 QString QEnumVariantProperty::QualifiedVariantPropertyName = "QMetaEnum";
 
-QEnumVariantProperty::QEnumVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QVariantProperty *parent)
-		: QVariantProperty(value,metaProperty,parent)
+QEnumVariantProperty::QEnumVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty , const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+		: QVariantProperty(value,metaProperty,model, row, parent)
 {
 	this->enumProperty = metaEnumProperty;
 }

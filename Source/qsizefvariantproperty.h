@@ -12,8 +12,10 @@ class QSizeFVariantProperty :public QVariantProperty
 	Q_OBJECT
 
 public:
-	QSizeFVariantProperty(const QSizeF& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QSizeFVariantProperty(const QSizeF& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QSizeFVariantProperty();
+
+	bool hasChildren() ;
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
 	//bool setData(const QVariant & value,Qt::ItemDataRole role, Column column);

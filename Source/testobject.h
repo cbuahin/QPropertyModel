@@ -54,6 +54,7 @@ class TestObject : public QObject
 	Q_PROPERTY(QRect  QtRect READ getQRect WRITE setQRect)
 	Q_PROPERTY(QRectF  QtRectF READ getQRectF WRITE setQRectF)
     Q_PROPERTY(QStringList  QtStringList READ getQStringList WRITE setQStringList)
+    Q_PROPERTY(QVariantList QtVariantList READ getQVariantList WRITE setQVariantList)
 	Q_PROPERTY(QVariantMap  QtVariantMap READ getQVariantMap WRITE setQVariantMap)
 	Q_PROPERTY(QVariantHash  QtVariantHash READ getQVariantHash WRITE setQVariantHash)
 	Q_PROPERTY(QIcon  QtQIcon READ getQIcon WRITE setQIcon)
@@ -80,6 +81,7 @@ class TestObject : public QObject
 	Q_PROPERTY(QPixmap  QtPixmap READ getQPixmap WRITE setQPixmap)
 	Q_PROPERTY(QImage  QtImage READ getQImage WRITE setQImage)
 	Q_PROPERTY(QBitmap  QtBitmap READ getQBitmap WRITE setQBitmap)
+	Q_PROPERTY(QBrush  QtBrushTest READ getQBrushTest WRITE setQBrushTest)
 
 public:
 	enum TestEnum
@@ -158,6 +160,9 @@ public:
 
 	void setQStringList(const  QStringList & stringList);
 	QStringList getQStringList() const;
+
+    void setQVariantList(const  QVariantList & variantList);
+	QVariantList getQVariantList() const;
 
 	void setQVariantMap(const  QVariantMap & variantMap);
     QVariantMap getQVariantMap() const;
@@ -288,6 +293,7 @@ private:
 	QBitmap bitmap;
 	TestEnums flags;
 	QPen pen;
+	QVariantList variantList;
 };
 
 Q_DECLARE_METATYPE(QTreeView*)

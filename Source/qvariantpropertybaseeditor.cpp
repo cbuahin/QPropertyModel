@@ -28,10 +28,7 @@
 QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget* const editorWidget,const QString& name, const QStyleOptionViewItem &option, const QModelIndex &index)
 	: QWidget(parent)
 {
-	if(parent != nullptr)
-	{
-		parent->setObjectName("t");
-	}
+
 	this->setSizePolicy(QSizePolicy::Expanding , QSizePolicy::Expanding);
 	
 
@@ -97,7 +94,7 @@ QVariantPropertyBaseEditor::QVariantPropertyBaseEditor(QWidget *parent, QWidget*
 	QHBoxLayout* layout = new QHBoxLayout(this);
 	layout->setSpacing(0);
 	layout->setAlignment(Qt::AlignBottom);
-	layout->setContentsMargins(0,0,0,0);
+	layout->setContentsMargins(1,1,1,1);
 	layout->addWidget(editorWidget);
 	layout->addWidget(resetButton);
 
@@ -131,12 +128,12 @@ void QVariantPropertyBaseEditor:: hideEvent(QHideEvent * event)
 {
 	QVariant value = editorMetaProperty.read(editorWidget);
 	property->setData(value);
-	emit valueChangedSignal();
+	
 }
 
 void QVariantPropertyBaseEditor::valueChangedSlot()
 { 
 	QVariant value = editorMetaProperty.read(editorWidget);
 	property->setData(value);
-	emit valueChangedSignal();
+	
 }

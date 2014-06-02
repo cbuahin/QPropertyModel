@@ -34,6 +34,10 @@
 #include <qenumpropertyeditor.h>
 #include <qenumvariantproperty.h>
 #include <qiconpropertyeditor.h>
+#include <qstringlistpropertyeditor.h>
+#include <qvariantmappropertyeditor.h>
+#include <qvarianthashpropertyeditor.h>
+#include <qvariantlistpropertyeditor.h>
 
 QVariantPropertyDelegate::QVariantPropertyDelegate(QObject *parent)
 	: QStyledItemDelegate(parent)
@@ -64,6 +68,19 @@ QVariantPropertyDelegate::QVariantPropertyDelegate(QObject *parent)
 
 	 QItemEditorCreatorBase* ico = new QStandardItemEditorCreator<QIconPropertyEditor>();
 	 factory->registerEditor(QMetaType::QIcon, ico);
+
+	 QItemEditorCreatorBase* stringList = new QStandardItemEditorCreator<QStringListPropertyEditor>();
+	 factory->registerEditor(QMetaType::QStringList, stringList);
+
+
+	 QItemEditorCreatorBase* vmap = new QStandardItemEditorCreator<QVariantMapPropertyEditor>();
+	 factory->registerEditor(QMetaType::QVariantMap, vmap);
+
+	 QItemEditorCreatorBase* vhash = new QStandardItemEditorCreator<QVariantHashPropertyEditor>();
+	 factory->registerEditor(QMetaType::QVariantHash, vhash);
+
+	 QItemEditorCreatorBase* vlist = new QStandardItemEditorCreator<QVariantListPropertyEditor>();
+	 factory->registerEditor(QMetaType::QVariantList, vlist);
 
 	 QItemEditorCreatorBase* fontfam = new QStandardItemEditorCreator<QFontFamilyPropertyEditor>();
 	 registerCustomEditorCreator(QFontFamilyProperty::QualifiedVariantPropertyName,fontfam);
@@ -114,6 +131,19 @@ QWidget *QVariantPropertyDelegate::createEditor(QWidget *parent, const QStyleOpt
 	{
 		editor = QStyledItemDelegate::createEditor(parent, option, index);
 		propName = factory->valuePropertyName(property->getData().userType());
+
+		if(property->getData().type() == QMetaType::QStringList)
+		{
+			QStringListPropertyEditor* stlistEditor = static_cast<QStringListPropertyEditor*>(editor);
+			if(stlistEditor != nullptr)
+			stlistEditor->setVariantProperty(property);
+		}
+		else if(property->getData().type() == QMetaType::QVariantList || property->getData().type() == QMetaType::QVariantHash || property->getData().type() == QMetaType::QStringList)
+		{
+			QVariantMapPropertyEditor* listeditor = static_cast<QVariantMapPropertyEditor*>(editor);
+			if(listeditor != nullptr)
+				listeditor->setVariantProperty(property);
+		}
 	}
 
 	QVariantPropertyBaseEditor* beditor = new QVariantPropertyBaseEditor(parent,editor,propName,option, index);

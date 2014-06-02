@@ -1,11 +1,33 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
+
 #include "stdafx.h"
 #include "qbrushvariantproperty.h"
 #include <qcolorvariantproperty.h>
 #include <qenumvariantproperty.h>
 #include <qpixmapvariantproperty.h>
 
-QBrushVariantProperty::QBrushVariantProperty(const QBrush& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value,metaProperty,parent)
+QBrushVariantProperty::QBrushVariantProperty(const QBrush& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	: QVariantProperty(value,metaProperty,model,row,parent)
 {
 
 }
@@ -14,6 +36,11 @@ QBrushVariantProperty::~QBrushVariantProperty()
 {
 
 }
+
+ bool QBrushVariantProperty::hasChildren()
+ {
+	 return true;
+ }
 
 QVariant QBrushVariantProperty::getData(Qt::ItemDataRole role , Column column)
 {
@@ -151,19 +178,23 @@ void QBrushVariantProperty::setupChildProperties()
 {
 	QBrush& currentBrush = qvariant_cast<QBrush>(this->value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		//(0,children.count()-1,this->modelIndex);
-		qDeleteAll(children);
-		children.clear();
 
-		
+		int size = children.count();
+
+		if(size > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
+
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
-		
+
 		for(int i = 0 ; i < 3 ; i++)
 		{
 
@@ -173,13 +204,10 @@ void QBrushVariantProperty::setupChildProperties()
 				{
 					QString propName = "Color";
 					QColor color = currentBrush.color();
-					QVariantProperty* tempProp = new QColorVariantProperty(color,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QColorVariantProperty(color,QMetaProperty(),model, i ,this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
-
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 						SLOT(childPropertyValueChanged(QString , QVariant)));
 				}
@@ -191,15 +219,14 @@ void QBrushVariantProperty::setupChildProperties()
 					int index = globalObject.indexOfEnumerator("BrushStyle");
 					QMetaEnum enumeration = globalObject.enumerator(index);
 					int bstyle = currentBrush.style();
-					QVariantProperty* tempProp = new QEnumVariantProperty(bstyle,enumeration, QMetaProperty(),this);
+					QVariantProperty* tempProp = new QEnumVariantProperty(bstyle,enumeration, QMetaProperty(), model, 1 ,this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 						SLOT(childPropertyValueChanged(QString , QVariant)));
+
 				}
 				break;
 			case 2:
@@ -208,8 +235,8 @@ void QBrushVariantProperty::setupChildProperties()
 					Qt::BrushStyle bstyle = currentBrush.style();
 
 					QPixmap pixvalue = currentBrush.texture();
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
-					
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, 2 , this);
+
 					if(bstyle == Qt::BrushStyle::TexturePattern)
 					{
 						tempProp->setDefaultFlags(flagsv);
@@ -219,55 +246,54 @@ void QBrushVariantProperty::setupChildProperties()
 						Qt::ItemFlags tempflag = Qt::ItemIsSelectable | Qt::ItemIsEditable;
 						tempProp->setDefaultFlags(tempflag);
 					}
-					
-					tempProp->setModel(model);
+
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 						SLOT(childPropertyValueChanged(QString , QVariant)));
 				}
 				break;
-
 			}
-
 		}
-
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
 
-		for(int i =0 ; i < 3 ; i++)
+		for(int i = 0 ; i < 3 ; i++)
 		{
-			QVariantProperty* tempProp = this->children[i];
+			QVariantProperty* tempProp =  children[i];
 
-
-			switch (tempProp->getRowInParent())	
+			switch (i)	
 			{
 			case 0:
 				{
 					QColor color = currentBrush.color();
+					tempProp->blockSignals(true);
 					tempProp->setData(color);
+					tempProp->blockSignals(false);
 				}
 				break;
 			case 1:
 				{
-					int style = currentBrush.style();
-					tempProp->setData(style);
+					int bstyle = currentBrush.style();
+					tempProp->blockSignals(true);
+					tempProp->setData(bstyle);
+					tempProp->blockSignals(false);
 				}
 				break;
 			case 2:
 				{
-
-					QPixmap pixmap = currentBrush.texture();
-					tempProp->setData(pixmap);
+					Qt::BrushStyle bstyle = currentBrush.style();
+					tempProp->blockSignals(true);
+					tempProp->setData((int)bstyle);
+					tempProp->blockSignals(false);
 				}
 				break;
 			}
-
 		}
+		emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 	}
 }
 
@@ -321,10 +347,8 @@ void QBrushVariantProperty::childPropertyValueChanged(const QString& propertyNam
 		}
 		
 
-		childPropertyCalledUpdate = true;
 		this->value = currentBrush;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

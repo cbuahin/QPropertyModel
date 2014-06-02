@@ -25,19 +25,40 @@
 #include <QVariantObjectSuperClassProperty.h>
 #include <TestObject.h>
 
-QVariantQObjectProperty::QVariantQObjectProperty(QObject* const & object, const QMetaProperty& qproperty, QVariantProperty* parent)
-	: QVariantProperty(QVariant(), qproperty, parent)
+QVariantQObjectProperty::QVariantQObjectProperty(QObject* const & object, const QMetaProperty& qproperty,QtPropertyModel* const &  model, int row, QVariantProperty* parent)
+	: QVariantProperty(QVariant::fromValue(object), qproperty, model, row, parent),
+	object(nullptr)
 {
-
 	this->object = object;
-	value = QVariant::fromValue(object);
 	columnCount = 2;
-	rowInParent = qproperty.propertyIndex();
 }
 
 QVariantQObjectProperty::~QVariantQObjectProperty()
 {
 
+}
+
+bool QVariantQObjectProperty::hasChildren()
+{
+	if(object != nullptr)
+	{
+		const QMetaObject* current = object->metaObject();
+
+		QList<const QMetaObject*> childClasses ;
+
+		childClasses.append(current);
+
+		while((current = current->superClass()))
+		{
+			const QMetaObject* temp = current;
+			childClasses.insert(0,temp);
+		}
+		 
+		if(childClasses.count() > 0)
+			return true;
+	}
+
+	return false;
 }
 
 QVariant QVariantQObjectProperty::getData(Qt::ItemDataRole  role , Column column)
@@ -168,7 +189,8 @@ bool QVariantQObjectProperty::setData(const QVariant & value, Qt::ItemDataRole  
 				if(written)
 				{
 					this->value = value;
-					
+					emit valueChangedSignal(propertyName,this->value);
+					setupChildProperties();
 				}
 
 				return written;
@@ -192,39 +214,37 @@ Qt::ItemFlags QVariantQObjectProperty::flags() const
 	return flags;
 }
 
-bool QVariantQObjectProperty::hasChildren()  
-{
-	setupChildProperties();
-	return QVariantProperty::hasChildren();
-}
-
 void QVariantQObjectProperty::setupChildProperties()
 {
-	if(!propertiesSet)
+	if(object != nullptr)
 	{
-		const QMetaObject* current = object->metaObject();
-
-		QList<const QMetaObject*> childClasses ;
-
-		childClasses.append(current);
-
-		while((current = current->superClass()))
+		if(!childPropertiesSet)
 		{
-			const QMetaObject* temp = current;
-			childClasses.insert(0,temp);
+			const QMetaObject* current = object->metaObject();
+
+			QList<const QMetaObject*> childClasses ;
+
+			childClasses.append(current);
+
+			while((current = current->superClass()))
+			{
+				const QMetaObject* temp = current;
+				childClasses.insert(0,temp);
+			}
+
+			int size  = childClasses.count();
+
+			for(int i = 0; i < size ; i++)
+			{
+				QVariantProperty* qproperty = new QVariantObjectSuperClassProperty(object,childClasses[i], model, i ,this);
+				children.append(qproperty);
+			}
+
+			childPropertiesSet = true;
 		}
-
-		qDeleteAll(children); 
-		children.clear();
-
-		int size  = childClasses.count();
-		for(int i = 0; i < size ; i++)
+		else
 		{
-			QVariantProperty* qproperty = new QVariantObjectSuperClassProperty(object,childClasses[i], i ,this);
-			qproperty->setModel(model);
-			children.append(qproperty);
-		}
 
-		propertiesSet = true;
+		}
 	}
 }

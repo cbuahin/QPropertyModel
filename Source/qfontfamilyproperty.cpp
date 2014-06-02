@@ -3,11 +3,11 @@
 
 QString QFontFamilyProperty::QualifiedVariantPropertyName = "QFont::Family";
 
-QFontFamilyProperty::QFontFamilyProperty(const QString& propertyName, int propertyIndex, const QVariant& value, QVariantProperty *parent)
-	:QVariantProperty(value, QMetaProperty(), parent)
+QFontFamilyProperty::QFontFamilyProperty(const QString& propertyName, const QVariant& value, QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	:QVariantProperty(value, QMetaProperty(),model,row, parent)
 {
 	this->propertyName = propertyName;
-	this->rowInParent = propertyIndex;
+	this->rowInParent = row;
 }
 
 QFontFamilyProperty::~QFontFamilyProperty()
@@ -128,5 +128,5 @@ QVariant QFontFamilyProperty::getData(Qt::ItemDataRole role , Column column)
 
 QString QFontFamilyProperty::getQualifiedVariantPropertyName() const
 {
-	return "QFont::Family";
+	return QualifiedVariantPropertyName;
 }

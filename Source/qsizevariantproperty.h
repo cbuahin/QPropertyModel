@@ -12,11 +12,12 @@ class QSizeVariantProperty :public QVariantProperty
 	Q_OBJECT
 
 public:
-	QSizeVariantProperty(const QSize& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QSizeVariantProperty(const QSize& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QSizeVariantProperty();
 
+	bool hasChildren() ;
+
 	QVariant getData(Qt::ItemDataRole role , Column column);
-    //bool setData(const QVariant & value,Qt::ItemDataRole role, Column column);
 
 	Qt::ItemFlags flags() const;
 

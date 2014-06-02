@@ -1,8 +1,29 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
 #include "stdafx.h"
 #include "qpointvariantproperty.h"
 
-QPointVariantProperty::QPointVariantProperty(const QPoint& value, const QMetaProperty& metaProperty, QVariantProperty *parent )
-	: QVariantProperty(value,metaProperty,parent)
+QPointVariantProperty::QPointVariantProperty(const QPoint& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent )
+	: QVariantProperty(value,metaProperty,model,row,parent)
 {
 	setQPointPropertyFunctions["X"] = & QPoint::setX;
 	setQPointPropertyFunctions["Y"] = &  QPoint::setY;
@@ -16,6 +37,11 @@ QPointVariantProperty::~QPointVariantProperty()
 {
 	setQPointPropertyFunctions.clear();
 	getQPointPropertyFunctions.clear();
+}
+
+bool QPointVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QPointVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -148,52 +174,53 @@ void QPointVariantProperty::setupChildProperties()
 {
 	QPoint& currentSize = qvariant_cast<QPoint>(value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
+	if(children.count() > 0)
+	{	
 		qDeleteAll(children);
 		children.clear();
+	}
 
-		QStringList properties = getQPointPropertyFunctions.keys(); 
-		Qt::ItemFlags flagsv = flags();
-		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
-		{
-		   flagsv |= Qt::ItemIsEditable;
-		}
+	QStringList properties = getQPointPropertyFunctions.keys(); 
+	Qt::ItemFlags flagsv = flags();
+	if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
+	{
+		flagsv |= Qt::ItemIsEditable;
+	}
 
-		for(int i =0 ; i < properties.count() ; i++)
-		{
-			QString propName = properties[i];
-			GetQPointProperty prop =getQPointPropertyFunctions[propName];
-			int value = (currentSize.*prop)();
-			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),this);
-			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
-			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
-			children.append(tempProp);
+	for(int i =0 ; i < properties.count() ; i++)
+	{
+		QString propName = properties[i];
+		GetQPointProperty prop =getQPointPropertyFunctions[propName];
+		int value = (currentSize.*prop)();
+		QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),model, i, this);
+		tempProp->setDefaultFlags(flagsv);
+		tempProp->setPropertyName(propName);
+		children.append(tempProp);
 
 
-			connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-				SLOT(childPropertyValueChanged(QString , QVariant)));
-		}
-
-		propertiesSet = true;
+		connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+	}
 	}
 	else
 	{
-		for(int i = 0 ; i < children.count() ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* child =  children[i];
-			QString propertyName = child->getPropertyName();
-
-			if(getQPointPropertyFunctions.contains(propertyName))
+			for(int i =0 ; i < children.count() ;i++)
 			{
-				child->blockSignals(true);
-				GetQPointProperty function = getQPointPropertyFunctions[propertyName];
-				int v = (currentSize.*function)();
-				child->setData(v);
-				child->blockSignals(false);
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				GetQPointProperty propf = getQPointPropertyFunctions[propertyName];
+				QVariant tval = (currentSize.*propf)(); ;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
+
 			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
 }
@@ -207,7 +234,6 @@ void QPointVariantProperty::childPropertyValueChanged(const QString& propertyNam
 		if(setQPointPropertyFunctions.contains(propertyName))
 		{
 			SetQPointProperty method = setQPointPropertyFunctions[propertyName];
-		    childPropertyCalledUpdate = true;
    
 			(currentSize.*method)(value.toInt());
 		}
@@ -215,6 +241,5 @@ void QPointVariantProperty::childPropertyValueChanged(const QString& propertyNam
 		this->value = currentSize;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

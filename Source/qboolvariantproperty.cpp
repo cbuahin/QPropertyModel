@@ -23,8 +23,8 @@
 #include "stdafx.h"
 #include "qboolvariantproperty.h"
 
-QBoolVariantProperty::QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value,metaProperty,parent)
+QBoolVariantProperty::QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row , QVariantProperty *parent)
+	: QVariantProperty(value, metaProperty, model , row, parent)
 {
 	defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
@@ -117,7 +117,7 @@ bool QBoolVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role,
 							{
 								this->value = value.toBool();
 								emit valueChangedSignal(propertyName,this->value);
-								emit valueChangedSignal();
+								setupChildProperties();
 							}
 							
 							return written;
@@ -142,7 +142,7 @@ bool QBoolVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role,
 							{
 								this->value = v;
 								emit valueChangedSignal(propertyName,this->value);
-								emit valueChangedSignal();
+								setupChildProperties();
 							}
 
 							return written;
@@ -167,12 +167,11 @@ bool QBoolVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role,
 			{
 				bool v = value.toInt() == 0 ? false : true;
 				this->value = v;
-				emit valueChangedSignal(propertyName,this->value);
 			}
 		}
 
 		emit valueChangedSignal(propertyName,this->value);
-		emit valueChangedSignal();
+		setupChildProperties();
 		return true;
 	}
 

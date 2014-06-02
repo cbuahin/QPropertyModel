@@ -30,7 +30,7 @@ class QEnumVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QEnumVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QEnumVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QEnumVariantProperty();
 
 	QMetaEnum getMetaEnum() const;

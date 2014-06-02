@@ -21,222 +21,75 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "qtpropertymodel.h"
-#include <qvariantproperty.h>
+#include <qtpropertymodel.h>
 #include <qvariantqobjectproperty.h>
+
+#include <qvariantobjectsuperclassproperty.h>
+
 #include <qboolvariantproperty.h>
+#include <qcolorvariantproperty.h>
 #include <qfontvariantproperty.h>
+#include <qsizevariantproperty.h>
+#include <qsizefvariantproperty.h>
+#include <qrectvariantproperty.h>
+#include <qrectfvariantproperty.h>
+#include <qpointvariantproperty.h>
+#include <qpointfvariantproperty.h>
+#include <qlinevariantproperty.h>
+#include <qlinefvariantproperty.h>
+#include <qvector2dvariantproperty.h>
+#include <qvector3dvariantproperty.h>
+#include <qvector4dvariantproperty.h>
+#include <qpixmapvariantproperty.h>
+#include <qbitmapvariantproperty.h>
+#include <qenumvariantproperty.h>
+#include <qflagsvariantproperty.h>
+#include <qiconvariantproperty.h>
+#include <qbrushvariantproperty.h>
+#include <qpenvariantproperty.h>
+#include <qsizepolicyvariantproperty.h>
+#include <qstringlistvariantproperty.h>
+#include <qvariantmapproperty.h>
 
 QtPropertyModel::QtPropertyModel(QObject *parent)
-	: QAbstractItemModel (parent)
+	: QAbstractItemModel (parent) , rootProperty(nullptr), parentIsQObject(true)
 {
-	rootProperty = nullptr;
-	rootProperty = new QVariantQObjectProperty(parent,QMetaProperty(), nullptr);
-	rootProperty->setModel(this);
-
+	rootProperty = new QVariantQObjectProperty(parent,QMetaProperty(),this, 0, nullptr);
 	
-    const QMetaObject& mo = StaticQtMetaObject::get();
-    int index = mo.indexOfEnumerator("Alignment");
-    QMetaEnum me = mo.enumerator(index);
-
 }
 
 QtPropertyModel::QtPropertyModel(const QVariant& parent)
+	: QAbstractItemModel (nullptr) , rootProperty(nullptr), parentIsQObject(false)
 {
-	rootProperty = nullptr;
-
-	switch (parent.userType())
-	{
-	case QMetaType::Bool:
-		rootProperty = new QBoolVariantProperty(parent.toBool(), QMetaProperty());
-		break;
-	case QMetaType::Void:
-	case QMetaType::Int:
-	case QMetaType::UInt:
-	case QMetaType::LongLong:
-	case QMetaType::ULongLong:
-	case QMetaType::Double:
-	case QMetaType::Long:
-	case QMetaType::Short:
-	case QMetaType::Char:
-	case QMetaType::ULong:
-	case QMetaType::UShort:
-	case QMetaType::UChar:
-	case QMetaType::Float:
-	case QMetaType::SChar:
-	case QMetaType::VoidStar:
-	case QMetaType::QChar:
-	case QMetaType::QString:
-	case QMetaType::QDate:
-	case QMetaType::QTime:
-	case QMetaType::QDateTime:
-	case QMetaType::QByteArray:
-	case QMetaType::QBitArray:
-	case QMetaType::QUrl:
-		rootProperty = new QVariantProperty(parent, QMetaProperty());
-		break;
-	case QMetaType::QLocale:
-	case QMetaType::QRect:
-	case QMetaType::QRectF:
-	case QMetaType::QSize:
-	case QMetaType::QSizeF:
-	case QMetaType::QLine:
-	case QMetaType::QLineF:
-	case QMetaType::QPoint:
-	case QMetaType::QPointF:
-	case QMetaType::QRegExp:
-	case QMetaType::QEasingCurve:
-	case QMetaType::QUuid:
-	case QMetaType::QVariant:
-	case QMetaType::QModelIndex:
-	case QMetaType::QRegularExpression:
-	case QMetaType::QJsonValue:
-	case QMetaType::QJsonObject:
-	case QMetaType::QJsonArray:
-	case QMetaType::QJsonDocument:
-	case QMetaType::QVariantMap:
-	case QMetaType::QVariantList:
-	case QMetaType::QVariantHash:
-	case QMetaType::QFont:
-		rootProperty = new QFontVariantProperty(qvariant_cast<QFont>(parent), QMetaProperty());
-		break;
-	case QMetaType::QPixmap:
-	case QMetaType::QBrush:
-	case QMetaType::QColor:
-	case QMetaType::QPalette:
-	case QMetaType::QIcon:
-	case QMetaType::QImage:
-	case QMetaType::QPolygon:
-	case QMetaType::QRegion:
-	case QMetaType::QBitmap:
-	case QMetaType::QCursor:
-	case QMetaType::QKeySequence:
-	case QMetaType::QPen:
-	case QMetaType::QTextLength:
-	case QMetaType::QTextFormat:
-	case QMetaType::QMatrix:
-	case QMetaType::QTransform:
-	case QMetaType::QMatrix4x4:
-	case QMetaType::QVector2D:
-	case QMetaType::QVector3D:
-	case QMetaType::QVector4D:
-	case QMetaType::QQuaternion:
-	case QMetaType::QPolygonF:
-	case QMetaType::QStringList:
-	case QMetaType::QSizePolicy:
-		break;
-	case QMetaType::QObjectStar:
-		{
-			QObject* tempobject = qvariant_cast<QObject*>(parent);
-			if(tempobject != nullptr)
-			{
-				rootProperty = new QVariantQObjectProperty(tempobject,QMetaProperty(), nullptr);
-			}
-		}
-		break;
-	case QMetaType::UnknownType:
-	case QMetaType::User:
-	default:
-		{
-			QObject* tempobject = qvariant_cast<QObject*>(parent);
-			if(tempobject != nullptr)
-			{
-				rootProperty = new QVariantQObjectProperty(tempobject,QMetaProperty(), nullptr);
-			}
-			
-
-		}
-		break;
-	}
-
-	rootProperty->setModel(this);
-	//rootProperty = new QVariantProperty(parent,parent,QMetaProperty(), nullptr);
-	//rootProperty->setModel(this);
+	ParentObject* p = new ParentObject(parent,this);
+	rootProperty = new QVariantObjectSuperClassProperty(p,p->metaObject(),this,0);
+	
 }
 
 QtPropertyModel::~QtPropertyModel()
 {
-	//	delete rootProperty;
+	delete rootProperty;
 }
 
 bool QtPropertyModel::hasChildren(const QModelIndex & parent) const
 {
+
 	QVariantProperty* qproperty = getProperty(parent);
 
-	if(qproperty)
+	if(qproperty != nullptr)
 	{
-		return qproperty->hasChildren();
+		bool hasinfs =qproperty->hasChildren();
+		return hasinfs;
 	}
 
 	return false;
-}
-
-QModelIndex QtPropertyModel::index(int row, int column, const QModelIndex & parent) const	
-{
-	bool validParent = parent.isValid();
-	bool hasindex = hasIndex(row, column, parent);
-
-	if (!hasIndex(row, column, parent))
-		return QModelIndex();
-
-	QVariantProperty* parentItem = nullptr ;
-
-	if (!parent.isValid())
-		parentItem = rootProperty;
-	else
-		parentItem = getProperty(parent);
-
-	QList<QVariantProperty*> children = parentItem->childProperties();
-
-	if(row < children.count())
-	{
-		QVariantProperty *temp = children[row];
-		QModelIndex tempindex = createIndex(row, column, temp);
-		if(column == 1)
-		temp->setModelIndex(tempindex);
-		return tempindex;
-	}
-	else
-	{
-		return QModelIndex();
-	}
-}
-
-QModelIndex QtPropertyModel::parent(const QModelIndex &index) const
-{
-	if(!index.isValid())
-	{
-		return  QModelIndex();
-	}
-	else
-	{
-		QVariantProperty* qproperty = getProperty(index);
-
-		if(qproperty != nullptr)
-		{
-			QVariantProperty* parentProp = static_cast<QVariantProperty*>(qproperty->parent());
-
-			if(parentProp != nullptr)
-			{
-				if(parentProp == rootProperty)
-				{
-					return QModelIndex();
-				}
-				else
-				{
-					return 	createIndex(qproperty->getRowInParent(),1, parentProp);
-				}
-			}
-		}
-		return  QModelIndex();
-	}
 }
 
 int QtPropertyModel::rowCount(const QModelIndex &parent) const
 {
 	QVariantProperty* qproperty = getProperty(parent);
 
-	if(qproperty != nullptr && qproperty->hasChildren())
+	if(qproperty != nullptr)
 	{
 		return qproperty->getRowCount();
 	}
@@ -247,42 +100,79 @@ int QtPropertyModel::rowCount(const QModelIndex &parent) const
 int QtPropertyModel::columnCount(const QModelIndex &parent) const
 {
 	return 2;
-	QVariantProperty* qproperty = getProperty(parent);
+}
 
-	if(qproperty != NULL)
+QModelIndex QtPropertyModel::index(int row, int column, const QModelIndex & parent) const	
+{
+	if (parent.isValid() && parent.column() != 0)
+		return QModelIndex();
+
+	QVariantProperty* parentItem  = getProperty(parent);
+
+	const QList<QVariantProperty*> children = parentItem->childProperties();
+
+	if(row > -1 && row < children.count())
 	{
-		if(qproperty->getColumnCount() == 2)
+		QVariantProperty *temp = children[row];
+		QModelIndex tempindex = createIndex(row, column, temp);
+	
+		if(column == 0)
+		temp->setModelIndex(tempindex);
+
+		return tempindex;
+	}
+	
+
+	return QModelIndex();
+}
+
+QModelIndex QtPropertyModel::parent(const QModelIndex &index) const
+{
+	QModelIndex returnIndex;
+
+	if(index.isValid())
+	{
+		QVariantProperty* qproperty = getProperty(index);
+
+		if(qproperty != nullptr )
 		{
-			qDebug()<<"Test";
+			QVariantProperty* parentProp = static_cast<QVariantProperty*>(qproperty->parent());
+
+			if(parentProp != nullptr)
+			{
+				if(parentProp != rootProperty)
+				{
+					returnIndex = createIndex(parentProp->getRowInParent(), 0, parentProp);
+					parentProp->setModelIndex(returnIndex);
+				}
+			}
 		}
-		return qproperty->getColumnCount();
-	}
-	else
-	{
-		return 1;
 	}
 
-	return 0;
+	return returnIndex;
 }
 
 QVariant  QtPropertyModel::data(const QModelIndex & index, int role) const
 {
-	QVariantProperty* qproperty = getProperty(index);
 
-	if(qproperty != nullptr)
+	if(index.isValid())
 	{
-		return qproperty->getData((Qt::ItemDataRole)role, (QVariantProperty::Column)index.column());
+		QVariantProperty* qproperty = getProperty(index);
+
+		if(qproperty != nullptr)
+		{
+			return qproperty->getData((Qt::ItemDataRole)role, (QVariantProperty::Column)index.column());
+		}
 	}
-	else
-	{
-		return QVariant();
-	}
+
+	return QVariant();
 }
 
 bool QtPropertyModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {	
 	if(index.column() == 0)
 		return false;
+
 	QVariantProperty* qproperty = getProperty(index);
 
 	if(qproperty)
@@ -300,17 +190,22 @@ bool QtPropertyModel::setData(const QModelIndex & index, const QVariant & value,
 	return false;
 }
 
-QVariantProperty*  QtPropertyModel::getProperty(const QModelIndex &index) const
+QVariantProperty*  QtPropertyModel::getProperty(const QModelIndex & index) const
 {
+
 	if(index.isValid())
 	{
-		QVariantProperty* qvproperty = static_cast<QVariantProperty*>(index.internalPointer());
-		return qvproperty;
+		QVariantProperty* qvproperty = nullptr;
+		qvproperty = static_cast<QVariantProperty*>(index.internalPointer());
+
+		if(qvproperty != nullptr)
+		{
+			return qvproperty;
+		}
 	}
-	else
-	{
-		return rootProperty;
-	}
+
+	return rootProperty;
+
 }
 
 QVariant QtPropertyModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -364,6 +259,23 @@ Qt::ItemFlags QtPropertyModel::flags(const QModelIndex & index) const
 		}
 	}
 	return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
-
 }
 
+QVariant QtPropertyModel::getRootValue() const
+{
+	if(parentIsQObject)
+	{
+		return rootProperty->getData();
+	}
+	else
+	{
+		ParentObject* inputObject = qvariant_cast<ParentObject*>(rootProperty->getData());
+		return inputObject->getValue();
+	}
+}
+
+QVariantProperty* QtPropertyModel::getRootProperty() const
+{
+	return rootProperty;
+
+}

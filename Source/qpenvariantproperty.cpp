@@ -27,8 +27,8 @@
 #include <qbrushvariantproperty.h>
 #include <qboolvariantproperty.h>
 
-QPenVariantProperty::QPenVariantProperty(const QPen& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value,metaProperty,parent)
+QPenVariantProperty::QPenVariantProperty(const QPen& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	: QVariantProperty(value,metaProperty,model, row,parent)
 {
 
 }
@@ -36,6 +36,11 @@ QPenVariantProperty::QPenVariantProperty(const QPen& value, const QMetaProperty&
 QPenVariantProperty::~QPenVariantProperty()
 {
 
+}
+
+bool QPenVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QPenVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -163,7 +168,7 @@ Qt::ItemFlags QPenVariantProperty::flags() const
 		}
 		else
 		{
-		   return flags  ;
+			return flags  ;
 		}
 	}
 
@@ -174,19 +179,20 @@ void QPenVariantProperty::setupChildProperties()
 {
 	QPen currentPen = qvariant_cast<QPen>(this->value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-	//	model->removeRows(0,children.count()-1,this->modelIndex);
-		qDeleteAll(children);
-		children.clear();
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
-		
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
-		
+
 		for(int i = 0 ; i < 7 ; i++)
 		{
 
@@ -196,11 +202,9 @@ void QPenVariantProperty::setupChildProperties()
 				{
 					QString propName = "Width";
 					qreal width = currentPen.widthF();
-					QVariantProperty* tempProp = new QVariantProperty(width, QMetaProperty(),this);
+					QVariantProperty* tempProp = new QVariantProperty(width, QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -211,11 +215,9 @@ void QPenVariantProperty::setupChildProperties()
 				{
 					QString propName = "Miter Limit";
 					qreal mlimit = currentPen.miterLimit();
-					QVariantProperty* tempProp = new QVariantProperty(mlimit, QMetaProperty(),this);
+					QVariantProperty* tempProp = new QVariantProperty(mlimit, QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -226,11 +228,9 @@ void QPenVariantProperty::setupChildProperties()
 				{
 					QString propName = "Cosmetic";
 					bool cosmetic = currentPen.isCosmetic();
-					QVariantProperty* tempProp = new QBoolVariantProperty(cosmetic, QMetaProperty(),this);
+					QVariantProperty* tempProp = new QBoolVariantProperty(cosmetic, QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -241,11 +241,9 @@ void QPenVariantProperty::setupChildProperties()
 				{
 					QString propName = "Brush";
 					QBrush brush = currentPen.brush();
-					QVariantProperty* tempProp = new QBrushVariantProperty(brush, QMetaProperty(),this);
+					QVariantProperty* tempProp = new QBrushVariantProperty(brush, QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -260,11 +258,9 @@ void QPenVariantProperty::setupChildProperties()
 					QMetaEnum enumeration = globalObject.enumerator(index);
 					int pstyle = currentPen.style();
 
-					QVariantProperty* tempProp = new QEnumVariantProperty(pstyle,enumeration,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QEnumVariantProperty(pstyle,enumeration,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -279,11 +275,9 @@ void QPenVariantProperty::setupChildProperties()
 					QMetaEnum enumeration = globalObject.enumerator(index);
 					int capstyle = currentPen.style();
 
-					QVariantProperty* tempProp = new QEnumVariantProperty(capstyle,enumeration,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QEnumVariantProperty(capstyle,enumeration,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -298,11 +292,9 @@ void QPenVariantProperty::setupChildProperties()
 					QMetaEnum enumeration = globalObject.enumerator(index);
 					int pjoinstyle = currentPen.style();
 
-					QVariantProperty* tempProp = new QEnumVariantProperty(pjoinstyle,enumeration,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QEnumVariantProperty(pjoinstyle,enumeration,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -311,66 +303,55 @@ void QPenVariantProperty::setupChildProperties()
 				break;
 			}
 		}
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-		for(int i =0 ; i < 7 ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* tempProp = this->children[i];
-
-
-			switch (tempProp->getRowInParent())	
+			for(int i =0 ; i < children.count() ;i++)
 			{
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				QVariant tval ;
 
-			case 0:
-				{
-					qreal widthf = currentPen.widthF();
-					tempProp->setData(widthf);
-				}
-				break;
-			case 1:
-				{
 
-					qreal mlimit = currentPen.miterLimit();
-					tempProp->setData(mlimit);
-				}
-				break;
-			case 2:
+				if(propertyName == "Width")
 				{
+					tval = currentPen.widthF();
 
-					bool cosmetic = currentPen.isCosmetic();
-					tempProp->setData(cosmetic);
 				}
-				break;
-			case 3:
+				else if(propertyName == "Miter Limit")
 				{
-					QBrush brush = currentPen.brush();
-					tempProp->setData(brush);
+					tval = currentPen.miterLimit();
 				}
-				break;
-			case 4:
+				else if(propertyName == "Cosmetic")
 				{
-					Qt::PenStyle pstyle = currentPen.style();
-					tempProp->setData((int)pstyle);
+					tval = currentPen.isCosmetic();
+				}		
+				else if(propertyName == "Brush")
+				{
+					tval = currentPen.brush();
+				}	
+				else if(propertyName == "Pen Style")
+				{
+					tval = (int)currentPen.style();
 				}
-				break;
-			case 5:
+				else if(propertyName == "Pen Cap Style")
 				{
-					Qt::PenCapStyle pcapstyle = currentPen.capStyle();
-					tempProp->setData((int)pcapstyle);
+					tval = currentPen.capStyle();
+				}
+				else if(propertyName == "Pen Join Style")
+				{
+					tval = currentPen.joinStyle();
 				}
 
-				break;
-			case 6:
-				{
-					Qt::PenJoinStyle pjstyle = currentPen.joinStyle();
-					tempProp->setData((int)pjstyle);
-				}
-
-				break;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
 			}
 
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
 }
@@ -382,7 +363,7 @@ void QPenVariantProperty::childPropertyValueChanged(const QString& propertyName,
 	{
 		QPen& currentPen = qvariant_cast<QPen>(this->value);
 
-	    if(propertyName == "Width")
+		if(propertyName == "Width")
 		{
 			qreal width = value.toReal();
 			currentPen.setWidthF(width);
@@ -396,7 +377,7 @@ void QPenVariantProperty::childPropertyValueChanged(const QString& propertyName,
 		else if(propertyName == "Cosmetic")
 		{
 			bool cosmetic = value.toBool();
-			currentPen.setMiterLimit(cosmetic);
+			currentPen.setCosmetic(cosmetic);
 		}		
 		else if(propertyName == "Brush")
 		{
@@ -419,10 +400,8 @@ void QPenVariantProperty::childPropertyValueChanged(const QString& propertyName,
 			currentPen.setJoinStyle(pjoinstyle);
 		}
 
-		childPropertyCalledUpdate = true;
 		this->value = currentPen;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

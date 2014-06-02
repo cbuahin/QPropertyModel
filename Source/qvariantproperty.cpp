@@ -1,37 +1,64 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
 #include "stdafx.h"
 #include "qvariantproperty.h"
 
-QVariantProperty::QVariantProperty(const QVariant& value, const QMetaProperty& metaProperty , QVariantProperty *parent)
-	: QObject(parent), rowInParent(0), metaProperty(), propertiesSet(false) , canreset(true), childPropertyCalledUpdate(false)
+QVariantProperty::QVariantProperty(const QVariant& invalue, const QMetaProperty& metaprop , QtPropertyModel* const & model, int row, QVariantProperty *parent)
+	: QObject(parent), canreset(true), rowInParent(row), columnCount(2), resetValue(invalue), value(invalue), 
+	parentProperty(parent), metaProperty(metaprop), model(nullptr),rowCount(0),childPropertiesSet(false)
 {
-	this->value = value;
-	this->metaProperty = metaProperty;
-	columnCount = 2;
-	model = nullptr;
-	resetValue= QVariant(value);
+
+	this->model = model;
 
 	if( this->metaProperty.isValid())
 	{
 		propertyName = this->metaProperty.name();
-		rowInParent = metaProperty.propertyIndex();
 		QObject* parentQObject = parent->getObject();
 
-		if(parentQObject != nullptr && metaProperty.hasNotifySignal())
+		//notify change signal from parent
+		if(parentQObject != nullptr && metaProperty.hasNotifySignal() )
 		{
 			QMetaMethod notifysignal = metaProperty.notifySignal();
-
-			//update variant with changes outside of model
 			QMetaMethod notifyslot = this->metaObject()->method(this->metaObject()->indexOfSlot("getDataFromParentSlot()"));
 			connect(parentQObject, notifysignal,this,notifyslot);
+		}
+
+		//set item flags
+		if(this->metaProperty.isWritable())
+		{
+			defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+		}
+		else
+		{
+			defaultFlags = Qt::ItemIsSelectable ;
 		}
 	}
 	else
 	{
+		//variant with no parent on non QObject parent*-
 		canreset = true;
-		
+		defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 	}
-	
-	defaultFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+
 }
 
 QVariantProperty::~QVariantProperty()
@@ -141,11 +168,6 @@ QVariant QVariantProperty::getData(Qt::ItemDataRole role , Column column)
 
 bool QVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role, Column column)
 {
-	if(!value.isValid())
-	{
-		qDebug()<<"test";
-	}
-
 	if(column == Column::PropertyValueColumn && role == Qt::EditRole)
 	{
 		if(metaProperty.isValid())
@@ -165,7 +187,7 @@ bool QVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role, Col
 					{
 						this->value = value;
 						emit valueChangedSignal(propertyName,this->value);
-						emit valueChangedSignal();
+						setupChildProperties();
 					}
 
 					return written;
@@ -177,27 +199,11 @@ bool QVariantProperty::setData(const QVariant & value,Qt::ItemDataRole role, Col
 		{
 			this->value = value;
 			emit valueChangedSignal(propertyName,this->value);
-			emit valueChangedSignal();
+			setupChildProperties();
 			return true;
 		}
 	}
 	return false;
-}
-
-void QVariantProperty::setData(const QVariant & value)
-{
-	if(model->setData(modelIndex,value));
-	{
-
-		if(!childPropertyCalledUpdate)
-		{
-			setupChildProperties();
-		}
-
-		childPropertyCalledUpdate = false;
-		emit valueChangedSignal(propertyName,this->value);
-		emit valueChangedSignal();
-	}
 }
 
 bool QVariantProperty::refreshDataSlot()
@@ -222,23 +228,24 @@ bool QVariantProperty::refreshDataSlot()
 					{
 						value = metaProperty.read(head);
 						setData(value);
-						setupChildProperties();
+						
+
 						emit valueChangedSignal(propertyName,this->value);
-					    emit valueChangedSignal();
+					    
+						setupChildProperties();
 					}
 
 					return reset;
 				}
-
 			}
 		}
 	}
 	else
 	{
 		setData(resetValue);
-		setupChildProperties();
 		emit valueChangedSignal(propertyName,this->value);
-		emit valueChangedSignal();
+		
+		setupChildProperties();
 		return canreset;
 	}
 
@@ -262,14 +269,9 @@ bool QVariantProperty::canReset()
 	}
 }
 
-void QVariantProperty::setModel(QAbstractItemModel* const& model)
+void QVariantProperty::setModelIndex(const QModelIndex& index)
 {
-	this->model = model;
-}
-
-void QVariantProperty::setModelIndex(const QModelIndex& modelIndex)
-{
-	this->modelIndex = modelIndex;
+	this->modelIndex = index;
 }
 
 QVariant QVariantProperty::getData() const
@@ -279,7 +281,14 @@ QVariant QVariantProperty::getData() const
 
 QObject* QVariantProperty::getObject() const
 {
-	return qvariant_cast<QObject*>(value);
+	if (value.canConvert<QObject*>())
+	{
+		return qvariant_cast<QObject*>(value);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 QMetaProperty QVariantProperty::getMetaProperty() const
@@ -288,16 +297,8 @@ QMetaProperty QVariantProperty::getMetaProperty() const
 }
 
 int QVariantProperty::getRowInParent() const
-{
+{  
 	return rowInParent;
-}
-
-void QVariantProperty::setRowInParent(int row)
-{
-	if(!metaProperty.isValid())
-	{
-		rowInParent = row;
-	}
 }
 
 void QVariantProperty::setPropertyName(const QString& propName)
@@ -308,7 +309,7 @@ void QVariantProperty::setPropertyName(const QString& propName)
 	}
 }
 
-QAbstractItemModel* QVariantProperty::getModel() const
+QtPropertyModel* QVariantProperty::getModel() const
 {
 	return model;
 }
@@ -327,11 +328,8 @@ void QVariantProperty::childPropertyValueChangedSlot(const QString& propertyName
 {
 	if(value.isValid())
 	{
-		childPropertyCalledUpdate = true;
 		
-
 		setData(this->value);
-
 	}
 }
 
@@ -339,7 +337,7 @@ void QVariantProperty::getDataFromParentSlot()
 {
 	QObject* parent = QVariantProperty::parent();
 
-	if(parent != nullptr )
+	if(parent != nullptr && metaProperty.isValid() )
 	{
 		QVariantProperty* parentProp = qobject_cast<QVariantProperty*>(parent);
 
@@ -350,10 +348,18 @@ void QVariantProperty::getDataFromParentSlot()
 			if(head != nullptr)
 			{
 				value = metaProperty.read(head);
-		     	model->dataChanged(modelIndex,modelIndex);
-				emit valueChangedSignal();
-			}
 
+				if(model != nullptr && modelIndex.isValid())
+				{
+					emit model->dataChanged(modelIndex,modelIndex);
+				}
+
+				emit valueChangedSignal(propertyName,this->value);
+				
+				setupChildProperties();
+
+				emit model->dataChanged(this->modelIndex , this->modelIndex);
+			}
 		}
 	}
 
@@ -361,32 +367,22 @@ void QVariantProperty::getDataFromParentSlot()
 
 bool QVariantProperty::hasChildren()
 {
-	if(!propertiesSet)
-	{
-		setupChildProperties();
-	}
+	return false;
+}
 
-	if(children.count() > 0)
-		return true;
-	else
-		return false;
+int QVariantProperty::getRowCount() 
+{
+	if(!childPropertiesSet)
+	setupChildProperties();
+	return children.count();
 }
 
 void QVariantProperty::setupChildProperties()
 {
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
-	else
-	{
-
-	}
-}
-
-int QVariantProperty::getRowCount() const
-{
-	return children.count();
 }
 
 int QVariantProperty::getColumnCount() const

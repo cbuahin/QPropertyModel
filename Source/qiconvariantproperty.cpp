@@ -1,9 +1,31 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
+
 #include "stdafx.h"
 #include "qiconvariantproperty.h"
 #include "qpixmapvariantproperty.h"
 
-QIconVariantProperty::QIconVariantProperty(const QIcon& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value,metaProperty,parent)
+QIconVariantProperty::QIconVariantProperty(const QIcon& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row,  QVariantProperty *parent)
+	: QVariantProperty(value , metaProperty , model, row , parent)
 {
 
 }
@@ -11,6 +33,11 @@ QIconVariantProperty::QIconVariantProperty(const QIcon& value, const QMetaProper
 QIconVariantProperty::~QIconVariantProperty()
 {
 
+}
+
+bool QIconVariantProperty::hasChildren() 
+{
+	return true;
 }
 
 QVariant QIconVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -138,7 +165,7 @@ Qt::ItemFlags QIconVariantProperty::flags() const
 		}
 		else
 		{
-		   return flags  ;
+			return flags  ;
 		}
 	}
 
@@ -148,21 +175,23 @@ Qt::ItemFlags QIconVariantProperty::flags() const
 void QIconVariantProperty::setupChildProperties()
 {
 	QIcon& currentIcon = qvariant_cast<QIcon>(this->value);
-		QSize outrageousSize = QSize(5000,5000);
+	QSize outrageousSize = QSize(15000,15000);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		model->removeRows(0,children.count()-1,this->modelIndex);
-		qDeleteAll(children);
-		children.clear();
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
-		
+
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
-		
+
 		for(int i =0 ; i < 8 ; i++)
 		{
 
@@ -172,11 +201,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Normal On";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Normal, QIcon::State::On);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -187,11 +214,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Normal Off";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Normal, QIcon::State::Off);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -202,11 +227,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Active On";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Active, QIcon::State::On);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -217,11 +240,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Active Off";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Active, QIcon::State::Off);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -232,11 +253,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Selected On";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Selected, QIcon::State::On);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -247,11 +266,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Selected Off";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Selected, QIcon::State::Off);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -262,11 +279,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Disabled On";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Disabled, QIcon::State::On);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -277,11 +292,9 @@ void QIconVariantProperty::setupChildProperties()
 				{
 					QString propName = "Disabled Off";
 					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Disabled, QIcon::State::Off);
-					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),this);
+					QVariantProperty* tempProp = new QPixmapVariantProperty(pixvalue,QMetaProperty(),model, i, this);
 					tempProp->setDefaultFlags(flagsv);
-					tempProp->setModel(model);
 					tempProp->setPropertyName(propName);
-					tempProp->setRowInParent(i);
 					children.append(tempProp);
 
 					connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
@@ -289,81 +302,65 @@ void QIconVariantProperty::setupChildProperties()
 				}
 				break;
 			}
-
 		}
 
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-
-		for(int i =0 ; i < 8 ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* tempProp = this->children[i];
-
-
-			switch (tempProp->getRowInParent())	
+			for(int i =0 ; i < children.count() ;i++)
 			{
-			case 0:
-				{
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Normal, QIcon::State::On);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 1:
-				{
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Normal, QIcon::State::Off);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 2:
-				{
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				QVariant tval ;
 
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Active, QIcon::State::On);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 3:
+				if(propertyName == "Normal On")
 				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Normal, QIcon::State::On);
+				}
+				else if(propertyName == "Normal Off")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Normal, QIcon::State::Off);
+				}
+				else if(propertyName == "Active On")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Active, QIcon::State::On);
+				}
+				else if(propertyName == "Active Off")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Active, QIcon::State::Off);
+				}
+				else if(propertyName == "Selected On")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Selected, QIcon::State::On);
+				}
+				else if(propertyName == "Selected Off")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Selected, QIcon::State::Off);
+				}
+				else if(propertyName == "Disabled On")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Disabled, QIcon::State::On);
+				}
+				else if(propertyName == "Disabled Off")
+				{
+					tval = currentIcon.pixmap(outrageousSize , QIcon::Mode::Disabled, QIcon::State::Off);
+				}
 
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Active, QIcon::State::Off);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 4:
-				{
-
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Selected, QIcon::State::On);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 5:
-				{
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Selected, QIcon::State::Off);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 6:
-				{
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Disabled, QIcon::State::On);
-					tempProp->setData(pixvalue);
-				}
-				break;
-			case 7:
-				{
-					QPixmap pixvalue = currentIcon.pixmap(outrageousSize, QIcon::Mode::Disabled, QIcon::State::Off);
-					tempProp->setData(pixvalue);
-				}
-				break;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
 			}
 
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
-	}
+				}
 }
 
 void QIconVariantProperty::childPropertyValueChanged(const QString& propertyName, const QVariant& value)
 {
-
 	if(value.isValid())
 	{
 		QIcon& currentIcon = qvariant_cast<QIcon>(this->value);
@@ -402,10 +399,8 @@ void QIconVariantProperty::childPropertyValueChanged(const QString& propertyName
 			currentIcon.addPixmap(pixvalue, QIcon::Mode::Disabled, QIcon::State::Off);
 		}
 
-		childPropertyCalledUpdate = true;
 		this->value = currentIcon;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

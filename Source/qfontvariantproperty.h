@@ -30,9 +30,10 @@ class QFontVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QFontVariantProperty(const QFont& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QFontVariantProperty(const QFont& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QFontVariantProperty();
 
+	bool hasChildren() ;
 	QVariant getData(Qt::ItemDataRole role , Column column);
 
 private slots:

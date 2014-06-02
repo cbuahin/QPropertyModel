@@ -8,7 +8,7 @@ class QPixmapVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QPixmapVariantProperty(const QPixmap& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QPixmapVariantProperty(const QPixmap& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model,int row = 0, QVariantProperty *parent = nullptr);
 	~QPixmapVariantProperty();
 
 	QVariant getData(Qt::ItemDataRole role , Column column);

@@ -12,8 +12,10 @@ class QPointVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QPointVariantProperty(const QPoint& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QPointVariantProperty(const QPoint& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model,int row = 0, QVariantProperty *parent = nullptr);
 	~QPointVariantProperty();
+
+	bool hasChildren() ;
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
 

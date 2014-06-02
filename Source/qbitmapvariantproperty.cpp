@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "qbitmapvariantproperty.h"
 
-QBitmapVariantProperty::QBitmapVariantProperty(const QBitmap& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value, metaProperty, parent)
+QBitmapVariantProperty::QBitmapVariantProperty(const QBitmap& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	: QVariantProperty(value, metaProperty,model,row, parent)
 {
 
 }
@@ -11,7 +11,6 @@ QBitmapVariantProperty::~QBitmapVariantProperty()
 {
 
 }
-
 
 QVariant QBitmapVariantProperty::getData(Qt::ItemDataRole role , Column column)
 {

@@ -1,9 +1,31 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
+
 #include "stdafx.h"
 #include "qlinevariantproperty.h"
 #include "qpointvariantproperty.h"
 
-QLineVariantProperty::QLineVariantProperty(const QLine& value, const QMetaProperty& metaProperty, QVariantProperty *parent )
-	: QVariantProperty(value,metaProperty,parent)
+QLineVariantProperty::QLineVariantProperty(const QLine& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent )
+	: QVariantProperty(value,metaProperty,model,row ,parent)
 {
 	setQLinePropertyFunctions["P1"] = & QLine::setP1;
 	setQLinePropertyFunctions["P2"] = &  QLine::setP2;
@@ -17,6 +39,11 @@ QLineVariantProperty::~QLineVariantProperty()
 {
 	setQLinePropertyFunctions.clear();
 	getQLinePropertyFunctions.clear();
+}
+
+bool QLineVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QLineVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -152,17 +179,20 @@ void QLineVariantProperty::setupChildProperties()
 {
 	QLine& currentSize = qvariant_cast<QLine>(value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		qDeleteAll(children);
-		children.clear();
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
 		QStringList properties = getQLinePropertyFunctions.keys(); 
 
 		Qt::ItemFlags flagsv = flags();
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
 
 		for(int i =0 ; i < properties.count() ; i++)
@@ -170,35 +200,33 @@ void QLineVariantProperty::setupChildProperties()
 			QString propName = properties[i];
 			GetQLineProperty prop =getQLinePropertyFunctions[propName];
 			QPoint value = (currentSize.*prop)();
-			QVariantProperty* tempProp = new QPointVariantProperty(value,QMetaProperty(),this);
+			QVariantProperty* tempProp = new QPointVariantProperty(value,QMetaProperty(),model, i, this);
 			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
 			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
 			children.append(tempProp);
 
 
 			connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 				SLOT(childPropertyValueChanged(QString , QVariant)));
 		}
-
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-		for(int i = 0 ; i < children.count() ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* child =  children[i];
-			QString propertyName = child->getPropertyName();
-
-			if(getQLinePropertyFunctions.contains(propertyName))
+			for(int i =0 ; i < children.count() ;i++)
 			{
-				child->blockSignals(true);
-				GetQLineProperty function = getQLinePropertyFunctions[propertyName];
-				QPoint v = (currentSize.*function)();
-				child->setData(v);
-				child->blockSignals(false);
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				GetQLineProperty propf =getQLinePropertyFunctions[propertyName];
+				QVariant tval = (currentSize.*propf)(); ;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
 			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
 }
@@ -212,7 +240,6 @@ void QLineVariantProperty::childPropertyValueChanged(const QString& propertyName
 		if(setQLinePropertyFunctions.contains(propertyName))
 		{
 			SetQLineProperty method = setQLinePropertyFunctions[propertyName];
-		    childPropertyCalledUpdate = true;
    
 			(currentSize.*method)(value.toPoint());
 		}
@@ -220,6 +247,5 @@ void QLineVariantProperty::childPropertyValueChanged(const QString& propertyName
 		this->value = currentSize;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

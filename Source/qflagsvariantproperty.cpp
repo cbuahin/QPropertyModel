@@ -1,16 +1,51 @@
+/****************************************************************************
+**
+**  Copyright (C) 2014 Caleb Amoa Buahin
+**  Contact: calebgh@gmail.com
+** 
+**  This file is part of QPropertGrid.exe and QPropertGrid.dll
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is free software; you can redistribute it and/or modify
+**  it under the terms of the Lesser GNU General Public License as published by
+**  the Free Software Foundation; either version 3 of the License, or
+**  (at your option) any later version.
+**
+**  QPropertGrid.exe and QPropertGrid.dll and its associated files is distributed in the hope that it will be useful,
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**  Lesser GNU General Public License for more details.
+**
+**  You should have received a copy of the Lesser GNU General Public License
+**  along with this program.  If not, see <http://www.gnu.org/licenses/>
+**
+****************************************************************************/
+
 #include "stdafx.h"
 #include "qflagsvariantproperty.h"
 #include "qboolvariantproperty.h"
 
 
-QFlagsVariantProperty::QFlagsVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value,metaProperty,parent)
+QFlagsVariantProperty::QFlagsVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	: QVariantProperty(value,metaProperty,model, row, parent)
 {
 	this->enumProperty = metaEnumProperty;
 }
 
 QFlagsVariantProperty::~QFlagsVariantProperty()
 {
+
+}
+
+bool QFlagsVariantProperty::hasChildren() 
+{
+	if(enumProperty.isValid() && enumProperty.keyCount() > 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 
 }
 
@@ -115,62 +150,63 @@ QVariant QFlagsVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	return QVariant();
 }
 
-
-
 void QFlagsVariantProperty::setupChildProperties()
 {
-	if(!propertiesSet)
+	if(enumProperty.isValid())
 	{
-		model->removeRows(0,children.count()-1,this->modelIndex);
-		qDeleteAll(children);
-		children.clear();
-	
-		Qt::ItemFlags flagsv = flags();
-		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
+		if(!childPropertiesSet)
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			if(children.count() > 0)
+			{	
+				qDeleteAll(children);
+				children.clear();
+			}
+
+			Qt::ItemFlags flagsv = flags();
+			if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
+			{
+				flagsv |= Qt::ItemIsEditable;
+			}
+
+			int max = enumProperty.keyCount();
+
+
+			for(int i =0 ; i < max ; i++)
+			{
+				QString propName = enumProperty.key(i);
+				int tval = enumProperty.value(i);
+
+				bool set = (this->value.toInt() & tval) == tval && (tval!= 0 || this->value.toInt() == tval );
+
+				QVariantProperty* tempProp = new QBoolVariantProperty(set,QMetaProperty(),model, i, this);
+				tempProp->setDefaultFlags(flagsv);
+				tempProp->setPropertyName(propName);
+				children.append(tempProp);
+
+
+				connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+					SLOT(childPropertyValueChanged(QString , QVariant)));
+			}
+
+			childPropertiesSet = true;
 		}
-
-		int max = enumProperty.keyCount();
-		
-
-		for(int i =0 ; i < max ; i++)
+		else
 		{
-			QString propName = enumProperty.key(i);
-			int tval = enumProperty.value(i);
+			if(children.count() > 0)
+			{
+				for(int i =0 ; i < children.count() ;i++)
+				{
+					QVariantProperty* prop = children[i];
+					int tval = enumProperty.keyToValue(prop->getPropertyName().toStdString().c_str());
+					bool set = (this->value.toInt() & tval) == tval && (tval!= 0 || this->value.toInt() == tval );
+					prop->blockSignals(true);
+					prop->setData(set);
+					prop->blockSignals(false);
+				}
 
-			bool set = (this->value.toInt() & tval) == tval && (tval!= 0 || this->value.toInt() == tval );
-		
-		    QVariantProperty* tempProp = new QBoolVariantProperty(set,QMetaProperty(),this);
-			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
-			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
-			children.append(tempProp);
-
-
-			connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-				SLOT(childPropertyValueChanged(QString , QVariant)));
+				emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
+			}
 		}
-
-		propertiesSet = true;
-	}
-	else
-	{
-		//for(int i = 0 ; i < children.count() ; i++)
-		//{
-		//	QVariantProperty* child =  children[i];
-		//	QString propertyName = child->getPropertyName();
-
-		//	if(getQLineFPropertyFunctions.contains(propertyName))
-		//	{
-		//		child->blockSignals(true);
-		//		GetQLineFProperty function = getQLineFPropertyFunctions[propertyName];
-		//		QPointF v = (currentSize.*function)();
-		//		child->setData(v);
-		//		child->blockSignals(false);
-		//	}
-		//}
 	}
 }
 
@@ -202,6 +238,7 @@ void QFlagsVariantProperty::childPropertyValueChanged(const QString& propertyNam
 {
 	if(value.isValid())
 	{
+
 		int tvalue = 0;
 		bool first = true;
 
@@ -215,10 +252,8 @@ void QFlagsVariantProperty::childPropertyValueChanged(const QString& propertyNam
 			}
 		}
 
-		childPropertyCalledUpdate = true;
 		this->value = tvalue;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
 	}
 }

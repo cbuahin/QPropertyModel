@@ -30,8 +30,10 @@ class QIconVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QIconVariantProperty(const QIcon& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QIconVariantProperty(const QIcon& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QIconVariantProperty();
+
+	bool hasChildren() ;
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
 	Qt::ItemFlags flags() const;

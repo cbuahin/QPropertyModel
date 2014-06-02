@@ -31,21 +31,22 @@ class QVariantQObjectProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	explicit QVariantQObjectProperty(QObject* const &object, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	explicit QVariantQObjectProperty(QObject* const &object, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QVariantQObjectProperty();
-	
-	 QVariant getData(Qt::ItemDataRole  role , Column column);
-	 bool setData(const QVariant & value, Qt::ItemDataRole  role, Column column) ;
-	 QObject* getObject() const ;
 
-	 Qt::ItemFlags flags() const;
-	 virtual bool hasChildren() ;
+	bool hasChildren();
+
+	QVariant getData(Qt::ItemDataRole  role , Column column);
+	bool setData(const QVariant & value, Qt::ItemDataRole  role, Column column) ;
+	QObject* getObject() const ;
+
+	Qt::ItemFlags flags() const;
 
 protected :
-	 void setupChildProperties();
-	
+	void setupChildProperties();
+
 protected:
-	QObject* object;
+	QObject*  object;
 };
 
 Q_DECLARE_METATYPE(QVariantQObjectProperty*);

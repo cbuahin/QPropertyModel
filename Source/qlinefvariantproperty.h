@@ -32,9 +32,10 @@ class QLineFVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QLineFVariantProperty(const QLineF& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QLineFVariantProperty(const QLineF& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model,int row = 0, QVariantProperty *parent = nullptr);
 	~QLineFVariantProperty();
 
+	bool hasChildren() ;
 	QVariant getData(Qt::ItemDataRole role , Column column);
 
 	Qt::ItemFlags flags() const;

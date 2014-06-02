@@ -25,19 +25,16 @@
 #ifndef QVARIANTPROPERTY_H
 #define QVARIANTPROPERTY_H
 
-struct StaticQtMetaObject : public QObject
-{
-    static inline const QMetaObject& get() {return staticQtMetaObject;}
-};
-
-#include <QObject>
+#include <qtpropertymodel.h>
 
 class QVariantProperty : public QObject
 {
+	
+
 	Q_OBJECT
+	friend class QtPropertyModel;
 
 	//register common enums;
-
 public:
 	enum Column
 	{
@@ -45,41 +42,44 @@ public:
 		PropertyValueColumn = 1,
 	};
 	
-	QVariantProperty(const QVariant& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QVariantProperty(const QVariant& invalue, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
+	
 	virtual ~QVariantProperty();
 
-	virtual bool setData(const QVariant & value,Qt::ItemDataRole role, Column column);
-    virtual void setData(const QVariant& value);
+	virtual bool setData(const QVariant & value,Qt::ItemDataRole role = Qt::ItemDataRole::EditRole, Column column = Column::PropertyValueColumn);
 	
 	QVariant getData() const ;
+	
 	virtual QVariant getData(Qt::ItemDataRole role , Column column);
 
-
 	virtual QObject* getObject() const ;
+
 	QMetaProperty getMetaProperty() const;
-	QAbstractItemModel* getModel() const;
+
+	QtPropertyModel* getModel() const;
+
 	QModelIndex getModelIndex() const;
 
 	virtual bool canReset();
-	
 
-	void setModel(QAbstractItemModel* const& model);
-	void setModelIndex(const QModelIndex& modelIndex);
+	void setModelIndex(const QModelIndex& index);
 
-	const QList<QVariantProperty*>& childProperties() ;
-	int getRowInParent() const;
-
-    void setRowInParent(int row); 
 	void setPropertyName(const QString& propName);
+
 	QString getPropertyName() const;
 
 	virtual bool hasChildren() ;
 
-	int getRowCount() const;
+	virtual int getRowCount();
+	
+	const QList<QVariantProperty*>& childProperties() ;
+	
+	int getRowInParent() const;
+
     int getColumnCount() const;
 
 	virtual Qt::ItemFlags flags() const;
-
+	
 	virtual void setDefaultFlags(Qt::ItemFlags flags);
 
 	virtual QString getQualifiedVariantPropertyName() const;
@@ -99,29 +99,26 @@ private slots:
 	//gets edits from external sources
 	virtual void getDataFromParentSlot();
 
-
 signals:
 	//used to notify parent of unregistered manually created properties
-	void valueChangedSignal();
 	void valueChangedSignal(const QString& propertyName, const QVariant& value);
     
-
 protected:
+	QVariantProperty* parentProperty;
+    QtPropertyModel* model;
 	QList<QVariantProperty*> children;
-	QAbstractItemModel* model;
 	QModelIndex modelIndex;
 	QMetaProperty metaProperty;
 	QString propertyName;
 	QVariant value;
 	int columnCount;
 	int rowInParent;
-    bool propertiesSet;
 	bool canreset;
 	bool editable;
-	bool childPropertyCalledUpdate;
+	int rowCount;
 	QVariant resetValue;
 	Qt::ItemFlags defaultFlags;
-
+	bool childPropertiesSet;
 };
 
 Q_DECLARE_METATYPE(QVariantProperty*);

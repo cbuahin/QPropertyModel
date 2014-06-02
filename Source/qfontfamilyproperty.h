@@ -8,7 +8,7 @@ class QFontFamilyProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QFontFamilyProperty(const QString& propertyName, int propertyIndex, const QVariant& value, QVariantProperty *parent=nullptr);
+	QFontFamilyProperty(const QString& propertyName, const QVariant& value, QtPropertyModel* const &  model, int row =  0, QVariantProperty *parent=nullptr);
 	~QFontFamilyProperty();
 
    QVariant getData(Qt::ItemDataRole role , Column column);

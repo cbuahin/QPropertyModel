@@ -29,11 +29,13 @@ class QFlagsVariantProperty :public QVariantProperty
 	Q_OBJECT
 
 public:
-	QFlagsVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QFlagsVariantProperty(const QVariant& value, const QMetaEnum& metaEnumProperty,const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QFlagsVariantProperty();
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
 	Qt::ItemFlags flags() const;
+
+	bool hasChildren();
 
 
 private slots:

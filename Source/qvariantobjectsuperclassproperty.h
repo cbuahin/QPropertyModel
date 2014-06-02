@@ -24,26 +24,30 @@
 
 #include <qvariantqobjectproperty.h>
 
-class QVariantObjectSuperClassProperty : public QVariantQObjectProperty
+class QVariantObjectSuperClassProperty : public QVariantProperty
 {
 	Q_OBJECT
 
 public:
-	QVariantObjectSuperClassProperty(QObject* const & object, const  QMetaObject* superClassMetaObject, int rowInParent,  QVariantProperty *parent = nullptr);
+	QVariantObjectSuperClassProperty(QObject* const & object, const  QMetaObject* superClassMetaObject, QtPropertyModel* const &  model, int row = 0,  QVariantProperty *parent = nullptr);
 	~QVariantObjectSuperClassProperty();
+
+	bool hasChildren() ;
 
 	 QVariant getData(Qt::ItemDataRole  role , Column column);
 	 bool setData(const QVariant & value, Qt::ItemDataRole  role, Column column) ;
 
 	 Qt::ItemFlags flags() const;
 
-	 bool hasChildren() ;
 
 protected:
 	 void setupChildProperties() ;
 
+protected:
+	QObject*  object;
 private:
 	const QMetaObject* superClassMetaObject;
+
 };
 
 Q_DECLARE_METATYPE(QVariantObjectSuperClassProperty*);

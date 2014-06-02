@@ -22,30 +22,85 @@
 #ifndef QTPROPERTYMODEL_H
 #define QTPROPERTYMODEL_H
 
+struct StaticQtMetaObject : public QObject
+{
+    static inline const QMetaObject& get() 
+	{
+		return staticQtMetaObject;
+	}
+};
 
 
-#include <QAbstractItemModel>
-#include <qvariantproperty.h>
+class ParentObject : public QObject
+{
+	Q_OBJECT
+	Q_PROPERTY(QVariant value READ getValue WRITE setValue NOTIFY valueChanged RESET reset USER true)
+
+public:
+	ParentObject(const QVariant& value , QObject* parent);
+	~ParentObject();
+
+	QVariant getValue() const;
+	void setValue(const QVariant & value);
+
+	void reset();
+
+signals:
+	void valueChanged();
+
+private:
+	QVariant value;
+	QVariant resetValue;
+};
+Q_DECLARE_METATYPE(ParentObject*)
+
+inline ParentObject::ParentObject(const QVariant& value , QObject* parent)
+	:QObject(parent), value(value), resetValue(value)
+{
+
+}
+inline ParentObject::~ParentObject(){}
+inline QVariant ParentObject::getValue() const
+{
+	return value;
+}
+
+inline void ParentObject::setValue(const QVariant& value ) 
+{
+	 this->value = value;
+	 emit valueChanged();
+}
+
+inline void ParentObject::reset() 
+{
+	this->value = resetValue;
+	emit valueChanged();
+}
+
+
+class QVariantProperty;
 
 class QtPropertyModel : public QAbstractItemModel 
 {
 	Q_OBJECT
+    friend class QVariantProperty;
 
 public:
-	explicit QtPropertyModel(QObject *parent);
-	explicit QtPropertyModel(const QVariant& parent);
+    QtPropertyModel(QObject *parent);
+
+    QtPropertyModel(const QVariant& parent);
 
 	~QtPropertyModel();
 
 	bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
 
-	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-
-	QModelIndex parent(const QModelIndex &index) const;
-
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
+
+	QModelIndex parent(const QModelIndex &index) const;
 
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
@@ -55,13 +110,14 @@ public:
 
 	Qt::ItemFlags flags(const QModelIndex & index) const;
 
+	QVariant getRootValue() const;
 
+	QVariantProperty* getRootProperty() const;
 
 private:
-	QVariantProperty* getProperty(const QModelIndex &parent = QModelIndex()) const;
+	QVariantProperty* getProperty(const QModelIndex & parent = QModelIndex()) const;
 	QVariantProperty* rootProperty;
-	QVector<int> roles;   	
-
+	bool parentIsQObject;
 };
 
 #endif // QTPROPERTYMODEL_H

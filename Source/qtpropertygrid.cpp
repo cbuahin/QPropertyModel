@@ -69,7 +69,7 @@ QtPropertyGrid::QtPropertyGrid(QWidget *parent)
 	//QtPropertyModel* model = new QtPropertyModel(ui.treeView);
 	QVariantPropertyDelegate* itemDelegate = new QVariantPropertyDelegate(ui.treeView);
 	QtPropertyModel* model = new QtPropertyModel(temp);
-	connect(model,SIGNAL(dataChanged(QModelIndex,QModelIndex)),ui.treeView,SLOT(repaint()));
+	//connect(model,SIGNAL(dataChanged(QModelIndex,QModelIndex)),ui.treeView,SLOT(repaint()));
 	ui.treeView->setModel(model);
 	ui.treeView->setEditTriggers(QAbstractItemView:: AllEditTriggers);
 	ui.treeView->setItemDelegate(itemDelegate);

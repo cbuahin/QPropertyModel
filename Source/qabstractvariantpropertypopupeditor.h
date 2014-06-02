@@ -12,8 +12,6 @@ public:
 	virtual ~QAbstractVariantPropertyPopUpEditor();
 
 protected:
-
-protected:
 	QPushButton* openEditorButton;
 };
 

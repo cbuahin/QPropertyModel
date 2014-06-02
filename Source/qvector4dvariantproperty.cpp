@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "qvector4dvariantproperty.h"
 
-QVector4DVariantProperty::QVector4DVariantProperty(const QVector4D& value, const QMetaProperty& metaProperty, QVariantProperty *parent )
-	: QVariantProperty(value,metaProperty,parent)
+QVector4DVariantProperty::QVector4DVariantProperty(const QVector4D& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent )
+	: QVariantProperty(value,metaProperty, model , row , parent)
 {
 	setPropertyValueFunctions["X"] = & QVector4D::setX;
 	setPropertyValueFunctions["Y"] = &  QVector4D::setY;
@@ -20,6 +20,11 @@ QVector4DVariantProperty::~QVector4DVariantProperty()
 {
 	setPropertyValueFunctions.clear();
 	getPropertyValueFunctions.clear();
+}
+
+bool QVector4DVariantProperty::hasChildren()
+{
+	return true;
 }
 
 QVariant QVector4DVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -152,52 +157,56 @@ void QVector4DVariantProperty::setupChildProperties()
 {
 	QVector4D& currentSize = qvariant_cast<QVector4D>(value);
 
-	if(!propertiesSet)
+	if(!childPropertiesSet)
 	{
-		qDeleteAll(children);
-		children.clear();
+
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
 
 		QStringList properties = getPropertyValueFunctions.keys(); 
 		Qt::ItemFlags flagsv = flags();
+
 		if((metaProperty.isValid() && metaProperty.isWritable()) || defaultFlags.testFlag(Qt::ItemIsEditable))
 		{
-		   flagsv |= Qt::ItemIsEditable;
+			flagsv |= Qt::ItemIsEditable;
 		}
+
 		for(int i =0 ; i < properties.count() ; i++)
 		{
 			QString propName = properties[i];
 			GetQVector4DProperty prop =getPropertyValueFunctions[propName];
 			float value = (currentSize.*prop)();
-			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),this);
+			QVariantProperty* tempProp = new QVariantProperty(value,QMetaProperty(),model, i, this);
 			tempProp->setDefaultFlags(flagsv);
-			tempProp->setModel(model);
 			tempProp->setPropertyName(propName);
-			tempProp->setRowInParent(i);
 			children.append(tempProp);
 
 
 			connect(tempProp ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
 				SLOT(childPropertyValueChanged(QString , QVariant)));
 		}
-
-		propertiesSet = true;
+		childPropertiesSet = true;
 	}
 	else
 	{
-		for(int i = 0 ; i < children.count() ; i++)
+		if(children.count() > 0)
 		{
-			QVariantProperty* child =  children[i];
-			QString propertyName = child->getPropertyName();
-
-			if(getPropertyValueFunctions.contains(propertyName))
+			for(int i =0 ; i < children.count() ;i++)
 			{
-				
-				child->blockSignals(true);
-				GetQVector4DProperty function = getPropertyValueFunctions[propertyName];
-				float v = (currentSize.*function)();
-				child->setData(v);
-				child->blockSignals(false);
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				GetQVector4DProperty propf = getPropertyValueFunctions[propertyName];
+				QVariant tval = (currentSize.*propf)(); ;
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
+
 			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
 		}
 	}
 }
@@ -211,7 +220,7 @@ void QVector4DVariantProperty::childPropertyValueChanged(const QString& property
 		if(setPropertyValueFunctions.contains(propertyName))
 		{
 			SetQVector4DProperty method = setPropertyValueFunctions[propertyName];
-		    childPropertyCalledUpdate = true;
+		    
    
 			(currentSize.*method)(value.toFloat());
 		}
@@ -219,6 +228,6 @@ void QVector4DVariantProperty::childPropertyValueChanged(const QString& property
 		this->value = currentSize;
 		emit model->dataChanged(modelIndex , modelIndex);
 		emit valueChangedSignal(this->propertyName,this->value);
-		emit valueChangedSignal();
+		
 	}
 }

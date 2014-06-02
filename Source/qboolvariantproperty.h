@@ -29,7 +29,7 @@ class QBoolVariantProperty : public QVariantProperty
 	Q_OBJECT
 
 public:
-	QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QBoolVariantProperty(const bool& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row = 0, QVariantProperty *parent = nullptr);
 	~QBoolVariantProperty();
 
 	QVariant getData(Qt::ItemDataRole role , Column column);

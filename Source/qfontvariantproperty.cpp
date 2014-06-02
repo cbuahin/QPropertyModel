@@ -24,8 +24,8 @@
 #include <qfontfamilyproperty.h>
 #include <qboolvariantproperty.h>
 
-QFontVariantProperty::QFontVariantProperty(const QFont& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-  : QVariantProperty(value,metaProperty,parent)
+QFontVariantProperty::QFontVariantProperty(const QFont& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+  : QVariantProperty(value,metaProperty,model,row, parent)
 {
 
 }
@@ -33,6 +33,11 @@ QFontVariantProperty::QFontVariantProperty(const QFont& value, const QMetaProper
 QFontVariantProperty::~QFontVariantProperty()
 {
 
+}
+
+bool QFontVariantProperty::hasChildren() 
+{
+	return true;
 }
 
 QVariant QFontVariantProperty::getData(Qt::ItemDataRole role , Column column)
@@ -154,12 +159,123 @@ QVariant QFontVariantProperty::getData(Qt::ItemDataRole role , Column column)
 	return QVariant();
 }
 
+void QFontVariantProperty::setupChildProperties()
+{
+	QFont& currentFont = qvariant_cast<QFont>(value);
+
+	if(!childPropertiesSet)
+	{
+		if(children.count() > 0)
+		{	
+			qDeleteAll(children);
+			children.clear();
+		}
+
+		QVariantProperty* fam = new QFontFamilyProperty("Family",currentFont.family(),model, 0,this);
+		fam->setDefaultFlags(flags());
+		children.append(fam);
+		connect(fam ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		int p = currentFont.pointSize();
+		QVariantProperty* psize = new QVariantProperty(p,QMetaProperty(),model, 1,this);
+		psize->setDefaultFlags(flags());
+		psize->setPropertyName("Point Size");
+		children.append(psize);
+		connect(psize ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		QVariantProperty* bold = new QBoolVariantProperty(currentFont.bold(),QMetaProperty(),model,2,this);
+		bold->setPropertyName("Bold");
+		bold->setDefaultFlags(flags());
+		children.append(bold);
+		connect(bold ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		QVariantProperty* italic = new QBoolVariantProperty(currentFont.italic(),QMetaProperty(),model,3,this);
+		italic->setDefaultFlags(flags());
+		italic->setPropertyName("Italic");
+		children.append(italic);
+		connect(italic ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		QVariantProperty* underline = new QBoolVariantProperty(currentFont.underline(),QMetaProperty(),model,4,this);
+		underline->setDefaultFlags(flags());
+		underline->setPropertyName("Underline");
+		children.append(underline);
+		connect(underline ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		QVariantProperty* strikeout = new QBoolVariantProperty(currentFont.strikeOut(),QMetaProperty(),model,5,this);
+		strikeout->setDefaultFlags(flags());
+		strikeout->setPropertyName("Strikeout");
+		children.append(strikeout);
+		connect(strikeout ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		QVariantProperty* Kerning = new QBoolVariantProperty(currentFont.kerning(),QMetaProperty(),model,6,this);
+		Kerning->setPropertyName("Kerning");
+		Kerning->setDefaultFlags(flags());
+		children.append(Kerning);
+		connect(Kerning ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
+			SLOT(childPropertyValueChanged(QString , QVariant)));
+
+		childPropertiesSet = true;
+	}
+	else
+	{
+		if(children.count() > 0)
+		{
+			for(int i =0 ; i < children.count() ;i++)
+			{
+				QVariantProperty* prop = children[i];
+				QString propertyName = prop->getPropertyName();
+				QVariant tval ;
+
+				if(propertyName == "Family")
+				{
+					tval =	currentFont.family();
+				}
+				else if(propertyName == "Point Size")
+				{
+					tval =	currentFont.pointSize();
+				}
+				else if(propertyName == "Bold")
+				{
+					tval =	currentFont.bold();
+				}
+				else if(propertyName == "Italic")
+				{
+					tval =	currentFont.italic();
+				}
+				else if(propertyName == "Underline")
+				{
+					tval =	currentFont.underline();
+				}
+				else if(propertyName == "Strikeout")
+				{
+					tval =	currentFont.strikeOut();
+				}
+				else if(propertyName == "Kerning")
+				{
+					tval =	currentFont.kerning();
+				}
+
+				prop->blockSignals(true);
+				prop->setData(tval);
+				prop->blockSignals(false);
+			}
+
+			emit this->model->dataChanged(children[0]->getModelIndex(),children[children.count()-1]->getModelIndex());
+		}
+	}
+}
+
 void QFontVariantProperty::childPropertyValueChanged(const QString& propertyName, const QVariant& value)
 {
 	
 	if(value.isValid())
 	{
-		childPropertyCalledUpdate = true;
 		QFont currentFont = qvariant_cast<QFont>(this->value);
 
 		if(propertyName == "Family")
@@ -195,136 +311,4 @@ void QFontVariantProperty::childPropertyValueChanged(const QString& propertyName
 
 	}
 
-}
-
-void QFontVariantProperty::setupChildProperties()
-{
-	QFont& currentFont = qvariant_cast<QFont>(value);
-	
-	if(!propertiesSet)
-	{
-		qDeleteAll(children);
-		children.clear();
-
-		QVariantProperty* fam = new QFontFamilyProperty("Family",1,currentFont.family(),this);
-		fam->setModel(model);
-		fam->setDefaultFlags(flags());
-		children.append(fam);
-		connect(fam ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-		SLOT(childPropertyValueChanged(QString , QVariant)));
-
-		int p = currentFont.pointSize();
-		QVariantProperty* psize = new QVariantProperty(p,QMetaProperty(),this);
-		psize->setModel(model);
-		psize->setRowInParent(2);
-		psize->setDefaultFlags(flags());
-		psize->setPropertyName("Point Size");
-		children.append(psize);
-		connect(psize ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-		SLOT(childPropertyValueChanged(QString , QVariant)));
-
-		QVariantProperty* bold = new QBoolVariantProperty(currentFont.bold(),QMetaProperty(),this);
-		bold->setModel(model);
-		bold->setRowInParent(3);
-		bold->setPropertyName("Bold");
-		bold->setDefaultFlags(flags());
-		children.append(bold);
-		connect(bold ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-		SLOT(childPropertyValueChanged(QString , QVariant)));
-
-		QVariantProperty* italic = new QBoolVariantProperty(currentFont.italic(),QMetaProperty(),this);
-		italic->setModel(model);
-		italic->setRowInParent(4);
-		italic->setDefaultFlags(flags());
-		italic->setPropertyName("Italic");
-		children.append(italic);
-		connect(italic ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-		SLOT(childPropertyValueChanged(QString , QVariant)));
-		
-		QVariantProperty* underline = new QBoolVariantProperty(currentFont.underline(),QMetaProperty(),this);
-		underline->setModel(model);
-		underline->setRowInParent(5);
-		underline->setDefaultFlags(flags());
-		underline->setPropertyName("Underline");
-		children.append(underline);
-		connect(underline ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-		SLOT(childPropertyValueChanged(QString , QVariant)));
-
-		QVariantProperty* strikeout = new QBoolVariantProperty(currentFont.strikeOut(),QMetaProperty(),this);
-		strikeout->setModel(model);
-		strikeout->setRowInParent(6);
-		strikeout->setDefaultFlags(flags());
-		strikeout->setPropertyName("Strikeout");
-		children.append(strikeout);
-		connect(strikeout ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-			SLOT(childPropertyValueChanged(QString , QVariant)));
-
-		QVariantProperty* Kerning = new QBoolVariantProperty(currentFont.kerning(),QMetaProperty(),this);
-	    Kerning->setModel(model);	Kerning->setRowInParent(7);
-		Kerning->setPropertyName("Kerning");
-		Kerning->setDefaultFlags(flags());
-		children.append(Kerning);
-		connect(Kerning ,SIGNAL(valueChangedSignal(QString,QVariant)),this, 
-			SLOT(childPropertyValueChanged(QString , QVariant)));
-
-
-		propertiesSet = true;
-	}
-	else 
-	{
-		QVariantProperty* ch = children[0];
-		ch->blockSignals(true);
-		ch->setData(currentFont.family());
-		ch->blockSignals(false);
-		QModelIndex index = ch->getModelIndex();
-		
-
-		ch = children[1];
-		ch->blockSignals(true);
-		int p = currentFont.pointSize();
-		ch->setData(p);
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-
-		ch = children[2];
-		ch->blockSignals(true);
-		ch->setData(currentFont.bold());
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-	    ch = children[3];
-		ch->blockSignals(true);
-		ch->setData(currentFont.italic());
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-
-	    ch = children[4];
-		ch->blockSignals(true);
-		ch->setData(currentFont.underline());
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-
-	    ch = children[5];
-		ch->blockSignals(true);
-		ch->setData(currentFont.strikeOut());
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-
-		ch = children[6];
-		ch->blockSignals(true);
-		ch->setData(currentFont.kerning());
-		ch->blockSignals(false);
-		index = ch->getModelIndex();
-		//emit model->dataChanged(index , index);
-
-	}
 }

@@ -51,17 +51,17 @@
     <Filter Include="Source Files\Editors">
       <UniqueIdentifier>{4b688911-84b2-49b4-98e9-21d6d09ace3f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\QDerivedVariantProperties">
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{5a41486a-c270-4440-82ed-ae3b53b9c669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{49090ab7-d059-484d-8116-888c8d2e2dd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\QVariantProperties\QDerivedVariantProperties">
       <UniqueIdentifier>{ccd5829b-38fc-4d79-bfe5-7a6ee330c72b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\QDerivedVariantProperties">
+    <Filter Include="Source Files\QVariantProperties\QDerivedVariantProperties">
       <UniqueIdentifier>{ab456771-88d4-4fe5-b869-11fc1d2ab93f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Editors\Forms">
-      <UniqueIdentifier>{489bcf48-54ff-4650-a4c6-5cc72535dbf6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Editors\Forms">
-      <UniqueIdentifier>{6e7a9d2a-bced-4d41-92c1-60479e3b6c25}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,9 +88,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_qvariantproperty.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="qtpropertymodel.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_qtpropertymodel.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -216,7 +213,7 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="qfontfamilyproperty.cpp">
-      <Filter>Source Files\QDerivedVariantProperties</Filter>
+      <Filter>Source Files\QVariantProperties\QDerivedVariantProperties</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_qpropertyfromlisteditor.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -253,15 +250,6 @@
     </ClCompile>
     <ClCompile Include="qsizefvariantproperty.cpp">
       <Filter>Source Files\QVariantProperties</Filter>
-    </ClCompile>
-    <ClCompile Include="usefulenums.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_usefulenums.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_usefulenums.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_qrectvariantproperty.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -452,12 +440,111 @@
     <ClCompile Include="qpenvariantproperty.cpp">
       <Filter>Source Files\QVariantProperties</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qsizepolicyvariantproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qsizepolicyvariantproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qsizepolicyvariantproperty.cpp">
+      <Filter>Source Files\QVariantProperties</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qabstractlistpropertyeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qabstractlistpropertyeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qabstractlistpropertyeditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qstringlistpropertyeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qstringlistpropertyeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qstringlistpropertyeditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qstringlistvariantproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qstringlistvariantproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qstringlistvariantproperty.cpp">
+      <Filter>Source Files\QVariantProperties</Filter>
+    </ClCompile>
+    <ClCompile Include="qtpropertymodel.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvariantmapproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvariantmapproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvariantmapproperty.cpp">
+      <Filter>Source Files\QVariantProperties</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvariantmappropertyeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvariantmappropertyeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvariantmappropertyeditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvarianthashpropertyeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvarianthashpropertyeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvarianthashpropertyeditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvarianthashproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvarianthashproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvarianthashproperty.cpp">
+      <Filter>Source Files\QVariantProperties</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvariantlistproperty.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvariantlistproperty.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvariantlistproperty.cpp">
+      <Filter>Source Files\QVariantProperties</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qvariantlistpropertyeditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qvariantlistpropertyeditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qvariantlistpropertyeditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_qtpropertygrid.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_qabstractlistpropertyeditor.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_qstringlistpropertyeditor.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -467,9 +554,6 @@
     </CustomBuild>
     <CustomBuild Include="qtpropertygrid.qrc">
       <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="qtpropertymodel.h">
-      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="qvariantqobjectproperty.h">
       <Filter>Header Files\QVariantProperties</Filter>
@@ -511,7 +595,7 @@
       <Filter>Header Files\Editors</Filter>
     </CustomBuild>
     <CustomBuild Include="qfontfamilyproperty.h">
-      <Filter>Header Files\QDerivedVariantProperties</Filter>
+      <Filter>Header Files\QVariantProperties\QDerivedVariantProperties</Filter>
     </CustomBuild>
     <CustomBuild Include="qpropertyfromlisteditor.h">
       <Filter>Header Files\Editors</Filter>
@@ -524,9 +608,6 @@
     </CustomBuild>
     <CustomBuild Include="qsizefvariantproperty.h">
       <Filter>Header Files\QVariantProperties</Filter>
-    </CustomBuild>
-    <CustomBuild Include="usefulenums.h">
-      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="qrectvariantproperty.h">
       <Filter>Header Files\QVariantProperties</Filter>
@@ -593,6 +674,45 @@
     </CustomBuild>
     <CustomBuild Include="qpenvariantproperty.h">
       <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qsizepolicyvariantproperty.h">
+      <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qabstractlistpropertyeditor.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qabstractlistpropertyeditor.h">
+      <Filter>Header Files\Editors</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qstringlistpropertyeditor.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qstringlistpropertyeditor.h">
+      <Filter>Header Files\Editors</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qstringlistvariantproperty.h">
+      <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qtpropertymodel.h">
+      <Filter>Header Files\Models</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvariantmapproperty.h">
+      <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvariantmappropertyeditor.h">
+      <Filter>Header Files\Editors</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvarianthashpropertyeditor.h">
+      <Filter>Header Files\Editors</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvarianthashproperty.h">
+      <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvariantlistproperty.h">
+      <Filter>Header Files\QVariantProperties</Filter>
+    </CustomBuild>
+    <CustomBuild Include="qvariantlistpropertyeditor.h">
+      <Filter>Header Files\Editors</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

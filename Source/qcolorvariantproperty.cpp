@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "qcolorvariantproperty.h"
 
-QColorVariantProperty::QColorVariantProperty(const QColor& value, const QMetaProperty& metaProperty, QVariantProperty *parent)
-	: QVariantProperty(value, metaProperty, parent)
+QColorVariantProperty::QColorVariantProperty(const QColor& value, const QMetaProperty& metaProperty,QtPropertyModel* const &  model, int row, QVariantProperty *parent)
+	: QVariantProperty(value, metaProperty,model,row, parent)
 {
 
 }

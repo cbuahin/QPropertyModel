@@ -31,6 +31,17 @@ TestObject::TestObject(QObject *parent)
 	qwidget = new QTreeView();
 	testEnum = TestEnum::TestA;
 	flags = TestA | TestC;
+
+	stringList << "TestA" << "TestB" << "TestC"  << "TestD"  << "TestE"  << "TestF"  << "TestG" << "TestH"  ;
+	variantMap["One"] = QVariant::fromValue(qwidget);
+	variantMap["Two"] = "Knock the Door";
+	variantMap["Three"] = "Buckle My Shoe";
+
+	variantHash["One"] = QVariant::fromValue(qwidget);
+	variantHash["Two"] = QVariant::fromValue(this);
+	variantHash["Three"] = QString("Buckle My Shoe");
+	
+	variantList << "One" << "Two" << "Three";
 }
 
 TestObject::~TestObject()
@@ -239,6 +250,14 @@ QStringList TestObject::getQStringList() const
 	return stringList;
 }
 
+void TestObject::setQVariantList(const  QVariantList & variantList)
+{
+	this->variantList = variantList;
+}
+QVariantList TestObject::getQVariantList() const
+{
+	return variantList;
+}
 void TestObject::setQVariantMap(const QVariantMap &variantMap)
 {
 	this->variantMap = variantMap;

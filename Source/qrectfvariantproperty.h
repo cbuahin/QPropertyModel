@@ -12,8 +12,10 @@ class QRectFVariantProperty :public QVariantProperty
 	Q_OBJECT
 
 public:
-	QRectFVariantProperty(const QRectF& value, const QMetaProperty& metaProperty, QVariantProperty *parent = nullptr);
+	QRectFVariantProperty(const QRectF& value, const QMetaProperty& metaProperty, QtPropertyModel* const &  model, int row =0, QVariantProperty *parent = nullptr);
 	~QRectFVariantProperty();
+
+	bool hasChildren() ;
 
 	QVariant getData(Qt::ItemDataRole role , Column column);
 
