@@ -1,4 +1,4 @@
-QtPropertyGrid
+QPropertyModel
 ==============
 
 A property model designed after the .NET framework PropertyGrid control. The property grid currently works for most QVariant types and can be easily extended for those not implemented.
