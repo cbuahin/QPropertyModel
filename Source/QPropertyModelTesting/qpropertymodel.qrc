@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/QPropertyModel">
-        <file alias="reset">Resources/reset.png</file>
-    </qresource>
-</RCC>
