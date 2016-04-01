@@ -11,8 +11,6 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QStandardItemModel>
-
-#include "ui_qvariantlistpropertyitemeditor.h"
 #include "ui_qcustomobjectlistpropertyitemeditor.h"
 #include "ui_qstringlistpropertyitemeditor.h"
 #include "qpropertyitem.h"

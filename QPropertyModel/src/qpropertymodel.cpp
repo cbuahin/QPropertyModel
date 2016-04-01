@@ -251,7 +251,7 @@ bool QPropertyModel::registerCustomPropertyItemType(int userType, const QMetaObj
 {
    if (checkIfSuperClassIsPropertyItem(metaObject))
    {
-     m_registeredPropertyItems[userType] = metaObject;
+      m_registeredPropertyItems[userType] = metaObject;
       return true;
    }
 
@@ -289,14 +289,25 @@ bool QPropertyModel::createRootPropertyItemByType(int userType, const QVariant& 
 {
    if (m_registeredPropertyItems.contains(userType))
    {
-      if (m_rootPropertyItem)
-      {
-         delete m_rootPropertyItem;
-         m_rootPropertyItem = nullptr;
-      }
+      QObject* object = qvariant_cast<QObject*>(item);
 
-      const QMetaObject* metaObject = QPropertyModel::m_registeredPropertyItems[userType];
-      m_rootPropertyItem = (QVariantPropertyItem*)metaObject->newInstance(Q_ARG(const QVariant&, item), Q_ARG(const QMetaProperty&, QMetaProperty()), Q_ARG(QObjectClassPropertyItem*, nullptr));
+      if(object)
+      {
+         if (m_rootPropertyItem)
+         {
+            delete m_rootPropertyItem;
+            m_rootPropertyItem = nullptr;
+         }
+
+         const QMetaObject* metaObject = QPropertyModel::m_registeredPropertyItems[userType];
+         m_rootPropertyItem = (QVariantPropertyItem*)metaObject->newInstance(Q_ARG(const QVariant&, item), Q_ARG(const QMetaProperty&, QMetaProperty()), Q_ARG(QObjectClassPropertyItem*, nullptr));
+      }
+      else
+      {
+         m_wrapperUsed = true;
+         m_variantHolder->setValue(item);
+         m_rootPropertyItem = new QObjectClassPropertyItem(m_variantHolder, m_variantHolder->metaObject(), nullptr);
+      }
 
       if (m_rootPropertyItem != nullptr)
       {
