@@ -4,13 +4,18 @@
 #include "qpropertyitemdelegate.h"
 #include "qobjectlistpropertyitem.h"
 #include <QDebug>
+#include <qcustomeditors.h>
 
+int m_windowState(-1000);
+QByteArray m_state;
+QRect m_geometry;
 
 QMap<int, const QMetaObject*> QPropertyModel::m_registeredPropertyItems = QMap<int, const QMetaObject*>();
 
 QPropertyModel::QPropertyModel(QObject* parent)
    :QAbstractItemModel(parent), m_wrapperUsed(false)
 {
+
    m_rootPropertyItem = nullptr;
    m_variantHolder = new QVariantHolderHelper(QVariant(), this);
 

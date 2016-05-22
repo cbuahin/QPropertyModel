@@ -1,50 +1,63 @@
 #include "qcustomeditors.h"
 #include "qpropertymodel.h"
+#include "ui_qcustomobjectlistpropertyitemeditor.h"
 
 QVariantListPropertyItemEditor::QVariantListPropertyItemEditor(QWidget *parent)
-   :QPopUpPropertyItemEditor(parent)
+   :QPopUpPropertyItemEditor(parent),
+     ui(new Ui::QCustomObjectListPropertyItemEditor)
 {
+
    m_editorDialog = new QDialog(this);
-   ui.setupUi(m_editorDialog);
+   ui->setupUi(m_editorDialog);
    m_editorDialog->setWindowTitle("QVariantList Editor");
 
-   m_variantModel = new QStandardItemModel(ui.listViewItems);
+   m_variantModel = new QStandardItemModel(ui->listViewItems);
 
-   ui.listViewItems->setModel(m_variantModel);
-   ui.listViewItems->setSelectionBehavior(QAbstractItemView::SelectRows);
-   ui.listViewItems->setSelectionMode(QAbstractItemView::ExtendedSelection);
-   ui.listViewItems->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   ui->listViewItems->setModel(m_variantModel);
+   ui->listViewItems->setSelectionBehavior(QAbstractItemView::SelectRows);
+   ui->listViewItems->setSelectionMode(QAbstractItemView::ExtendedSelection);
+   ui->listViewItems->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
    m_propertyModel = new QPropertyModel(this);
    QPropertyItemDelegate* propertyModelDelegate = new QPropertyItemDelegate(m_propertyModel);
 
 
-   ui.treeViewProperties->setModel(m_propertyModel);
-   ui.treeViewProperties->setEditTriggers(QAbstractItemView::AllEditTriggers);
-   ui.treeViewProperties->setItemDelegate(propertyModelDelegate);
-   ui.treeViewProperties->setAlternatingRowColors(true);
-   ui.treeViewProperties->expandToDepth(1);
-   ui.treeViewProperties->resizeColumnToContents(0);
-   ui.treeViewProperties->resizeColumnToContents(1);
+   ui->treeViewProperties->setModel(m_propertyModel);
+   ui->treeViewProperties->setEditTriggers(QAbstractItemView::AllEditTriggers);
+   ui->treeViewProperties->setItemDelegate(propertyModelDelegate);
+   ui->treeViewProperties->setAlternatingRowColors(true);
+   ui->treeViewProperties->expandToDepth(1);
+   ui->treeViewProperties->resizeColumnToContents(0);
+   ui->treeViewProperties->resizeColumnToContents(1);
 
    m_variantHolder = new QVariantHolderHelper(QVariant() , this);
 
-   connect(ui.pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
+   connect(ui->pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
 
-   connect(ui.listViewItems, SIGNAL(clicked(const QModelIndex&)), this, SLOT(onItemClicked(const QModelIndex&)));
+   connect(ui->listViewItems, SIGNAL(clicked(const QModelIndex&)), this, SLOT(onItemClicked(const QModelIndex&)));
 
    connect(m_propertyModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QVector<int>)),
            this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &, const QVector<int>)));
 
-   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddQVariant()));
-   connect(ui.pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveQVariant()));
+   connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddQVariant()));
+   connect(ui->pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveQVariant()));
+   connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(close()));
+
+
+   if(m_windowState != -1000)
+   {
+      m_editorDialog->restoreGeometry(m_state);
+      Qt::WindowState windowState = (Qt::WindowState) m_windowState;
+      m_editorDialog->setWindowState(windowState);
+      m_editorDialog->setGeometry(m_geometry);
+   }
 
 }
 
 
 QVariantListPropertyItemEditor::~QVariantListPropertyItemEditor()
 {
-
+   delete ui;
 }
 
 void QVariantListPropertyItemEditor::setValue(const QVariant &value)
@@ -79,18 +92,18 @@ void QVariantListPropertyItemEditor::setUpChildWidget()
    QVariantPropertyItem* test = (QVariantPropertyItem*) m_propertyItem ;
 
    if ( (m_propertyItem->isEditable() && !test ) || (test && test->metaProperty().isValid()
-                                                    && test->metaProperty().isWritable()))
+                                                     && test->metaProperty().isWritable()))
    {
-      ui.pushButtonAdd->setEnabled(true);
-      ui.pushButtonRemove->setEnabled(true);
-      ui.treeViewProperties->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
-                                             QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
+      ui->pushButtonAdd->setEnabled(true);
+      ui->pushButtonRemove->setEnabled(true);
+      ui->treeViewProperties->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
+                                              QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
    }
    else
    {
-      ui.pushButtonAdd->setEnabled(false);
-      ui.pushButtonRemove->setEnabled(false);
-      ui.treeViewProperties->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      ui->pushButtonAdd->setEnabled(false);
+      ui->pushButtonRemove->setEnabled(false);
+      ui->treeViewProperties->setEditTriggers(QAbstractItemView::NoEditTriggers);
    }
 }
 
@@ -100,9 +113,9 @@ void QVariantListPropertyItemEditor::onItemClicked(const QModelIndex& index)
    m_currentlySelected = index;
    m_variantHolder->setValue(m_values[index.row()]);
    m_propertyModel->setData(QVariant::fromValue(m_variantHolder));
-   ui.treeViewProperties->expandToDepth(1);
-   ui.treeViewProperties->resizeColumnToContents(0);
-   ui.treeViewProperties->resizeColumnToContents(1);
+   ui->treeViewProperties->expandToDepth(1);
+   ui->treeViewProperties->resizeColumnToContents(0);
+   ui->treeViewProperties->resizeColumnToContents(1);
 }
 
 void QVariantListPropertyItemEditor::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles )
@@ -133,12 +146,21 @@ void QVariantListPropertyItemEditor::onAddQVariant()
 
 void QVariantListPropertyItemEditor::onRemoveQVariant()
 {
-   QModelIndexList selectedItems = ui.listViewItems->selectionModel()->selectedRows();
+   QModelIndexList selectedItems = ui->listViewItems->selectionModel()->selectedRows();
 
    while (selectedItems.count() > 0)
    {
       m_variantModel->removeRow(selectedItems[0].row());
       m_values.removeAt(selectedItems[0].row());
-      selectedItems = ui.listViewItems->selectionModel()->selectedRows();
+      selectedItems = ui->listViewItems->selectionModel()->selectedRows();
    }
 }
+
+void QVariantListPropertyItemEditor::close()
+{
+   m_state  = m_editorDialog->saveGeometry();
+   m_windowState = (int) m_editorDialog->windowState();
+   m_geometry = m_editorDialog->geometry();
+   qDebug() << "QVariant List";
+}
+

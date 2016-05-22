@@ -1,45 +1,53 @@
 #include "stdafx.h"
 #include <QMessageBox>
-
 #include "qcustomeditors.h"
 #include "qpropertymodel.h"
 #include "qpropertyitemdelegate.h"
-
+#include "ui_qcustomobjectlistpropertyitemeditor.h"
 
 QObjectListPropertyItemEditor::QObjectListPropertyItemEditor(QWidget* parent)
-   :QPopUpPropertyItemEditor(parent) , m_propertyModelDelegate(nullptr)
+   :QPopUpPropertyItemEditor(parent) ,
+     m_propertyModelDelegate(nullptr) ,
+     ui(new Ui::QCustomObjectListPropertyItemEditor)
 {
    
    m_editorDialog = new QDialog(this);
-   ui.setupUi(m_editorDialog);
+   ui->setupUi(m_editorDialog);
    m_editorDialog->setWindowTitle("QObject List Editor");
 
-   m_objectListModel = new QStandardItemModel(ui.listViewItems);
+   m_objectListModel = new QStandardItemModel(ui->listViewItems);
 
-   ui.listViewItems->setModel(m_objectListModel);
-   ui.listViewItems->setSelectionBehavior(QAbstractItemView::SelectRows);
-   ui.listViewItems->setSelectionMode(QAbstractItemView::ExtendedSelection);
-   ui.listViewItems->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   ui->listViewItems->setModel(m_objectListModel);
+   ui->listViewItems->setSelectionBehavior(QAbstractItemView::SelectRows);
+   ui->listViewItems->setSelectionMode(QAbstractItemView::ExtendedSelection);
+   ui->listViewItems->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
    m_propertyModel = new QPropertyModel(this);
-   ui.treeViewProperties->setModel(m_propertyModel);
-   ui.treeViewProperties->setEditTriggers(QAbstractItemView::AllEditTriggers);
-   ui.treeViewProperties->setAlternatingRowColors(true);
-   ui.treeViewProperties->expandToDepth(1);
-   ui.treeViewProperties->resizeColumnToContents(0);
-   ui.treeViewProperties->resizeColumnToContents(1);
+   ui->treeViewProperties->setModel(m_propertyModel);
+   ui->treeViewProperties->setEditTriggers(QAbstractItemView::AllEditTriggers);
+   ui->treeViewProperties->setAlternatingRowColors(true);
+   ui->treeViewProperties->expandToDepth(1);
+   ui->treeViewProperties->resizeColumnToContents(0);
+   ui->treeViewProperties->resizeColumnToContents(1);
 
+   connect(ui->pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
+   connect(ui->listViewItems, SIGNAL(clicked(const QModelIndex&)), this, SLOT(onItemClicked(const QModelIndex&)));
+   connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddNewObject()));
+   connect(ui->pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveObject()));
+   connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(close()));
 
-   connect(ui.pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
-   connect(ui.listViewItems, SIGNAL(clicked(const QModelIndex&)), this, SLOT(onItemClicked(const QModelIndex&)));
-   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(onAddNewObject()));
-   connect(ui.pushButtonRemove, SIGNAL(clicked()), this, SLOT(onRemoveObject()));
-   
+   if(m_windowState != -1000)
+   {
+      m_editorDialog->restoreGeometry(m_state);
+      Qt::WindowState windowState = (Qt::WindowState) m_windowState;
+      m_editorDialog->setWindowState(windowState);
+      m_editorDialog->setGeometry(m_geometry);
+   }
 }
 
 QObjectListPropertyItemEditor::~QObjectListPropertyItemEditor()
 {
-   
+   delete ui;
 }
 
 
@@ -48,7 +56,7 @@ void QObjectListPropertyItemEditor::setValue(const QVariant &value)
    if(!m_propertyModelDelegate)
    {
       m_propertyModelDelegate = new QPropertyItemDelegate(this);
-      ui.treeViewProperties->setItemDelegate(m_propertyModelDelegate);
+      ui->treeViewProperties->setItemDelegate(m_propertyModelDelegate);
    }
 
    m_values = qvariant_cast<QList<QObject*>>(value);
@@ -80,6 +88,7 @@ void QObjectListPropertyItemEditor::setUpChildWidget()
          {
             QString winName(m_values[i]->metaObject()->className());
             m_editorDialog->setWindowTitle(winName + " List Editor");
+            m_propertyModel->setData(v);
          }
       }
    }
@@ -89,16 +98,16 @@ void QObjectListPropertyItemEditor::setUpChildWidget()
    if ( (m_propertyItem->isEditable() && !test ) || (test && test->metaProperty().isValid()
                                                     && test->metaProperty().isWritable()))
    {
-      ui.pushButtonAdd->setEnabled(true);
-      ui.pushButtonRemove->setEnabled(true);
-     // ui.treeViewProperties->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
+      ui->pushButtonAdd->setEnabled(true);
+      ui->pushButtonRemove->setEnabled(true);
+     // ui->treeViewProperties->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
       //                                       QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
    }
    else
    {
-      ui.pushButtonAdd->setEnabled(false);
-      ui.pushButtonRemove->setEnabled(false);
-    //  ui.treeViewProperties->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      ui->pushButtonAdd->setEnabled(false);
+      ui->pushButtonRemove->setEnabled(false);
+    //  ui->treeViewProperties->setEditTriggers(QAbstractItemView::NoEditTriggers);
    }
 }
 
@@ -108,9 +117,9 @@ void QObjectListPropertyItemEditor::onItemClicked(const QModelIndex& index)
    m_currentlySelected = index;
    QVariant value = index.data(Qt::UserRole);
    m_propertyModel->setData(value);
-   ui.treeViewProperties->expandToDepth(0);
-   ui.treeViewProperties->resizeColumnToContents(0);
-   ui.treeViewProperties->resizeColumnToContents(1);
+   ui->treeViewProperties->expandToDepth(0);
+   ui->treeViewProperties->resizeColumnToContents(0);
+   ui->treeViewProperties->resizeColumnToContents(1);
 }
 
 
@@ -138,7 +147,7 @@ void QObjectListPropertyItemEditor::onAddNewObject()
 
 void QObjectListPropertyItemEditor::onRemoveObject()
 {
-   QModelIndexList selectedItems = ui.listViewItems->selectionModel()->selectedRows();
+   QModelIndexList selectedItems = ui->listViewItems->selectionModel()->selectedRows();
 
    while (selectedItems.count() > 0)
    {
@@ -150,9 +159,16 @@ void QObjectListPropertyItemEditor::onRemoveObject()
       {
          delete value;
       }
-      selectedItems = ui.listViewItems->selectionModel()->selectedRows();
+      selectedItems = ui->listViewItems->selectionModel()->selectedRows();
    }
 }
 
+void QObjectListPropertyItemEditor::close()
+{
+   m_state  = m_editorDialog->saveGeometry();
+   m_windowState = (int) m_editorDialog->windowState();
+   m_geometry = m_editorDialog->geometry();
+   qDebug() << "Object";
+}
 
 

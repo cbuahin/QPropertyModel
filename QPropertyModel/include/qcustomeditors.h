@@ -1,6 +1,7 @@
 #ifndef QCUSTOMEDITORS_H
 #define QCUSTOMEDITORS_H
 
+#include <QDebug>
 #include <QDoubleSpinBox>
 #include <QDateTimeEdit>
 #include <QTimeEdit>
@@ -11,12 +12,27 @@
 #include <QComboBox>
 #include <QStringListModel>
 #include <QStandardItemModel>
-#include "ui_qcustomobjectlistpropertyitemeditor.h"
-#include "ui_qstringlistpropertyitemeditor.h"
+#include <QRect>
+#include <QByteArray>
 #include "qpropertyitem.h"
 #include "qpropertyitemdelegate.h"
 #include "qpropertymodel_global.h"
 #include "qvariantholderhelper.h"
+
+
+
+extern int m_windowState;
+extern QByteArray m_state;
+extern QRect m_geometry;
+
+class QPropertyModel;
+
+namespace Ui {
+
+   class QStringListPropertyItemEditor;
+   class QCustomObjectListPropertyItemEditor;
+}
+
 
 class QCustomDoubleSpinBox : public QDoubleSpinBox
 {
@@ -115,7 +131,7 @@ class QPROPERTYMODEL_EXPORT QSelectFromListPropertyItemEditor : public QBaseProp
    public:
       QSelectFromListPropertyItemEditor(QWidget *parent);
 
-      ~QSelectFromListPropertyItemEditor();
+      virtual ~QSelectFromListPropertyItemEditor();
 
       virtual void setValue(const QVariant& value) override;
 
@@ -158,6 +174,9 @@ class QPROPERTYMODEL_EXPORT QPopUpPropertyItemEditor : public QBasePropertyItemE
 
 };
 
+
+
+
 class QPROPERTYMODEL_EXPORT QStringListPropertyItemEditor : public QPopUpPropertyItemEditor
 {
       Q_OBJECT
@@ -165,7 +184,7 @@ class QPROPERTYMODEL_EXPORT QStringListPropertyItemEditor : public QPopUpPropert
    public:
       QStringListPropertyItemEditor(QWidget *parent = 0);
 
-      ~QStringListPropertyItemEditor();
+      virtual ~QStringListPropertyItemEditor();
 
       void setValue(const QVariant& value) override;
 
@@ -176,12 +195,18 @@ class QPROPERTYMODEL_EXPORT QStringListPropertyItemEditor : public QPopUpPropert
 
    private slots:
       void customContextMenuRequested(const QPoint & pos);
+
       void add();
+
       void remove();
+
       void close();
 
+      void onCopy();
+
+
    private:
-      Ui::QStringListPropertyItemEditor ui;
+      Ui::QStringListPropertyItemEditor* ui;
       QStringListModel* m_model;
       QMenu* m_contextMenu;
       bool m_canEdit;
@@ -189,17 +214,18 @@ class QPROPERTYMODEL_EXPORT QStringListPropertyItemEditor : public QPopUpPropert
 
 };
 
-class QPropertyModel;
+
 
 
 class  QPROPERTYMODEL_EXPORT QObjectListPropertyItemEditor : public QPopUpPropertyItemEditor
 {
-     Q_OBJECT
+      Q_OBJECT
 
    public:
+
       QObjectListPropertyItemEditor(QWidget* parent = 0);
 
-      ~QObjectListPropertyItemEditor();
+      virtual ~QObjectListPropertyItemEditor();
 
       void setValue(const QVariant& value) override;
 
@@ -214,14 +240,14 @@ class  QPROPERTYMODEL_EXPORT QObjectListPropertyItemEditor : public QPopUpProper
 
       void onItemClicked(const QModelIndex& index);
 
-     // void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int> ());
-
       void onAddNewObject();
 
       void onRemoveObject();
 
+      void close();
+
    protected:
-      Ui::QCustomObjectListPropertyItemEditor ui;
+      Ui::QCustomObjectListPropertyItemEditor* ui;
       QPropertyModel* m_propertyModel;
       QPropertyItemDelegate* m_propertyModelDelegate;
       QStandardItemModel* m_objectListModel;
@@ -238,7 +264,7 @@ class QVariantListPropertyItemEditor : public QPopUpPropertyItemEditor
 
       QVariantListPropertyItemEditor(QWidget* parent);
 
-      ~QVariantListPropertyItemEditor();
+      virtual ~QVariantListPropertyItemEditor();
 
       void setValue(const QVariant& value) override;
 
@@ -259,8 +285,10 @@ class QVariantListPropertyItemEditor : public QPopUpPropertyItemEditor
 
       void onRemoveQVariant();
 
+      void close();
+
    private:
-      Ui::QCustomObjectListPropertyItemEditor ui;
+      Ui::QCustomObjectListPropertyItemEditor* ui;
       QPropertyModel* m_propertyModel;
       QStandardItemModel* m_variantModel;
       QList<QVariant> m_values;
@@ -276,7 +304,7 @@ class QImagePropertyItemEditor : public QPopUpPropertyItemEditor
 
       QImagePropertyItemEditor(QWidget *parent);
 
-      ~QImagePropertyItemEditor();
+      virtual ~QImagePropertyItemEditor();
 
    private slots:
 
@@ -300,7 +328,7 @@ class QColorPropertyItemEditor : public QPopUpPropertyItemEditor
    public:
       QColorPropertyItemEditor(QWidget *parent);
 
-      ~QColorPropertyItemEditor();
+      virtual ~QColorPropertyItemEditor();
 
       void setValue(const QVariant& value) override;
 
@@ -318,7 +346,7 @@ class QFontPropertyItemEditor : public QPopUpPropertyItemEditor
    public:
       QFontPropertyItemEditor(QWidget *parent);
 
-      ~QFontPropertyItemEditor();
+      virtual ~QFontPropertyItemEditor();
 
       void setValue(const QVariant& value) override;
 

@@ -544,7 +544,7 @@ QList<QObject*> convertToQObjectList(const QVariant& value)
 
    for(int i = 0 ; i < values.length() ; i++)
    {
-      QObject* tmv = (QObject*) values[i];
+      QObject* tmv = dynamic_cast<QObject*>(values[i]);
       retValues.append(tmv);
    }
 

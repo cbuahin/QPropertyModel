@@ -15,8 +15,8 @@ Source\x64/
 *.la
 *.lai
 *.so
-*.dll
-*.dylib
+#*.dll
+#*.dylib
 
 # Qt-es
 

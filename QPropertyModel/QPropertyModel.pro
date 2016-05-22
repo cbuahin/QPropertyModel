@@ -1,10 +1,9 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2016-02-17T22:53:25
-#
-#-------------------------------------------------
+#Author Caleb Amoa Buahin
+#Email caleb.buahin@gmail.com
+#Date 2016
+#License GNU General Public License (see <http://www.gnu.org/licenses/> for details).
 
-QT       += widgets
+QT       += core widgets
 
 TARGET = QPropertyModel
 TEMPLATE = lib
@@ -108,4 +107,21 @@ RC_FILE = ./resources/QPropertyModel.rc
 
 FORMS += ./forms/qstringlistpropertyitemeditor.ui \
          ./forms/qcustomobjectlistpropertyitemeditor.ui
+       
+CONFIG(debug, debug|release) {
+   DESTDIR = ./build/debug
+   OBJECTS_DIR = $$DESTDIR/.obj
+   MOC_DIR = $$DESTDIR/.moc
+   RCC_DIR = $$DESTDIR/.qrc
+   UI_DIR = $$DESTDIR/.ui
+}
+
+CONFIG(release, debug|release) {
+    DESTDIR = lib
+    RELEASE_EXTRAS = ./build/release 
+    OBJECTS_DIR = $$RELEASE_EXTRAS/.obj
+    MOC_DIR = $$RELEASE_EXTRAS/.moc
+    RCC_DIR = $$RELEASE_EXTRAS/.qrc
+    UI_DIR = $$RELEASE_EXTRAS/.ui
+}        
 

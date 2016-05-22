@@ -1,23 +1,29 @@
 #include "stdafx.h"
 #include <QMenu>
 #include <QDialog>
-
+#include <QClipboard>
+#include <QRect>
 #include "qcustomeditors.h"
 #include "qvariantpropertyItem.h"
+#include "ui_qstringlistpropertyitemeditor.h"
 
 QStringListPropertyItemEditor::QStringListPropertyItemEditor(QWidget *parent)
-   : QPopUpPropertyItemEditor(parent)//, m_canEdit(false)
+   : QPopUpPropertyItemEditor(parent),
+     ui(new Ui::QStringListPropertyItemEditor)
 {
 
+
    m_editorDialog = new QDialog(this);
-   ui.setupUi(m_editorDialog);
+   ui->setupUi(m_editorDialog);
    m_editorDialog->setWindowTitle("QStringList Editor");
+   ui->listView->addAction(ui->actionCopy);
+   connect(ui->actionCopy , SIGNAL(triggered()) , this , SLOT(onCopy()));
 
    m_model = new QStringListModel(this);
-   ui.listView->setModel(m_model);
-   ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
-   ui.listView->setSelectionBehavior(QAbstractItemView::SelectItems);
-   ui.listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+   ui->listView->setModel(m_model);
+   ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+   ui->listView->setSelectionBehavior(QAbstractItemView::SelectItems);
+   ui->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
    m_contextMenu = new QMenu(m_editorDialog);
 
@@ -30,17 +36,26 @@ QStringListPropertyItemEditor::QStringListPropertyItemEditor(QWidget *parent)
    m_contextMenu->addAction(addAction);
    m_contextMenu->addAction(removeAction);
 
-   connect(ui.pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
-   connect(m_editorDialog, SIGNAL(accepted()), this, SLOT(close()));
+   connect(ui->pushButtonOK, SIGNAL(clicked()), m_editorDialog, SLOT(accept()));
+   connect(ui->pushButtonOK, SIGNAL(clicked()), this, SLOT(close()));
 
-   connect(ui.pushButtonAdd, SIGNAL(clicked()), this, SLOT(add()));
-   connect(ui.pushButtonRemove, SIGNAL(clicked()), this, SLOT(remove()));
+   connect(ui->pushButtonAdd, SIGNAL(clicked()), this, SLOT(add()));
+   connect(ui->pushButtonRemove, SIGNAL(clicked()), this, SLOT(remove()));
 
-   connect(ui.listView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
+   connect(ui->listView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customContextMenuRequested(QPoint)));
+
+   if(m_windowState != -1000)
+   {
+      m_editorDialog->restoreGeometry(m_state);
+      Qt::WindowState windowState = (Qt::WindowState) m_windowState;
+      m_editorDialog->setWindowState(windowState);
+      m_editorDialog->setGeometry(m_geometry);
+   }
 }
 
 QStringListPropertyItemEditor::~QStringListPropertyItemEditor()
 {
+   delete ui;
 }
 
 void QStringListPropertyItemEditor::setValue(const QVariant& value)
@@ -63,19 +78,19 @@ void QStringListPropertyItemEditor::setUpChildWidget()
    QVariantPropertyItem* test = (QVariantPropertyItem*) m_propertyItem ;
 
    if ( (m_propertyItem->isEditable() && !test ) || (test && test->metaProperty().isValid()
-                                                    && test->metaProperty().isWritable()))
+                                                     && test->metaProperty().isWritable()))
    {
-      ui.pushButtonAdd->setEnabled(true);
-      ui.pushButtonRemove->setEnabled(true);
-      ui.listView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
-                                   QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
+      ui->pushButtonAdd->setEnabled(true);
+      ui->pushButtonRemove->setEnabled(true);
+      ui->listView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
+                                    QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
       m_canEdit = true;
    }
    else
    {
-      ui.pushButtonAdd->setEnabled(false);
-      ui.pushButtonRemove->setEnabled(false);
-      ui.listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      ui->pushButtonAdd->setEnabled(false);
+      ui->pushButtonRemove->setEnabled(false);
+      ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
       m_canEdit = false;
    }
 }
@@ -84,13 +99,13 @@ void QStringListPropertyItemEditor::customContextMenuRequested(const QPoint & po
 {
    if (m_canEdit)
    {
-      m_contextMenu->popup(ui.listView->viewport()->mapToGlobal(pos));
+      m_contextMenu->popup(ui->listView->viewport()->mapToGlobal(pos));
    }
 }
 
 void QStringListPropertyItemEditor::add()
 {
-   QItemSelectionModel* selectionModel = ui.listView->selectionModel();
+   QItemSelectionModel* selectionModel = ui->listView->selectionModel();
 
    if (selectionModel->hasSelection())
    {
@@ -112,12 +127,12 @@ void QStringListPropertyItemEditor::add()
 
 void QStringListPropertyItemEditor::remove()
 {
-   QModelIndexList list = ui.listView->selectionModel()->selectedIndexes();
+   QModelIndexList list = ui->listView->selectionModel()->selectedIndexes();
 
    while (list.count() > 0)
    {
       m_model->removeRow(list[0].row());
-      list = ui.listView->selectionModel()->selectedIndexes();
+      list = ui->listView->selectionModel()->selectedIndexes();
    }
    emit valueChanged(this);
 }
@@ -125,5 +140,27 @@ void QStringListPropertyItemEditor::remove()
 
 void QStringListPropertyItemEditor::close()
 {
+   m_state  = m_editorDialog->saveGeometry();
+   m_windowState = (int) m_editorDialog->windowState();
+   m_geometry = m_editorDialog->geometry();
+   qDebug() << "String list Object";
    emit valueChanged(this);
+}
+
+void QStringListPropertyItemEditor::onCopy()
+{
+   QItemSelectionModel* selectionModel = ui->listView->selectionModel();
+
+   if(selectionModel->hasSelection())
+   {
+      QStringList items;
+      QModelIndexList list = selectionModel->selectedRows();
+
+      for(const QModelIndex & index : list)
+      {
+         items.append(index.data().toString());
+      }
+
+      QApplication::clipboard()->setText(items.join("\n"));
+   }
 }
