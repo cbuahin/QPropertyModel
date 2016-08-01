@@ -3,7 +3,7 @@
 
 #include <qabstractitemmodel.h>
 #include "qpropertymodel_global.h"
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 #include "qvariantholderhelper.h"
 #include "qpropertyitemdelegate.h"
 

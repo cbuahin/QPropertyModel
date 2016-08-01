@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "qobjectclasspropertyitem.h"
 #include "qobjectpropertyitem.h"
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 #include "qboolpropertyitem.h"
 #include "qfontpropertyitem.h"
 #include "qenumpropertyitem.h"

@@ -1,7 +1,7 @@
 #ifndef QSIZEFPROPERTYITEM_H
 #define QSIZEFPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QSizeFPropertyItem : public QVariantPropertyItem
 {

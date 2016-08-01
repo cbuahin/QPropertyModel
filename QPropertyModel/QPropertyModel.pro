@@ -13,6 +13,42 @@ DEFINES += QPROPERTYMODEL_LIBRARY
 
 INCLUDEPATH += ./include
 
+HEADERS +=  include/qbrushpropertyitem.h \
+            include/qenumpropertyitem.h \
+            include/qflagspropertyitem.h \
+            include/qfontfamilypropertyitem.h \
+            include/qfontpropertyitem.h \
+            include/qiconpropertyitem.h \
+            include/qimagepropertyitem.h \
+            include/qlinefpropertyitem.h \
+            include/qlinepropertyitem.h \
+            include/qobjectclasspropertyitem.h \
+            include/qobjectpropertyitem.h \
+            include/qpenpropertyitem.h \
+            include/qpointfpropertyitem.h \
+            include/qpointpropertyitem.h \
+            include/qpropertyitem.h \
+            include/qpropertyitemdelegate.h \
+            include/qpropertymodel_global.h \
+            include/qpropertymodel.h \
+            include/qrectfpropertyitem.h \
+            include/qrectpropertyitem.h \
+            include/qsizefpropertyitem.h \
+            include/qsizepropertyitem.h \
+            include/qstringlistpropertyitem.h \
+            include/qvariantholderhelper.h \
+            include/qvariantlistpropertyitem.h \
+            include/qvariantpropertyItem.h \
+            include/qvector2dpropertyitem.h \
+            include/qvector3dpropertyitem.h \
+            include/qvector4dpropertyitem.h \
+            include/resource.h \
+            include/stdafx.h \
+            include/qcustomeditors.h \
+            include/qchildpropertyitems.h \
+            include/qboolpropertyitem.h \
+            include/qobjectlistpropertyitem.h
+
 SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qboolpropertyitem.cpp \
             src/qbrushpropertyitem.cpp \
@@ -62,42 +98,7 @@ SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qobjectlistpropertyitem.cpp \
             src/qobjectlistpropertyitemeditor.cpp
 
-HEADERS += \
-            include/qbrushpropertyitem.h \
-            include/qenumpropertyitem.h \
-            include/qflagspropertyitem.h \
-            include/qfontfamilypropertyitem.h \
-            include/qfontpropertyitem.h \
-            include/qiconpropertyitem.h \
-            include/qimagepropertyitem.h \
-            include/qlinefpropertyitem.h \
-            include/qlinepropertyitem.h \
-            include/qobjectclasspropertyitem.h \
-            include/qobjectpropertyitem.h \
-            include/qpenpropertyitem.h \
-            include/qpointfpropertyitem.h \
-            include/qpointpropertyitem.h \
-            include/qpropertyitem.h \
-            include/qpropertyitemdelegate.h \
-            include/qpropertymodel_global.h \
-            include/qpropertymodel.h \
-            include/qrectfpropertyitem.h \
-            include/qrectpropertyitem.h \
-            include/qsizefpropertyitem.h \
-            include/qsizepropertyitem.h \
-            include/qstringlistpropertyitem.h \
-            include/qvariantholderhelper.h \
-            include/qvariantlistpropertyitem.h \
-            include/qvariantpropertyItem.h \
-            include/qvector2dpropertyitem.h \
-            include/qvector3dpropertyitem.h \
-            include/qvector4dpropertyitem.h \
-            include/resource.h \
-            include/stdafx.h \
-            include/qcustomeditors.h \
-            include/qchildpropertyitems.h \
-            include/qboolpropertyitem.h \
-            include/qobjectlistpropertyitem.h
+
 
 PRECOMPILED_HEADER += include/stdafx.h
 

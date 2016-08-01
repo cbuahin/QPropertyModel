@@ -1,7 +1,7 @@
 #ifndef QFLAGSPROPERTYITEM_H
 #define QFLAGSPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QFlagsPropertyItem : public QVariantPropertyItem
 {

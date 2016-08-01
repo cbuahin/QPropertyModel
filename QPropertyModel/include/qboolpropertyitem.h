@@ -1,7 +1,7 @@
 #ifndef QBOOLPROPERTYITEM_H
 #define QBOOLPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QBoolPropertyItem : public QVariantPropertyItem
 {

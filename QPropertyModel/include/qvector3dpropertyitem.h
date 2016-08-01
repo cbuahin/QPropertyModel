@@ -1,7 +1,7 @@
 #ifndef QVECTOR3DPROPERTYITEM_H
 #define QVECTOR3DPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QVector3DPropertyItem : public QVariantPropertyItem
 {

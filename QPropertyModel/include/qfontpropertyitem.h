@@ -1,7 +1,7 @@
 #ifndef QFONTPROPERTYITEM_H
 #define QFONTPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QFontPropertyItem : public QVariantPropertyItem
 {

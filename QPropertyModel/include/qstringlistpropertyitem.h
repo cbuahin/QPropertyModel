@@ -1,7 +1,7 @@
 #ifndef QSTRINGLISTPROPERTYITEM_H
 #define QSTRINGLISTPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QPROPERTYMODEL_EXPORT QStringListPropertyItem : public QVariantPropertyItem
 {

@@ -1,7 +1,7 @@
 #ifndef QRECTFPROPERTYITEM_H
 #define QRECTFPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QRectFPropertyItem : public QVariantPropertyItem
 {

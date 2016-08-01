@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 #include <QDate>
 #include <QDebug>
 

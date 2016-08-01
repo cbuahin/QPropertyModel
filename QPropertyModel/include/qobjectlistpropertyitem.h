@@ -1,7 +1,7 @@
 #ifndef QOBJECTLISTPROPERTYITEM_H
 #define QOBJECTLISTPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 typedef QList<QObject*> (VariantToObjectListConverter)(const QVariant&);
 
@@ -25,4 +25,5 @@ class QPROPERTYMODEL_EXPORT QObjectListPropertyItem :  public QVariantPropertyIt
 };
 
 #endif // QOBJECTLISTPROPERTYITEM_H
+
 

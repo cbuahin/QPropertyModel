@@ -1,7 +1,7 @@
 #ifndef QPOINTFPROPERTYITEM_H
 #define QPOINTFPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QPointFPropertyItem : public QVariantPropertyItem
 {

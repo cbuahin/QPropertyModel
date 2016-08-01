@@ -1,7 +1,7 @@
 #ifndef QENUMPROPERTYITEM_H
 #define QENUMPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QEnumPropertyItem : public QVariantPropertyItem
 {

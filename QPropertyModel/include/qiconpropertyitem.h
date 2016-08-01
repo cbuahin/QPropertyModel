@@ -1,7 +1,7 @@
 #ifndef QICONPROPERTYITEM_H
 #define QICONPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QIconPropertyItem : public QVariantPropertyItem
 {

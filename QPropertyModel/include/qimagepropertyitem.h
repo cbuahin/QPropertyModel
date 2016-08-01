@@ -1,7 +1,8 @@
 #ifndef QIMAGEPROPERTYITEM_H
 #define QIMAGEPROPERTYITEM_H
 
-#include "qvariantPropertyItem.h"
+#include "qvariantpropertyItem.h"
+
 
 class QImagePropertyItem : public QVariantPropertyItem
 {

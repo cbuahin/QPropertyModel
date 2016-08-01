@@ -1,7 +1,7 @@
 #ifndef QVARIANTLISTPROPERTYITEM_H
 #define QVARIANTLISTPROPERTYITEM_H
 
-#include "qvariantpropertyitem.h"
+#include "qvariantpropertyItem.h"
 
 class QVariantListPropertyItem : public QVariantPropertyItem
 {

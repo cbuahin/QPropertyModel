@@ -1,7 +1,7 @@
 #ifndef QOBJECTPROPERTYITEM_H
 #define QOBJECTPROPERTYITEM_H
 
-#include "qpropertyItem.h"
+#include "qpropertyitem.h"
 #include <QMetaProperty>
 
 class QPROPERTYMODEL_EXPORT QObjectPropertyItem : public QPropertyItem
