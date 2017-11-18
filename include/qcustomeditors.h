@@ -28,7 +28,6 @@ extern QRect m_geometry;
 class QPropertyModel;
 
 namespace Ui {
-
    class QStringListPropertyItemEditor;
    class QCustomObjectListPropertyItemEditor;
 }
@@ -173,9 +172,6 @@ class QPROPERTYMODEL_EXPORT QPopUpPropertyItemEditor : public QBasePropertyItemE
 
 
 };
-
-
-
 
 class QPROPERTYMODEL_EXPORT QStringListPropertyItemEditor : public QPopUpPropertyItemEditor
 {

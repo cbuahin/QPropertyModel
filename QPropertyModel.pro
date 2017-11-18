@@ -3,15 +3,28 @@
 #Date 2016
 #License GNU General Public License (see <http://www.gnu.org/licenses/> for details).
 
-QT       += core widgets
+QT += core widgets
 
 TARGET = QPropertyModel
-TEMPLATE = lib
 VERSION = 1.0.0
+
+CONFIG += c++11
+CONFIG += debug_and_release
 
 DEFINES += QPROPERTYMODEL_LIBRARY
 
-INCLUDEPATH += ./include
+contains(DEFINES,QPROPERTYMODEL_LIBRARY){
+  TEMPLATE = lib
+  message("Compiling as library")
+} else {
+  TEMPLATE = app
+  QT += gui
+  CONFIG-=app_bundle
+  message("Compiling as application")
+}
+
+INCLUDEPATH += ./include \
+               ./include/test 
 
 HEADERS +=  include/qbrushpropertyitem.h \
             include/qenumpropertyitem.h \
@@ -47,7 +60,9 @@ HEADERS +=  include/qbrushpropertyitem.h \
             include/qcustomeditors.h \
             include/qchildpropertyitems.h \
             include/qboolpropertyitem.h \
-            include/qobjectlistpropertyitem.h
+            include/qobjectlistpropertyitem.h \
+            include/test/qpropertymodeltesting.h \
+            include/test/tempobject.h
 
 SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qboolpropertyitem.cpp \
@@ -96,20 +111,27 @@ SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qstringlistpropertyitemeditor.cpp \
             src/qvariantlistpropertyitemeditor.cpp \
             src/qobjectlistpropertyitem.cpp \
-            src/qobjectlistpropertyitemeditor.cpp
+            src/qobjectlistpropertyitemeditor.cpp \
+            src/test/main.cpp \
+            src/test/qpropertymodeltesting.cpp \
+            src/test/tempobject.cpp
 
 
 
 PRECOMPILED_HEADER += include/stdafx.h
 
-RESOURCES += ./resources/qpropertymodel.qrc
+RESOURCES += ./resources/qpropertymodel.qrc \
+             ./resources/qpropertymodeltesting.qrc
 
-RC_FILE = ./resources/QPropertyModel.rc
+RC_FILE = ./resources/QPropertyModel.rc \
+          ./resources/QPropertyModelTesting.rc
 
 FORMS += ./forms/qstringlistpropertyitemeditor.ui \
-         ./forms/qcustomobjectlistpropertyitemeditor.ui
+         ./forms/qcustomobjectlistpropertyitemeditor.ui \
+         ./forms/qpropertymodeltesting.ui
        
 CONFIG(debug, debug|release) {
+
    DESTDIR = ./build/debug
    OBJECTS_DIR = $$DESTDIR/.obj
    MOC_DIR = $$DESTDIR/.moc
@@ -118,7 +140,41 @@ CONFIG(debug, debug|release) {
 }
 
 CONFIG(release, debug|release) {
-    DESTDIR = lib
+
+
+     contains(DEFINES,QPROPERTYMODEL_LIBRARY){
+         #MacOS
+         macx{
+             DESTDIR = lib/macx
+         }
+         
+         #Linux
+         linux{
+             DESTDIR = lib/linux
+         }
+         
+         #Windows
+         win32{
+             DESTDIR = lib/win32
+         }
+     } else {
+         #MacOS
+         macx{
+             DESTDIR = bin/macx
+         }
+         
+         #Linux
+         linux{
+             DESTDIR = bin/linux
+         }
+         
+         #Windows
+         win32{
+             DESTDIR = bin/win32
+         }
+     }
+
+
     RELEASE_EXTRAS = ./build/release 
     OBJECTS_DIR = $$RELEASE_EXTRAS/.obj
     MOC_DIR = $$RELEASE_EXTRAS/.moc
