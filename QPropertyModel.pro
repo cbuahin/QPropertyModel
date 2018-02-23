@@ -1,7 +1,7 @@
 #Author Caleb Amoa Buahin
 #Email caleb.buahin@gmail.com
 #Date 2016
-#License GNU General Public License (see <http://www.gnu.org/licenses/> for details).
+#License GNU General Public License (see <http: //www.gnu.org/licenses/> for details).
 
 QT += core widgets
 
@@ -146,32 +146,32 @@ CONFIG(release, debug|release) {
          #MacOS
          macx{
              DESTDIR = lib/macx
-         }
+          }
          
          #Linux
          linux{
              DESTDIR = lib/linux
-         }
+          }
          
          #Windows
          win32{
              DESTDIR = lib/win32
-         }
+          }
      } else {
          #MacOS
          macx{
              DESTDIR = bin/macx
-         }
+          }
          
          #Linux
          linux{
              DESTDIR = bin/linux
-         }
+          }
          
          #Windows
          win32{
              DESTDIR = bin/win32
-         }
+          }
      }
 
 
@@ -180,5 +180,4 @@ CONFIG(release, debug|release) {
     MOC_DIR = $$RELEASE_EXTRAS/.moc
     RCC_DIR = $$RELEASE_EXTRAS/.qrc
     UI_DIR = $$RELEASE_EXTRAS/.ui
-}        
-
+}
