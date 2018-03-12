@@ -13,6 +13,10 @@ CONFIG += debug_and_release
 
 DEFINES += QPROPERTYMODEL_LIBRARY
 
+*msvc* { # visual studio spec filter
+      QMAKE_CXXFLAGS += -MP
+  }
+
 contains(DEFINES,QPROPERTYMODEL_LIBRARY){
   TEMPLATE = lib
   message("Compiling as library")
