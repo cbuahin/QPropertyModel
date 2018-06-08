@@ -4,7 +4,6 @@
 #License GNU General Public License (see <http: //www.gnu.org/licenses/> for details).
 
 QT += core widgets
-
 TARGET = QPropertyModel
 VERSION = 1.0.0
 
@@ -16,6 +15,7 @@ DEFINES += QPROPERTYMODEL_LIBRARY
 *msvc* { # visual studio spec filter
       QMAKE_CXXFLAGS += -MP /O2
   }
+
 
 contains(DEFINES,QPROPERTYMODEL_LIBRARY){
   TEMPLATE = lib
@@ -133,9 +133,13 @@ RC_FILE = ./resources/QPropertyModel.rc \
 FORMS += ./forms/qstringlistpropertyitemeditor.ui \
          ./forms/qcustomobjectlistpropertyitemeditor.ui \
          ./forms/qpropertymodeltesting.ui
-       
-CONFIG(debug, debug|release) {
 
+win32{
+    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS /MD
+    QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS /MDd
+}
+
+CONFIG(debug, debug|release) {
    DESTDIR = ./build/debug
    OBJECTS_DIR = $$DESTDIR/.obj
    MOC_DIR = $$DESTDIR/.moc
