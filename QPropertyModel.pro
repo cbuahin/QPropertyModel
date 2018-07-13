@@ -1,7 +1,7 @@
 #Author Caleb Amoa Buahin
 #Email caleb.buahin@gmail.com
 #Date 2016
-#License GNU General Public License (see <http: //www.gnu.org/licenses/> for details).
+#License GNU Lesser General Public License (see <http: //www.gnu.org/licenses/> for details).
 
 QT += core widgets
 
