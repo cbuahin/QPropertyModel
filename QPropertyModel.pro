@@ -1,30 +1,33 @@
 #Author Caleb Amoa Buahin
 #Email caleb.buahin@gmail.com
 #Date 2016 - 2018
-#License GNU General Public License (see <http: //www.gnu.org/licenses/> for details).
+#License GNU Lesser General Public License (see <http: //www.gnu.org/licenses/> for details).
 
 QT += core widgets
 TARGET = QPropertyModel
 VERSION = 1.0.0
 
+DEFINES += QPROPERTYMODEL_LIBRARY
+DEFINES += QT_NO_VERSION_TAGGING
+
+
 CONFIG += c++11
 CONFIG += debug_and_release
-
-DEFINES += QPROPERTYMODEL_LIBRARY
-
-*msvc* { # visual studio spec filter
-      QMAKE_CXXFLAGS += -MP /O2
-  }
+CONFIG += optimize_full
 
 
 contains(DEFINES,QPROPERTYMODEL_LIBRARY){
+
   TEMPLATE = lib
   message("Compiling as library")
-} else {
+
+  } else {
+
   TEMPLATE = app
   QT += gui
   CONFIG-=app_bundle
   message("Compiling as application")
+
 }
 
 INCLUDEPATH += ./include \
@@ -55,7 +58,6 @@ HEADERS +=  include/qbrushpropertyitem.h \
             include/qstringlistpropertyitem.h \
             include/qvariantholderhelper.h \
             include/qvariantlistpropertyitem.h \
-            include/qvariantpropertyItem.h \
             include/qvector2dpropertyitem.h \
             include/qvector3dpropertyitem.h \
             include/qvector4dpropertyitem.h \
@@ -66,7 +68,8 @@ HEADERS +=  include/qbrushpropertyitem.h \
             include/qboolpropertyitem.h \
             include/qobjectlistpropertyitem.h \
             include/test/qpropertymodeltesting.h \
-            include/test/tempobject.h
+            include/test/tempobject.h \
+            include/qvariantpropertyitem.h
 
 SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qboolpropertyitem.cpp \
@@ -105,7 +108,6 @@ SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qsizepropertyitem.cpp \
             src/qstringlistpropertyitem.cpp \
             src/qvariantholderhelper.cpp \
-            src/qvariantlistpropertyItem.cpp \
             src/qvariantpropertyitem.cpp \
             src/qvector2dpropertyitem.cpp \
             src/qvector3dpropertyitem.cpp \
@@ -118,36 +120,51 @@ SOURCES +=  src/qbasepropertyitemeditor.cpp \
             src/qobjectlistpropertyitemeditor.cpp \
             src/test/main.cpp \
             src/test/qpropertymodeltesting.cpp \
-            src/test/tempobject.cpp
-
-
+            src/test/tempobject.cpp \
+            src/qvariantlistpropertyitem.cpp
 
 PRECOMPILED_HEADER += include/stdafx.h
 
-RESOURCES += ./resources/qpropertymodel.qrc \
-             ./resources/qpropertymodeltesting.qrc
+RESOURCES += ./resources/qpropertymodel.qrc
 
-RC_FILE = ./resources/QPropertyModel.rc \
-          ./resources/QPropertyModelTesting.rc
+RC_FILE = ./resources/QPropertyModel.rc
 
 FORMS += ./forms/qstringlistpropertyitemeditor.ui \
          ./forms/qcustomobjectlistpropertyitemeditor.ui \
          ./forms/qpropertymodeltesting.ui
 
-win32{
-    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS /MD
-    QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS /MDd
+win32 {
+    QMAKE_CXXFLAGS += /MP
 }
 
+
 CONFIG(debug, debug|release) {
+
+    win32 {
+        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS /MDd /O2
+    }
+
+    macx {
+        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS -g -O3
+    }
+
+    linux {
+        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS -g -O3
+    }
+
    DESTDIR = ./build/debug
    OBJECTS_DIR = $$DESTDIR/.obj
    MOC_DIR = $$DESTDIR/.moc
    RCC_DIR = $$DESTDIR/.qrc
    UI_DIR = $$DESTDIR/.ui
+
 }
 
 CONFIG(release, debug|release) {
+
+   win32 {
+    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS /MD
+   }
 
 
      contains(DEFINES,QPROPERTYMODEL_LIBRARY){
