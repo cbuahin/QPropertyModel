@@ -53,7 +53,7 @@ namespace Ui {
 }
 
 
-class QCustomDoubleSpinBox : public QDoubleSpinBox
+class QPROPERTYMODEL_EXPORT QCustomDoubleSpinBox : public QDoubleSpinBox
 {
       Q_OBJECT
 

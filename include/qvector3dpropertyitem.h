@@ -23,7 +23,7 @@
 
 #include "qvariantpropertyitem.h"
 
-class QVector3DPropertyItem : public QVariantPropertyItem
+class QPROPERTYMODEL_EXPORT QVector3DPropertyItem : public QVariantPropertyItem
 {
       Q_OBJECT
 

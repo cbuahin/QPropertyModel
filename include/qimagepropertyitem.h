@@ -24,7 +24,7 @@
 #include "qvariantpropertyitem.h"
 
 
-class QImagePropertyItem : public QVariantPropertyItem
+class QPROPERTYMODEL_EXPORT QImagePropertyItem : public QVariantPropertyItem
 {
       Q_OBJECT
 

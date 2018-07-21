@@ -23,7 +23,7 @@
 
 #include "qvariantpropertyitem.h"
 
-class QFontPropertyItem : public QVariantPropertyItem
+class QPROPERTYMODEL_EXPORT QFontPropertyItem : public QVariantPropertyItem
 {
       Q_OBJECT
 

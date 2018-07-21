@@ -24,7 +24,7 @@
 #include "qpropertyitem.h"
 
 
-class QFontFamilyPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QFontFamilyPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
