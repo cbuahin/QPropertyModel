@@ -135,7 +135,11 @@ FORMS += ./forms/qstringlistpropertyitemeditor.ui \
 
 win32 {
     QMAKE_CXXFLAGS += /MP
+<<<<<<< HEAD
     QMAKE_LFAGS += /MP /incremental /debug:fastlink
+=======
+    QMAKE_LFLAGS += /MP /incremental /debug:fastlink
+>>>>>>> 9dd3682dd8bf83d11f411f90fc494cdcb590931b
 }
 
 
@@ -164,7 +168,11 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
 
    win32 {
+<<<<<<< HEAD
     QMAKE_CXXFLAGS += /MD
+=======
+    QMAKE_CXXFLAGS +=/MD
+>>>>>>> 9dd3682dd8bf83d11f411f90fc494cdcb590931b
    }
 
 

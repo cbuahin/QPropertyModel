@@ -29,6 +29,7 @@ class QPROPERTYMODEL_EXPORT QObjectPropertyItem : public QPropertyItem
       Q_OBJECT
 
    public:
+
       Q_INVOKABLE QObjectPropertyItem(QObject* value, const QMetaProperty& prop, QPropertyItem * parent);
 
       virtual ~QObjectPropertyItem();
