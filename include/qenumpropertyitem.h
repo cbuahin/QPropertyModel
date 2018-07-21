@@ -23,7 +23,7 @@
 
 #include "qvariantpropertyitem.h"
 
-class QEnumPropertyItem : public QVariantPropertyItem
+class QPROPERTYMODEL_EXPORT QEnumPropertyItem : public QVariantPropertyItem
 {
       Q_OBJECT
 

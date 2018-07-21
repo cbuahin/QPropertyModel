@@ -24,7 +24,7 @@
 #include <QMetaEnum>
 #include "qpropertyitem.h"
 
-class QChildBoolPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildBoolPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
