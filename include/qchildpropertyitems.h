@@ -39,7 +39,7 @@ class QPROPERTYMODEL_EXPORT QChildBoolPropertyItem : public QPropertyItem
 
 };
 
-class QChildBrushPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildBrushPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
@@ -66,7 +66,7 @@ class QChildBrushPropertyItem : public QPropertyItem
 
 
 
-class QChildEnumPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildEnumPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
@@ -85,7 +85,7 @@ class QChildEnumPropertyItem : public QPropertyItem
 
 
 
-class QChildIconPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildIconPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
@@ -100,7 +100,7 @@ class QChildIconPropertyItem : public QPropertyItem
 };
 
 
-class QChildImagePropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildImagePropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
@@ -113,7 +113,7 @@ class QChildImagePropertyItem : public QPropertyItem
 
 };
 
-class QChildPointFPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildPointFPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
@@ -140,7 +140,7 @@ class QChildPointFPropertyItem : public QPropertyItem
 
 };
 
-class QChildPointPropertyItem : public QPropertyItem
+class QPROPERTYMODEL_EXPORT QChildPointPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 

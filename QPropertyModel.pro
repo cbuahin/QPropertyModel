@@ -135,27 +135,26 @@ FORMS += ./forms/qstringlistpropertyitemeditor.ui \
 
 win32 {
     QMAKE_CXXFLAGS += /MP
-<<<<<<< HEAD
-    QMAKE_LFAGS += /MP /incremental /debug:fastlink
-=======
     QMAKE_LFLAGS += /MP /incremental /debug:fastlink
->>>>>>> 9dd3682dd8bf83d11f411f90fc494cdcb590931b
 }
 
 
 CONFIG(debug, debug|release) {
 
     win32 {
-        QMAKE_CXXFLAGS += /MDd /O2
+       QMAKE_CXXFLAGS += /MDd  /O2
     }
 
     macx {
-        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS -g -O3
+       QMAKE_CFLAGS   += -g -O3
+       QMAKE_CXXFLAGS += -g -O3
     }
 
     linux {
-        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS -g -O3
+       QMAKE_CFLAGS   += -g -O3
+       QMAKE_CXXFLAGS += -g -O3
     }
+
 
    DESTDIR = ./build/debug
    OBJECTS_DIR = $$DESTDIR/.obj
@@ -168,11 +167,7 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
 
    win32 {
-<<<<<<< HEAD
-    QMAKE_CXXFLAGS += /MD
-=======
-    QMAKE_CXXFLAGS +=/MD
->>>>>>> 9dd3682dd8bf83d11f411f90fc494cdcb590931b
+     QMAKE_CXXFLAGS += /MD
    }
 
 
