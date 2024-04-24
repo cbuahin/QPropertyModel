@@ -11,7 +11,7 @@
  * This file and its associated files is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
  * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
+ * \date 2014-2025
  * \pre
  * \bug
  * \warning
@@ -23,10 +23,11 @@
 
 #include <qabstractitemmodel.h>
 #include "qpropertymodel_global.h"
-#include "qvariantpropertyItem.h"
 #include "qvariantholderhelper.h"
-#include "qpropertyitemdelegate.h"
 
+/*!
+ * \brief The QPropertyModel class
+ */
 class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
 {
       friend class QObjectClassPropertyItem;
