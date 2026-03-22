@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "qchildpropertyitems.h"
+#include <QBitmap>
 
 QChildImagePropertyItem::QChildImagePropertyItem(const QVariant& value, const QString& name, QPropertyItem * parent)
    : QPropertyItem(value, name , parent)
@@ -34,7 +35,14 @@ QVariant QChildImagePropertyItem::data(int column, Qt::ItemDataRole  role) const
                break;
             case Qt::DecorationRole:
                {
-                  return  QIcon(qvariant_cast<QPixmap>(m_value));
+                  int typeId = m_value.typeId();
+                  if (typeId == QMetaType::QPixmap || typeId == QMetaType::QBitmap)
+                     return QIcon(qvariant_cast<QPixmap>(m_value));
+                  else if (typeId == QMetaType::QImage)
+                     return QIcon(QPixmap::fromImage(qvariant_cast<QImage>(m_value)));
+                  else if (typeId == QMetaType::QIcon)
+                     return qvariant_cast<QIcon>(m_value);
+                  return QVariant();
                }
                break;
          }

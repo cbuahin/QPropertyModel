@@ -1,0 +1,86 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# ci.yml — Build and test QPropertyModel on Linux, macOS, and Windows
+# ──────────────────────────────────────────────────────────────────────────────
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build & Test (${{ matrix.os }} / Qt ${{ matrix.qt_version }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux – Qt 6
+          - os: ubuntu-22.04
+            qt_version: "6.5.3"
+            qt_modules: "qtbase"
+            build_type: Release
+          # macOS – Qt 6
+          - os: macos-13
+            qt_version: "6.5.3"
+            qt_modules: "qtbase"
+            build_type: Release
+          # Windows – Qt 6
+          - os: windows-2022
+            qt_version: "6.5.3"
+            qt_modules: "qtbase"
+            build_type: Release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_version }}
+          modules: ${{ matrix.qt_modules }}
+          aqtversion: "==3.1.*"
+          cache: true
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxcb-xinerama0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xkb1 \
+            libxkbcommon-x11-0
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DQPROPERTYMODEL_BUILD_TESTS=ON \
+            -DQPROPERTYMODEL_BUILD_SHARED=ON
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
+      - name: Run tests
+        working-directory: build
+        run: ctest -C ${{ matrix.build_type }} --output-on-failure --timeout 120
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-qt${{ matrix.qt_version }}
+          path: build/Testing/**/*.xml
+          retention-days: 14

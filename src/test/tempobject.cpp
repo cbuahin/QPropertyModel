@@ -1,5 +1,5 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
  * \description
  * \license
@@ -341,6 +341,7 @@ QPoint TempObject::getQPoint() const
    return point;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void TempObject::setQRegExp(const  QRegExp & qRegex)
 {
    this->qRegex = qRegex;
@@ -349,6 +350,7 @@ QRegExp TempObject::getQRegExp() const
 {
    return qRegex;
 }
+#endif
 
 void TempObject::setQPointf(const  QPointF & pointf)
 {
@@ -419,6 +421,7 @@ QSizePolicy TempObject::getQSizePolicy() const
    return sizepolicy;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void TempObject::setQMatrix(const  QMatrix & matrix)
 {
    this->matrix = matrix;
@@ -428,6 +431,7 @@ QMatrix TempObject::getQMatrix() const
 {
    return this->matrix;
 }
+#endif
 
 void TempObject::setQTransform(const  QTransform & transform)
 {

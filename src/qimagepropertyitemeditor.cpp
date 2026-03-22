@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qimagepropertyitemeditor.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of image property editor.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -36,11 +29,14 @@ QImagePropertyItemEditor::~QImagePropertyItemEditor()
 
 void QImagePropertyItemEditor::onOpenEditorClicked()
 {
+   m_dialogOpen = true;
    QString filename = QFileDialog::getOpenFileName(
             this,
             tr("Open Image"),
             QDir::currentPath(),
             tr("All Images (*.bmp *.gif *.ico *.jpeg *.jpg *.mng *.pbm *.pgm *.svg *.svgz *.ico *.tga *.tif *.tiff *.wbmp *.xbm *.xpm)"));
+   m_dialogOpen = false;
+
    if (!filename.isNull())
    {
       switch (m_imageType)
@@ -68,6 +64,8 @@ void QImagePropertyItemEditor::onOpenEditorClicked()
                QImage image = QImage(filename);
                m_value.setValue(image);
             }
+            break;
+         default:
             break;
       }
 

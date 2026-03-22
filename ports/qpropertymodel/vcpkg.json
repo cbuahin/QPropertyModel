@@ -1,0 +1,27 @@
+{
+  "name": "qpropertymodel",
+  "version": "1.0.0",
+  "description": "A Qt-based property browser model similar to the .NET PropertyGrid control",
+  "homepage": "https://github.com/cbuahin/QPropertyModel",
+  "license": "MIT",
+  "supports": "!static",
+  "dependencies": [
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": ["widgets", "opengl"]
+    }
+  ],
+  "features": {
+    "openglwidgets": {
+      "description": "Enable Qt OpenGLWidgets support (Qt6 only)",
+      "dependencies": [
+        {
+          "name": "qtbase",
+          "platform": "!windows | !(x86 & !uwp)",
+          "version>=": "6.0.0"
+        }
+      ]
+    }
+  }
+}

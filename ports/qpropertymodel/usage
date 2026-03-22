@@ -1,0 +1,7 @@
+QPropertyModel provides CMake targets:
+
+    find_package(QPropertyModel CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE QPropertyModel::QPropertyModel)
+
+Note: QPropertyModel requires Qt (Widgets, OpenGL). Ensure Qt is installed and
+findable by CMake before using this package.

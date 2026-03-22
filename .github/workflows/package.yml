@@ -1,0 +1,134 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# package.yml — Build release packages (ZIP + TGZ) and publish as GitHub Release
+# ──────────────────────────────────────────────────────────────────────────────
+name: Package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 1.0.0)"
+        required: true
+        type: string
+
+jobs:
+  package:
+    name: Package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x64
+          - os: macos-13
+            arch: x64
+          - os: windows-2022
+            arch: x64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Derive version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "VERSION=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: "6.5.3"
+          modules: "qtbase"
+          aqtversion: "==3.1.*"
+          cache: true
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DQPROPERTYMODEL_BUILD_TESTS=OFF \
+            -DQPROPERTYMODEL_BUILD_SHARED=ON \
+            -DCMAKE_INSTALL_PREFIX=install
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Install
+        run: cmake --install build --config Release
+
+      - name: Package with CPack
+        working-directory: build
+        run: cpack -C Release -G "ZIP;TGZ"
+
+      - name: Rename packages with OS suffix
+        shell: bash
+        run: |
+          cd build
+          SUFFIX="${{ matrix.os }}-${{ matrix.arch }}"
+          for f in QPropertyModel-*.zip QPropertyModel-*.tar.gz; do
+            [ -f "$f" ] || continue
+            BASE="${f%.*}"
+            EXT="${f##*.}"
+            if [[ "$f" == *.tar.gz ]]; then
+              BASE="${f%.tar.gz}"
+              EXT="tar.gz"
+            fi
+            mv "$f" "${BASE}-${SUFFIX}.${EXT}"
+          done
+
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            build/QPropertyModel-*.zip
+            build/QPropertyModel-*.tar.gz
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    needs: package
+    runs-on: ubuntu-22.04
+    if: github.ref_type == 'tag'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: packages
+          pattern: packages-*
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "QPropertyModel ${{ github.ref_name }}"
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          files: packages/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

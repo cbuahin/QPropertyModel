@@ -1,17 +1,17 @@
 /*!
- * \file *.h
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qfontfamilypropertyitem.h
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
  * \description
+ * Property item for font-family strings rendered via a combo-box.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
+ * \copyright
+ * Copyright 2026, Caleb Buahin, All rights reserved.
+ * \date 2014-2026
  * \pre
  * \bug
  * \warning
@@ -24,13 +24,31 @@
 #include "qpropertyitem.h"
 
 
+/*!
+ * \brief Property item for font family selection.
+ *
+ * \details Displays the font family name in the name column and provides a
+ * QComboBox editor populated with all font families available on the system
+ * (via QFontDatabase).  This item is used as a child of QFontPropertyItem
+ * to expose the \b Family attribute of a QFont for individual editing.
+ */
 class QFontFamilyPropertyItem : public QPropertyItem
 {
       Q_OBJECT
 
    public:
+      /*!
+       * \brief Constructs a font family property item.
+       *
+       * \param[in] value  The initial font family name wrapped in a QVariant.
+       * \param[in] name   The display name shown in the name column (typically \c "Family").
+       * \param[in] parent The QPropertyItem that owns this child item.
+       */
       QFontFamilyPropertyItem(const QVariant& value, const QString& name, QPropertyItem * parent);
 
+      /*!
+       * \brief Destructor.
+       */
       virtual ~QFontFamilyPropertyItem();
 
    private:

@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qpropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QPropertyItem base class.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -23,23 +16,22 @@
 
 QPropertyItem::QPropertyItem(const QVariant& value, const QString& name, QPropertyItem *parent)
    : QObject(parent),
+     m_model(nullptr),
+     m_parent(parent),
      m_isSelectable(true),
      m_isEnabled(true),
      m_isEditable(true),
      m_isCheckable(false),
      m_isTristate(false),
-     m_childrenSet(false)
+     m_childrenSet(false),
+     m_canReset(false)
 {
    m_value = value;
    m_resetValue = QVariant::fromValue(value);
    m_name = name;
-   m_parent = parent;
 
    if (parent)
-   {
-
       m_model = parent->model();
-   }
 }
 
 QPropertyItem::~QPropertyItem()
@@ -144,24 +136,21 @@ Qt::ItemFlags QPropertyItem::flags() const
       flags = flags | Qt::ItemFlag::ItemIsEnabled;
    if (m_isEditable)
       flags = flags | Qt::ItemFlag::ItemIsEditable;
-   if (m_isEnabled)
-      flags = flags | Qt::ItemFlag::ItemIsEnabled;
    if (m_isSelectable)
       flags = flags | Qt::ItemFlag::ItemIsSelectable;
    if (m_isTristate)
-      flags = flags | Qt::ItemFlag::ItemIsTristate;
+      flags = flags | Qt::ItemFlag::ItemIsUserTristate;
 
    return flags;
 }
 
 void QPropertyItem::setFlags(Qt::ItemFlags flags)
 {
-   m_isCheckable = flags.testFlag(Qt::ItemFlag::ItemIsUserCheckable);
-   m_isEnabled = flags.testFlag(Qt::ItemFlag::ItemIsEnabled);
-   m_isEditable = flags.testFlag(Qt::ItemFlag::ItemIsEditable);
-   m_isEnabled = flags.testFlag(Qt::ItemFlag::ItemIsEnabled);
+   m_isCheckable  = flags.testFlag(Qt::ItemFlag::ItemIsUserCheckable);
+   m_isEnabled    = flags.testFlag(Qt::ItemFlag::ItemIsEnabled);
+   m_isEditable   = flags.testFlag(Qt::ItemFlag::ItemIsEditable);
    m_isSelectable = flags.testFlag(Qt::ItemFlag::ItemIsSelectable);
-   m_isTristate = flags.testFlag(Qt::ItemFlag::ItemIsTristate);
+   m_isTristate   = flags.testFlag(Qt::ItemFlag::ItemIsUserTristate);
 }
 
 bool QPropertyItem::isCheckable() const
@@ -227,7 +216,9 @@ QList<QPropertyItem*> QPropertyItem::childPropertyItems() const
 
 QPropertyItem* QPropertyItem::childPropertyItem(int index) const
 {
-   return m_children[index];
+   if (index < 0 || index >= m_children.size())
+      return nullptr;
+   return m_children.at(index);
 }
 
 bool QPropertyItem::canReset() const

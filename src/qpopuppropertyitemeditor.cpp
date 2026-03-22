@@ -1,29 +1,22 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qpopuppropertyitemeditor.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of popup property editor base.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
 #include "qcustomeditors.h"
-#include <QDebug>
 
 QPopUpPropertyItemEditor::QPopUpPropertyItemEditor(QWidget *parent)
    : QBasePropertyItemEditor(parent)
 {
+   m_editorDialog = nullptr;
    
    m_openEditorButton = new QPushButton("...", this);
    m_openEditorButton->setToolTip("Open Editor Dialog");
@@ -51,6 +44,9 @@ void QPopUpPropertyItemEditor::onOpenEditorClicked()
 {
    if(m_editorDialog)
    {
+      m_dialogOpen = true;
       m_editorDialog->exec();
+      m_dialogOpen = false;
+      emit valueChanged(this);
    }
 }

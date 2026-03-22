@@ -1,24 +1,18 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qfontpropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QFontPropertyItem.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
 #include <QDebug>
+#include <QFontDatabase>
 #include "qfontpropertyitem.h"
 #include "qfontfamilypropertyitem.h"
 #include "qpropertymodel.h"
@@ -128,24 +122,24 @@ bool QFontPropertyItem::hasChildren()
          m_children.append(bold);
 
 
-         QPropertyItem * italic = new QChildBoolPropertyItem(font.bold(), "Italic", this);
+         QPropertyItem * italic = new QChildBoolPropertyItem(font.italic(), "Italic", this);
          m_children.append(italic);
 
 
-         QPropertyItem * underline = new QChildBoolPropertyItem(font.bold(), "Underline", this);
+         QPropertyItem * underline = new QChildBoolPropertyItem(font.underline(), "Underline", this);
          m_children.append(underline);
 
 
-         QPropertyItem * strikeOut = new QChildBoolPropertyItem(font.bold(), "Strikeout", this);
+         QPropertyItem * strikeOut = new QChildBoolPropertyItem(font.strikeOut(), "Strikeout", this);
          m_children.append(strikeOut);
 
-         QPropertyItem * kerning = new QChildBoolPropertyItem(font.bold(), "Kerning", this);
+         QPropertyItem * kerning = new QChildBoolPropertyItem(font.kerning(), "Kerning", this);
          m_children.append(kerning);
 
 
          int index = QFont::staticMetaObject.indexOfEnumerator("StyleStrategy");
          QMetaEnum testenum = QFont::staticMetaObject.enumerator(index);
-         QChildEnumPropertyItem* styleStrategy = new QChildEnumPropertyItem(font.capitalization(), "Style Strategy", testenum, this);
+         QChildEnumPropertyItem* styleStrategy = new QChildEnumPropertyItem((int)font.styleStrategy(), "Style Strategy", testenum, this);
          m_children.append(styleStrategy);
 
 
@@ -158,6 +152,8 @@ bool QFontPropertyItem::hasChildren()
          connect(strikeOut, SIGNAL(valueChanged(const QString&, const QVariant&)), this, SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
          connect(kerning, SIGNAL(valueChanged(const QString&, const QVariant&)), this, SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
          connect(styleStrategy, SIGNAL(valueChanged(const QString&, const QVariant&)), this, SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
+
+         updateChildEnabledStates(font.family());
 
          return true;
       }
@@ -197,6 +193,8 @@ void QFontPropertyItem::setChildValues()
 
       m_model->setData(m_children[7]->index(), qvariant_cast<QVariant>(font.styleStrategy()));
 
+      updateChildEnabledStates(font.family());
+
       m_settingChildren = false;
    }
 }
@@ -216,6 +214,7 @@ void QFontPropertyItem::onChildItemValueChanged(const QString& name, const QVari
          if (name == "Family")
          {
             font.setFamily(value.toString());
+            updateChildEnabledStates(value.toString());
          }
          else if (name == "Point Size")
          {
@@ -250,5 +249,26 @@ void QFontPropertyItem::onChildItemValueChanged(const QString& name, const QVari
       }
 
       m_settingChildren = false;
+   }
+}
+
+void QFontPropertyItem::updateChildEnabledStates(const QString& family)
+{
+   QStringList styles = QFontDatabase::styles(family);
+   bool supportsBold = QFontDatabase::bold(family, "Bold") ||
+                       styles.contains("Bold") ||
+                       styles.contains("Bold Italic");
+   bool supportsItalic = QFontDatabase::italic(family, "Italic") ||
+                         styles.contains("Italic") ||
+                         styles.contains("Bold Italic");
+
+   // children: 0=Family, 1=PointSize, 2=Bold, 3=Italic, 4=Underline, 5=Strikeout, 6=Kerning, 7=StyleStrategy
+   if (m_children.count() > 3)
+   {
+      Qt::ItemFlags enabledFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+      Qt::ItemFlags disabledFlags = Qt::ItemIsSelectable;
+
+      m_children[2]->setFlags(supportsBold ? enabledFlags : disabledFlags);
+      m_children[3]->setFlags(supportsItalic ? enabledFlags : disabledFlags);
    }
 }

@@ -1,32 +1,26 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qbasepropertyitemeditor.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QBasePropertyItemEditor.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
 #include "qcustomeditors.h"
 #include "qpropertymodel.h"
-#include <QDebug>
+#include <QEvent>
 
 QBasePropertyItemEditor::QBasePropertyItemEditor( QWidget *parent)
    : QWidget(parent)
 {
    m_editorWidget = nullptr;
    m_propertyItem = nullptr;
+   m_dialogOpen = false;
 
    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -54,6 +48,7 @@ QBasePropertyItemEditor::QBasePropertyItemEditor(QWidget* childEditor, QProperty
    m_editorWidget = childEditor;
    m_valueProperty = m_editorWidget->metaObject()->userProperty();
    m_propertyItem = propertyItem;
+   m_dialogOpen = false;
 
    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -105,7 +100,15 @@ QVariant QBasePropertyItemEditor::getValue() const
 
 void QBasePropertyItemEditor::focusOutEvent(QFocusEvent * event)
 {
-   emit valueChanged(this);
+   if (!m_dialogOpen)
+      emit valueChanged(this);
+}
+
+bool QBasePropertyItemEditor::event(QEvent * event)
+{
+   if (m_dialogOpen && event->type() == QEvent::FocusOut)
+      return true; // swallow the event so the view's event filter doesn't close us
+   return QWidget::event(event);
 }
 
 void QBasePropertyItemEditor::setUpChildWidget()

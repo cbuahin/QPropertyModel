@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qchildbrushpropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QChildBrushPropertyItem.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -81,8 +74,8 @@ bool QChildBrushPropertyItem::hasChildren()
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
 
 
-      int index = staticQtMetaObject.indexOfEnumerator("BrushStyle");
-      QMetaEnum enumeration = staticQtMetaObject.enumerator(index);
+      int index = Qt::staticMetaObject.indexOfEnumerator("BrushStyle");
+      QMetaEnum enumeration = Qt::staticMetaObject.enumerator(index);
       QChildEnumPropertyItem* brushStyle = new QChildEnumPropertyItem((int)brush.style(), "Brush Style", enumeration, this);
       m_children.append(brushStyle);
       connect(brushStyle, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
@@ -122,7 +115,7 @@ Qt::ItemFlags QChildBrushPropertyItem::flags() const
    if (m_isSelectable)
       flags = flags | Qt::ItemFlag::ItemIsSelectable;
    if (m_isTristate)
-      flags = flags | Qt::ItemFlag::ItemIsTristate;
+      flags = flags | Qt::ItemFlag::ItemIsUserTristate;
 
    return flags;
 }

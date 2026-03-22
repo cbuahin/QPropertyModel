@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qobjectclasspropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QObjectClassPropertyItem.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -106,68 +99,61 @@ bool QObjectClassPropertyItem::setData(const QVariant & value, Qt::ItemDataRole 
    return false;
 }
 
+int QObjectClassPropertyItem::rowCount() const
+{
+   if (!m_childrenSet && m_model)
+      const_cast<QObjectClassPropertyItem*>(this)->hasChildren();
+   return m_children.count();
+}
+
 bool QObjectClassPropertyItem::hasChildren()
 {
    if (m_metaObject)
    {
       if (!m_childrenSet)
       {
-         int propertyCount = 0;
          int startIndex = 0;
 
          const QMetaObject* baseClass = m_metaObject->superClass();
 
          if (baseClass != nullptr)
-         {
             startIndex = baseClass->propertyCount();
-         }
 
-         propertyCount = m_metaObject->propertyCount();
+         int propertyCount = m_metaObject->propertyCount();
          int size = propertyCount - startIndex;
 
          m_childrenSet = true;
 
-         if (size > 0)
+         if (size > 0 && m_objectvalue)
          {
+            m_children.reserve(m_children.size() + size);
+
             for (int i = 0; i < size; i++)
             {
                QMetaProperty property = m_metaObject->property(startIndex + i);
                QVariant cvalue = property.read(m_objectvalue);
                QMetaType::Type type = (QMetaType::Type)cvalue.userType();
                QPropertyItem* childProperty = nullptr;
-
-
-               if(! QString(property.name()).compare("Publications"))
-               {
-                  qDebug() << "";
-               }
-
                if ((childProperty = m_model->createPropertyItemByType(cvalue.userType(), cvalue, property, this)) == nullptr)
                {
-                  switch (type)
+                  // In Qt 6, enum/flag properties may return a user type rather than
+                  // QMetaType::Int.  Check the QMetaProperty before the type switch.
+                  if (property.isEnumType() || property.isFlagType())
+                  {
+                     if (property.isFlagType())
+                     {
+                        childProperty = new QFlagsPropertyItem(cvalue, property.enumerator(), property, this);
+                     }
+                     else
+                     {
+                        childProperty = new QEnumPropertyItem(cvalue, property.enumerator(), property, this);
+                     }
+                  }
+                  else switch (type)
                   {
                      case QMetaType::Int:
                         {
-                           if (property.isEnumType())
-                           {
-                              if (property.isFlagType())
-                              {
-                                 childProperty = new QFlagsPropertyItem(cvalue, property.enumerator(), property, this);
-                              }
-                              else
-                              {
-                                 childProperty = new QEnumPropertyItem(cvalue, property.enumerator(), property, this);
-                              }
-                           }
-                           else if (property.isFlagType())
-                           {
-                              childProperty = new QFlagsPropertyItem(cvalue, property.enumerator(), property, this);
-
-                           }
-                           else
-                           {
-                              childProperty = new QVariantPropertyItem(cvalue, property, this);
-                           }
+                           childProperty = new QVariantPropertyItem(cvalue, property, this);
                         }
                         break;
                      case QMetaType::Bool:
@@ -287,7 +273,6 @@ bool QObjectClassPropertyItem::hasChildren()
                      case QMetaType::QDateTime:
                      case QMetaType::QUrl:
                      case QMetaType::QLocale:
-                     case QMetaType::QRegExp:
                      case QMetaType::QEasingCurve:
                      case QMetaType::QUuid:
                      case QMetaType::QVariant:
@@ -306,7 +291,6 @@ bool QObjectClassPropertyItem::hasChildren()
                      case QMetaType::QKeySequence:
                      case QMetaType::QTextLength:
                      case QMetaType::QTextFormat:
-                     case QMetaType::QMatrix:
                      case QMetaType::QTransform:
                      case QMetaType::QMatrix4x4:
                      case QMetaType::QQuaternion:

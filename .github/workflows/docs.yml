@@ -1,0 +1,74 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# docs.yml — Generate and publish Doxygen API documentation to GitHub Pages
+# ──────────────────────────────────────────────────────────────────────────────
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Restrict GitHub Pages deployment permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    name: Generate Doxygen docs
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Install Qt (header-only — needed for correct type resolution)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: "6.5.3"
+          modules: "qtbase"
+          aqtversion: "==3.1.*"
+          cache: true
+
+      - name: Install Linux GL dependencies
+        run: |
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev
+
+      - name: Configure CMake (docs only)
+        run: |
+          cmake -B build \
+            -DQPROPERTYMODEL_BUILD_DOCS=ON \
+            -DQPROPERTYMODEL_BUILD_TESTS=OFF
+
+      - name: Build documentation
+        run: cmake --build build --target QPropertyModel_docs
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/docs/html
+
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    needs: build-docs
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

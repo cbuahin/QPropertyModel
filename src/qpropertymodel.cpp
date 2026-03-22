@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qpropertymodel.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QPropertyModel.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -41,6 +34,19 @@ QPropertyModel::QPropertyModel(QObject* parent)
    int type = (QMetaType::Type) qMetaTypeId< QList<QObject*> >();
    registerCustomPropertyItemType(type, & QObjectListPropertyItem::staticMetaObject);
 
+}
+
+QPropertyModel::QPropertyModel(QObject* item, QObject* parent)
+   : QAbstractItemModel(parent)
+{
+   m_rootPropertyItem = nullptr;
+   m_variantHolder = new QVariantHolderHelper(QVariant(), this);
+
+   int type = (QMetaType::Type) qMetaTypeId< QList<QObject*> >();
+   registerCustomPropertyItemType(type, & QObjectListPropertyItem::staticMetaObject);
+
+   if (item)
+      setData(QVariant::fromValue(item));
 }
 
 QPropertyModel::QPropertyModel(const QVariant& item, QObject* parent)
@@ -77,10 +83,11 @@ void QPropertyModel::setData(const QVariant& item)
 
    if (!createRootPropertyItemByType(item.userType(), item))
    {
-      m_variantHolder = qvariant_cast<QVariantHolderHelper*>(item);
+      QVariantHolderHelper* holder = qvariant_cast<QVariantHolderHelper*>(item);
 
-      if(m_variantHolder)
+      if(holder)
       {
+         m_variantHolder = holder;
          m_wrapperUsed = true;
          m_rootPropertyItem = new QObjectClassPropertyItem(m_variantHolder, m_variantHolder->metaObject(), nullptr);
       }
@@ -116,6 +123,8 @@ int QPropertyModel::columnCount(const QModelIndex & parent) const
 
 int QPropertyModel::rowCount(const QModelIndex & parent) const
 {
+   if (parent.isValid() && parent.column() != 0)
+      return 0;
 
    QPropertyItem* propertyItem = parent.isValid() ? static_cast<QPropertyItem*>(parent.internalPointer()) : m_rootPropertyItem;
 
@@ -206,7 +215,10 @@ QModelIndex QPropertyModel::parent(const QModelIndex & index) const
 
 Qt::ItemFlags QPropertyModel::flags(const QModelIndex & index) const
 {
-   if (index.isValid() && index.column() > 0)
+   if (!index.isValid())
+      return Qt::ItemIsDropEnabled;
+
+   if (index.column() > 0)
    {
       QPropertyItem* propertyItem = static_cast<QPropertyItem*>(index.internalPointer());
 
@@ -239,6 +251,9 @@ QVariant QPropertyModel::headerData(int section, Qt::Orientation orientation, in
 
 bool QPropertyModel::hasChildren(const QModelIndex & parent) const
 {
+   if (parent.isValid() && parent.column() != 0)
+      return false;
+
    QPropertyItem* propertyItem = parent.isValid() ? static_cast<QPropertyItem*>(parent.internalPointer()) : m_rootPropertyItem;
 
    if (propertyItem)
@@ -253,7 +268,13 @@ void QPropertyModel::clear()
 {
    beginResetModel();
 
-   setData(QVariant());
+   if (m_rootPropertyItem)
+   {
+      delete m_rootPropertyItem;
+      m_rootPropertyItem = nullptr;
+   }
+
+   m_wrapperUsed = false;
 
    endResetModel();
 }
@@ -267,18 +288,28 @@ QVariant QPropertyModel::rootQVariantItem() const
 {
    if (m_wrapperUsed)
       return m_variantHolder->value();
-   else
-      return m_rootPropertyItem->data() ;
+   else if (m_rootPropertyItem)
+      return m_rootPropertyItem->data();
+   return QVariant();
 }
 
 bool QPropertyModel::registerCustomPropertyItemType(int userType, const QMetaObject* metaObject)
 {
+   if (!metaObject)
+   {
+      qWarning() << "QPropertyModel::registerCustomPropertyItemType: metaObject is null";
+      return false;
+   }
+
    if (checkIfSuperClassIsPropertyItem(metaObject))
    {
       m_registeredPropertyItems[userType] = metaObject;
       return true;
    }
 
+   qWarning() << "QPropertyModel::registerCustomPropertyItemType:"
+              << metaObject->className()
+              << "is not a subclass of QPropertyItem";
    return false;
 }
 

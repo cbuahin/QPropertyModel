@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qvariantpropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QVariantPropertyItem.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -70,17 +63,17 @@ QVariant QVariantPropertyItem::data(int column, Qt::ItemDataRole  role) const
                {
                   QVariant value = m_metaProperty.read(m_parent->qObject());
 
-                  if(value.type() == QMetaType::QDateTime)
+                  if(value.typeId() == QMetaType::QDateTime)
                   {
                      QDateTime dateTime = value.toDateTime();
                      return dateTime.toString("MM/dd/yyyy hh:mm:ss AP");
                   }
-                  else if(value.type() == QMetaType::QDate)
+                  else if(value.typeId() == QMetaType::QDate)
                   {
                      QDate date = value.toDate();
                      return date.toString("MM/dd/yyyy");
                   }
-                  else if(value.type() == QMetaType::QTime)
+                  else if(value.typeId() == QMetaType::QTime)
                   {
                      QTime time = value.toTime();
                      return time.toString("hh:mm:ss AP");
@@ -106,15 +99,18 @@ bool QVariantPropertyItem::setData(const QVariant & value, Qt::ItemDataRole role
    switch (role)
    {
       case Qt::EditRole:
-         if ( m_metaProperty.write(m_parent->qObject(), value))
+         if (m_metaProperty.write(m_parent->qObject(), value))
          {
             m_value = value;
-
             setChildValues();
-
             emit valueChanged(m_name, m_value);
-
             return true;
+         }
+         else
+         {
+            qWarning() << "QVariantPropertyItem::setData: failed to write property"
+                       << m_metaProperty.name()
+                       << "value:" << value;
          }
          break;
    }

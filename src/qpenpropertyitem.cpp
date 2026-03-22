@@ -1,20 +1,13 @@
 /*!
- * \author Caleb Amoa Buahin <caleb.buahin@gmail.com>
+ * \file qpenpropertyitem.cpp
+ * \author Caleb Buahin <caleb.buahin@gmail.com>
  * \version 1.0.0
- * \description
+ * \description Implementation of QPenPropertyItem.
  * \license
- * This file and its associated files, and libraries are free software.
- * You can redistribute it and/or modify it under the terms of the
- * Lesser GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 3 of the License, or (at your option) any later version.
- * This file and its associated files is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.(see <http://www.gnu.org/licenses/> for details)
- * \copyright Copyright 2014-2018, Caleb Buahin, All rights reserved.
- * \date 2014-2018
- * \pre
- * \bug
- * \warning
- * \todo
+ * This file is part of QPropertyModel.
+ * Copyright (c) 2014-2026 Caleb Buahin. All rights reserved.
+ * SPDX-License-Identifier: MIT
+ * See License.md for the full license text.
  */
 
 #include "stdafx.h"
@@ -130,24 +123,24 @@ bool QPenPropertyItem::hasChildren()
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
 
 
-      int index = staticQtMetaObject.indexOfEnumerator("PenStyle");
-      QMetaEnum enumeration = staticQtMetaObject.enumerator(index);
+      int index = Qt::staticMetaObject.indexOfEnumerator("PenStyle");
+      QMetaEnum enumeration = Qt::staticMetaObject.enumerator(index);
       QChildEnumPropertyItem* penStyle = new QChildEnumPropertyItem((int)pen.style(), "Style", enumeration, this);
       m_children.append(penStyle);
       connect(penStyle, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
 
 
-      index = staticQtMetaObject.indexOfEnumerator("PenCapStyle");
-      QMetaEnum enumeration1 = staticQtMetaObject.enumerator(index);
+      index = Qt::staticMetaObject.indexOfEnumerator("PenCapStyle");
+      QMetaEnum enumeration1 = Qt::staticMetaObject.enumerator(index);
       QChildEnumPropertyItem* penCapStyle = new QChildEnumPropertyItem((int)pen.capStyle(), "Cap Style", enumeration1, this);
       m_children.append(penCapStyle);
       connect(penCapStyle, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
 
 
-      index = staticQtMetaObject.indexOfEnumerator("PenJoinStyle");
-      QMetaEnum enumeration2 = staticQtMetaObject.enumerator(index);
+      index = Qt::staticMetaObject.indexOfEnumerator("PenJoinStyle");
+      QMetaEnum enumeration2 = Qt::staticMetaObject.enumerator(index);
       QChildEnumPropertyItem* penJoinStyle = new QChildEnumPropertyItem((int)pen.joinStyle(), "Join Style", enumeration2, this);
       m_children.append(penJoinStyle);
       connect(penJoinStyle, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
@@ -186,7 +179,7 @@ Qt::ItemFlags QPenPropertyItem::flags() const
    if (m_isSelectable)
       flags = flags | Qt::ItemFlag::ItemIsSelectable;
    if (m_isTristate)
-      flags = flags | Qt::ItemFlag::ItemIsTristate;
+      flags = flags | Qt::ItemFlag::ItemIsUserTristate;
 
    return flags;
 }
