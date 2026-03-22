@@ -24,11 +24,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             arch: x64
-          - os: macos-13
+          - os: macos-latest
             arch: x64
-          - os: windows-2022
+          - os: windows-latest
             arch: x64
 
     steps:

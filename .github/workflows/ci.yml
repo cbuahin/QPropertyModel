@@ -19,18 +19,18 @@ jobs:
       matrix:
         include:
           # Linux – Qt 6
-          - os: ubuntu-22.04
-            qt_version: "6.5.3"
+          - os: ubuntu-latest
+            qt_version: "6.9.3"
             qt_modules: "qtbase"
             build_type: Release
           # macOS – Qt 6
-          - os: macos-13
-            qt_version: "6.5.3"
+          - os: macos-latest
+            qt_version: "6.9.3"
             qt_modules: "qtbase"
             build_type: Release
           # Windows – Qt 6
-          - os: windows-2022
-            qt_version: "6.5.3"
+          - os: windows-latest
+            qt_version: "6.9.3"
             qt_modules: "qtbase"
             build_type: Release
 
