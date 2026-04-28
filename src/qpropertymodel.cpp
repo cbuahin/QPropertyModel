@@ -10,12 +10,15 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qpropertymodel.h"
 #include "qobjectpropertyitem.h"
 #include "qpropertyitemdelegate.h"
 #include "qobjectlistpropertyitem.h"
+#include "qvariantpropertyItem.h"
 #include <QDebug>
+#include <QFont>
+#include <QColor>
 #include <qcustomeditors.h>
 
 int m_windowState(-1000);
@@ -71,6 +74,7 @@ void QPropertyModel::setData(const QVariant& item)
    beginResetModel();
 
    m_wrapperUsed = false;
+   m_objects.clear();
 
    if (m_rootPropertyItem)
    {
@@ -116,6 +120,36 @@ void QPropertyModel::setData(const QVariant& item)
    endResetModel();
 }
 
+void QPropertyModel::setData(const QList<QObject*>& objects)
+{
+   beginResetModel();
+
+   m_wrapperUsed = false;
+   m_objects = objects;
+
+   if (m_rootPropertyItem)
+   {
+      delete m_rootPropertyItem;
+      m_rootPropertyItem = nullptr;
+   }
+
+   // Filter out nulls
+   QList<QObject*> validObjects;
+   for (QObject* obj : objects)
+   {
+      if (obj)
+         validObjects.append(obj);
+   }
+
+   if (!validObjects.isEmpty())
+   {
+      m_rootPropertyItem = new QObjectPropertyItem(validObjects, QMetaProperty(), nullptr);
+      m_rootPropertyItem->m_model = this;
+   }
+
+   endResetModel();
+}
+
 int QPropertyModel::columnCount(const QModelIndex & parent) const
 {
    return 2;
@@ -146,6 +180,29 @@ QVariant QPropertyModel::data(const QModelIndex & index, int role) const
 
       if (propertyItem)
       {
+         // In multi-object mode, show mixed-value indicator for non-uniform properties
+         if (m_objects.size() > 1 && index.column() == 1)
+         {
+            QVariantPropertyItem* varItem = dynamic_cast<QVariantPropertyItem*>(propertyItem);
+            if (varItem && varItem->metaProperty().isValid())
+            {
+               QObjectClassPropertyItem* classParent = dynamic_cast<QObjectClassPropertyItem*>(varItem->parent());
+               if (classParent && !classParent->hasUniformValue(varItem->metaProperty()))
+               {
+                  if (r == Qt::DisplayRole)
+                     return QString("\xe2\x80\x94");  // em dash for mixed values
+                  if (r == Qt::FontRole)
+                  {
+                     QFont f;
+                     f.setItalic(true);
+                     return f;
+                  }
+                  if (r == Qt::ForegroundRole)
+                     return QColor(Qt::gray);
+               }
+            }
+         }
+
          return propertyItem->data(index.column(), r);
       }
    }

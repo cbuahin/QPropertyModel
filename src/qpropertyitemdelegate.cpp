@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qpropertyitemdelegate.h"
 #include "qcustomeditors.h"
 #include "qenumpropertyitem.h"
@@ -22,6 +22,9 @@
 #include <QKeySequenceEdit>
 #include <QPen>
 #include <QTextItem>
+#include <QApplication>
+#include <QStyle>
+#include <QMetaEnum>
 #include "qcustomeditors.h"
 
 QPropertyItemDelegate::QPropertyItemDelegate(QObject *parent)
@@ -52,9 +55,19 @@ QPropertyItemDelegate::QPropertyItemDelegate(QObject *parent)
 
    factory->registerEditor(QMetaType::QKeySequence, new QItemEditorCreator<QKeySequenceEdit>("keySequence"));
 
+   factory->registerEditor(QMetaType::QCursor, new QStandardItemEditorCreator<QCursorPropertyItemEditor>());
+
+   factory->registerEditor(QMetaType::QPalette, new QStandardItemEditorCreator<QPalettePropertyItemEditor>());
+
    factory->registerEditor(QMetaType::QString, new QItemEditorCreator<QLineEdit>("text"));
 
    factory->registerEditor(QMetaType::Double, new QStandardItemEditorCreator<QCustomDoubleSpinBox>());
+
+   factory->registerEditor(QMetaType::Float, new QStandardItemEditorCreator<QCustomDoubleSpinBox>());
+
+   factory->registerEditor(QMetaType::Int, new QStandardItemEditorCreator<QCustomSpinBox>());
+
+   factory->registerEditor(QMetaType::UInt, new QStandardItemEditorCreator<QCustomSpinBox>());
 
    factory->registerEditor(QMetaType::QDateTime, new QItemEditorCreator<QCustomDateTimeEdit>("dateTime"));
 
@@ -125,51 +138,154 @@ void QPropertyItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem
 
       case QMetaType::QPen:
          {
+            // Draw background first
+            QStyledItemDelegate::paint(painter, option, index);
+
             QPen pen = qvariant_cast<QPen>(value);
+            painter->save();
             painter->setPen(pen);
-            int yhalf = option.rect.y() + (option.rect.height())*1.0 / 2.0;
-            yhalf = yhalf + pen.widthF() / 2;
+            int yhalf = option.rect.y() + option.rect.height() / 2;
             QPoint p1(option.rect.left() + 5, yhalf);
-            QPoint p2(option.rect.right() - 45 , yhalf);
+            QPoint p2(option.rect.right() - 45, yhalf);
             painter->drawLine(p1, p2);
+            painter->restore();
          }
          break;
 
       case QMetaType::QBrush:
          {
+            // Draw selection/background
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text.clear();
+            QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+
             QBrush brush = qvariant_cast<QBrush>(value);
+            painter->save();
+
+            // Small swatch on the left, then text — like Qt Creator
+            int swatchSize = option.rect.height() - 4;
+            QRect swatchRect(option.rect.left() + 2, option.rect.top() + 2, swatchSize, swatchSize);
             painter->setBrush(brush);
-            painter->setPen(QPen());
+            painter->setPen(QPen(Qt::gray, 1));
+            painter->drawRect(swatchRect);
 
-            QRect rect = QRect(option.rect);
-            rect.setRight(rect.right() - 50);
-            rect.setLeft(rect.left() + 5);
-            rect.setTop(rect.top() + 2);
-            rect.setBottom(rect.bottom() - 2);
-            qreal rad = (rect.height()-4)*1.0 / 2.5;
+            // Draw brush style name text
+            int textLeft = swatchRect.right() + 6;
+            QRect textRect(textLeft, option.rect.top(), option.rect.right() - textLeft - 40, option.rect.height());
+            QMetaEnum brushEnum = QMetaEnum::fromType<Qt::BrushStyle>();
+            const char* styleName = brushEnum.valueToKey((int)brush.style());
+            QString text = styleName ? QString(styleName) : QString("BrushStyle(%1)").arg((int)brush.style());
+            painter->setPen(option.palette.color(QPalette::Text));
+            painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
 
-            painter->drawRoundedRect(rect, rad, rad);
+            painter->restore();
          }
          break;
 
       case QMetaType::QColor:
          {
+            // Draw selection/background
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text.clear();
+            QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+
             QColor color = qvariant_cast<QColor>(value);
-            QBrush brush(color, Qt::BrushStyle::SolidPattern);
-            painter->setBrush(brush);
-            painter->setPen(QPen());
-            QRect rect = QRect(option.rect);
-            rect.setRight(rect.right() - 45);
-            rect.setLeft(rect.left() + 5);
-            rect.setTop(rect.top() + 2);
-            rect.setBottom(rect.bottom() - 2);
-            qreal rad = (rect.height()-4)*1.0 / 2.5;
-            painter->drawRoundedRect(rect, rad, rad);
+            painter->save();
+
+            // Small color swatch on the left — like Qt Creator
+            int swatchSize = option.rect.height() - 4;
+            QRect swatchRect(option.rect.left() + 2, option.rect.top() + 2, swatchSize, swatchSize);
+
+            // Checkerboard background for alpha
+            painter->setBrush(Qt::white);
+            painter->setPen(Qt::NoPen);
+            painter->drawRect(swatchRect);
+            if (color.alpha() < 255)
+            {
+               QColor gray(192, 192, 192);
+               int half = swatchSize / 2;
+               painter->fillRect(swatchRect.left(), swatchRect.top(), half, half, gray);
+               painter->fillRect(swatchRect.left() + half, swatchRect.top() + half, half, half, gray);
+            }
+
+            painter->setBrush(QBrush(color, Qt::SolidPattern));
+            painter->setPen(QPen(Qt::gray, 1));
+            painter->drawRect(swatchRect);
+
+            // Draw RGBA text — like Qt Creator's QtColorPropertyManager
+            int textLeft = swatchRect.right() + 6;
+            QRect textRect(textLeft, option.rect.top(), option.rect.right() - textLeft - 40, option.rect.height());
+            QString text;
+            if (color.alpha() == 255)
+               text = QString("(%1, %2, %3)").arg(color.red()).arg(color.green()).arg(color.blue());
+            else
+               text = QString("(%1, %2, %3, %4)").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
+            painter->setPen(option.palette.color(QPalette::Text));
+            painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+
+            painter->restore();
          }
          break;
+
+      case QMetaType::QIcon:
+         {
+            // Draw selection/background
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text.clear();
+            opt.icon = QIcon();
+            QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+
+            QIcon icon = qvariant_cast<QIcon>(value);
+            if (!icon.isNull())
+            {
+               int iconSize = option.rect.height() - 4;
+               QRect iconRect(option.rect.left() + 2, option.rect.top() + 2, iconSize, iconSize);
+               icon.paint(painter, iconRect, Qt::AlignCenter, QIcon::Normal, QIcon::On);
+            }
+         }
+         break;
+
+      case QMetaType::QPixmap:
+         {
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text.clear();
+            QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+
+            QPixmap pixmap = qvariant_cast<QPixmap>(value);
+            if (!pixmap.isNull())
+            {
+               int thumbSize = option.rect.height() - 4;
+               QRect thumbRect(option.rect.left() + 2, option.rect.top() + 2, thumbSize, thumbSize);
+               QPixmap scaled = pixmap.scaled(thumbSize, thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+               painter->drawPixmap(thumbRect.topLeft(), scaled);
+            }
+         }
+         break;
+
+      case QMetaType::QImage:
+         {
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text.clear();
+            QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+
+            QImage image = qvariant_cast<QImage>(value);
+            if (!image.isNull())
+            {
+               int thumbSize = option.rect.height() - 4;
+               QRect thumbRect(option.rect.left() + 2, option.rect.top() + 2, thumbSize, thumbSize);
+               QImage scaled = image.scaled(thumbSize, thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+               painter->drawImage(thumbRect.topLeft(), scaled);
+            }
+         }
+         break;
+
       default:
          {
-
             QStyledItemDelegate::paint(painter, option, index);
          }
          break;

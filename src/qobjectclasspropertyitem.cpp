@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qobjectclasspropertyitem.h"
 #include "qobjectpropertyitem.h"
 #include "qvariantpropertyItem.h"
@@ -36,6 +36,10 @@
 #include "qstringlistpropertyitem.h"
 #include "qpropertymodel.h"
 #include "qvariantlistpropertyitem.h"
+#include "qsizepolicypropertyitem.h"
+#include "qtransformpropertyitem.h"
+#include "qmatrix4x4propertyitem.h"
+#include "qpolygonpropertyitem.h"
 #include <QDebug>
 #include <QMetaProperty>
 
@@ -45,7 +49,15 @@ QColor QObjectClassPropertyItem::s_foregroundColor = Qt::white;
 QObjectClassPropertyItem::QObjectClassPropertyItem(QObject* value, const QMetaObject* metaObject, QPropertyItem * parent)
    : QPropertyItem(QVariant::fromValue(value), metaObject->className(), parent)
 {
-   m_objectvalue = value;
+   m_objectvalues.append(value);
+   m_metaObject = metaObject;
+   m_isEditable = false;
+}
+
+QObjectClassPropertyItem::QObjectClassPropertyItem(const QList<QObject*>& values, const QMetaObject* metaObject, QPropertyItem * parent)
+   : QPropertyItem(values.isEmpty() ? QVariant() : QVariant::fromValue(values.first()), metaObject->className(), parent)
+{
+   m_objectvalues = values;
    m_metaObject = metaObject;
    m_isEditable = false;
 }
@@ -124,14 +136,15 @@ bool QObjectClassPropertyItem::hasChildren()
 
          m_childrenSet = true;
 
-         if (size > 0 && m_objectvalue)
+         if (size > 0 && !m_objectvalues.isEmpty())
          {
+            QObject* primaryObj = m_objectvalues.first();
             m_children.reserve(m_children.size() + size);
 
             for (int i = 0; i < size; i++)
             {
                QMetaProperty property = m_metaObject->property(startIndex + i);
-               QVariant cvalue = property.read(m_objectvalue);
+               QVariant cvalue = property.read(primaryObj);
                QMetaType::Type type = (QMetaType::Type)cvalue.userType();
                QPropertyItem* childProperty = nullptr;
                if ((childProperty = m_model->createPropertyItemByType(cvalue.userType(), cvalue, property, this)) == nullptr)
@@ -250,6 +263,31 @@ bool QObjectClassPropertyItem::hasChildren()
                            childProperty = new QVariantListPropertyItem(cvalue, property, this);
                         }
                         break;
+                     case QMetaType::QSizePolicy:
+                        {
+                           childProperty = new QSizePolicyPropertyItem(cvalue, property, this);
+                        }
+                        break;
+                     case QMetaType::QTransform:
+                        {
+                           childProperty = new QTransformPropertyItem(cvalue, property, this);
+                        }
+                        break;
+                     case QMetaType::QMatrix4x4:
+                        {
+                           childProperty = new QMatrix4x4PropertyItem(cvalue, property, this);
+                        }
+                        break;
+                     case QMetaType::QPolygon:
+                        {
+                           childProperty = new QPolygonPropertyItem(cvalue, property, this);
+                        }
+                        break;
+                     case QMetaType::QPolygonF:
+                        {
+                           childProperty = new QPolygonFPropertyItem(cvalue, property, this);
+                        }
+                        break;
                      case QMetaType::Void:
                      case QMetaType::QColor:
                      case QMetaType::UInt:
@@ -285,17 +323,12 @@ bool QObjectClassPropertyItem::hasChildren()
                      case QMetaType::QVariantMap:
                      case QMetaType::QVariantHash:
                      case QMetaType::QPalette:
-                     case QMetaType::QPolygon:
                      case QMetaType::QRegion:
                      case QMetaType::QCursor:
                      case QMetaType::QKeySequence:
                      case QMetaType::QTextLength:
                      case QMetaType::QTextFormat:
-                     case QMetaType::QTransform:
-                     case QMetaType::QMatrix4x4:
                      case QMetaType::QQuaternion:
-                     case QMetaType::QPolygonF:
-                     case QMetaType::QSizePolicy:
                         {
                            childProperty = new QVariantPropertyItem(cvalue, property, this);
                         }
@@ -350,5 +383,40 @@ bool QObjectClassPropertyItem::hasChildren()
 
 QObject* QObjectClassPropertyItem::qObject() const
 {
-   return m_objectvalue;
+   return m_objectvalues.isEmpty() ? nullptr : m_objectvalues.first();
+}
+
+QList<QObject*> QObjectClassPropertyItem::qObjects() const
+{
+   return m_objectvalues;
+}
+
+bool QObjectClassPropertyItem::isMultiObject() const
+{
+   return m_objectvalues.size() > 1;
+}
+
+bool QObjectClassPropertyItem::hasUniformValue(const QMetaProperty& prop) const
+{
+   if (m_objectvalues.size() <= 1)
+      return true;
+
+   QVariant primary = prop.read(m_objectvalues.first());
+   for (int i = 1; i < m_objectvalues.size(); ++i)
+   {
+      if (prop.read(m_objectvalues[i]) != primary)
+         return false;
+   }
+   return true;
+}
+
+bool QObjectClassPropertyItem::writePropertyToAll(const QMetaProperty& prop, const QVariant& value)
+{
+   bool ok = false;
+   for (QObject* obj : m_objectvalues)
+   {
+      if (prop.write(obj, value))
+         ok = true;
+   }
+   return ok;
 }

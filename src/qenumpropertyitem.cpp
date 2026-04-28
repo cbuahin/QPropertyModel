@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qenumpropertyitem.h"
 
 QEnumPropertyItem::QEnumPropertyItem(const QVariant& value, const QMetaEnum& metaEnumProperty, const QMetaProperty& metaProperty, QObjectClassPropertyItem * parent)

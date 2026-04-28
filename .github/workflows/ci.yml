@@ -11,64 +11,66 @@ on:
 
 jobs:
   build:
-    name: Build & Test (${{ matrix.os }} / Qt ${{ matrix.qt_version }})
+    name: Build & Test (${{ matrix.alias }})
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      actions: write
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux – Qt 6
           - os: ubuntu-latest
-            qt_version: "6.9.3"
-            qt_modules: "qtbase"
+            alias: Linux-x64
             build_type: Release
-          # macOS – Qt 6
+            qt_arch: linux_gcc_64
+            cmake_osx_arch: ""
+
           - os: macos-latest
-            qt_version: "6.9.3"
-            qt_modules: "qtbase"
+            alias: macOS-arm64
             build_type: Release
-          # Windows – Qt 6
+            qt_arch: clang_64
+            cmake_osx_arch: arm64
+
+          - os: macos-15-intel
+            alias: macOS-x64
+            build_type: Release
+            qt_arch: clang_64
+            cmake_osx_arch: x86_64
+
           - os: windows-latest
-            qt_version: "6.9.3"
-            qt_modules: "qtbase"
+            alias: Windows-x64
             build_type: Release
+            qt_arch: win64_msvc2019_64
+            cmake_osx_arch: ""
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
         with:
-          version: ${{ matrix.qt_version }}
-          modules: ${{ matrix.qt_modules }}
-          aqtversion: "==3.1.*"
+          version: '6.7.*'
+          arch: ${{ matrix.qt_arch }}
           cache: true
 
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-            libgl1-mesa-dev \
-            libglu1-mesa-dev \
-            libxcb-xinerama0 \
-            libxcb-icccm4 \
-            libxcb-image0 \
-            libxcb-keysyms1 \
-            libxcb-randr0 \
-            libxcb-render-util0 \
-            libxcb-shape0 \
-            libxcb-xkb1 \
-            libxkbcommon-x11-0
-
       - name: Configure CMake
-        run: |
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DQPROPERTYMODEL_BUILD_TESTS=ON \
-            -DQPROPERTYMODEL_BUILD_SHARED=ON
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_osx_arch }}
+          -DQPROPERTYMODEL_BUILD_TESTS=ON
+          -DQPROPERTYMODEL_BUILD_SHARED=ON
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }} --parallel
@@ -81,6 +83,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.os }}-qt${{ matrix.qt_version }}
+          name: test-results-${{ matrix.alias }}
           path: build/Testing/**/*.xml
           retention-days: 14

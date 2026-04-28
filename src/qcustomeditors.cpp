@@ -10,31 +10,43 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qcustomeditors.h"
+#include <climits>
 
 QCustomDoubleSpinBox::QCustomDoubleSpinBox(QWidget *parent)
    : QDoubleSpinBox(parent)
 {
-   setDecimals(15);
+   setDecimals(6);
    setSingleStep(0.1);
+   setRange(-1e9, 1e9);
+   setKeyboardTracking(false);
+}
+
+QCustomSpinBox::QCustomSpinBox(QWidget *parent)
+   : QSpinBox(parent)
+{
+   setRange(INT_MIN, INT_MAX);
+   setKeyboardTracking(false);
 }
 
 QCustomDateTimeEdit::QCustomDateTimeEdit(QWidget *parent)
    : QDateTimeEdit(parent)
 {
-  setDisplayFormat("MM/dd/yyyy hh:mm:ss AP");
+  setDisplayFormat("yyyy-MM-dd HH:mm:ss");
+  setCalendarPopup(true);
 }
 
 QCustomDateEdit::QCustomDateEdit(QWidget *parent)
    : QDateEdit(parent)
 {
-  setDisplayFormat("MM/dd/yyyy");
+  setDisplayFormat("yyyy-MM-dd");
+  setCalendarPopup(true);
 }
 
 
 QCustomTimeEdit::QCustomTimeEdit(QWidget *parent)
    : QTimeEdit(parent)
 {
-  setDisplayFormat("hh:mm:ss AP");
+  setDisplayFormat("HH:mm:ss");
 }

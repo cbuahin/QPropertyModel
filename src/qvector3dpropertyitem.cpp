@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qvector3dpropertyitem.h"
 #include "qpropertymodel.h"
 #include <QVector3D>
@@ -54,7 +54,7 @@ QVariant QVector3DPropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QVector3D v = qvariant_cast<QVector3D>(m_metaProperty.read(m_parent->qObject()));
-                  QString label = QString("[X=%1, Y=%2, Z=%3]").arg(v.x()).arg(v.y()).arg(v.z());
+                  QString label = QString("(%1, %2, %3)").arg(v.x()).arg(v.y()).arg(v.z());
                   return label;
                }
                break;
@@ -174,7 +174,7 @@ void QVector3DPropertyItem::onChildItemValueChanged(const QString& name, const Q
       }
       else if (name == "Z")
       {
-         v.setY(value.toDouble());
+         v.setZ(value.toDouble());
       }
 
       m_model->setData(m_index, v);

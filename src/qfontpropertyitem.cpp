@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include <QDebug>
 #include <QFontDatabase>
 #include "qfontpropertyitem.h"
@@ -57,7 +57,7 @@ QVariant QFontPropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QFont font = qvariant_cast<QFont>(m_metaProperty.read(m_parent->qObject()));
-                  QString name = "[" + font.family() + ", " + QString::number(font.pointSize()) + " ]";
+                  QString name = "[" + font.family() + ", " + QString::number(font.pointSize()) + "]";
                   return name;
                }
                break;

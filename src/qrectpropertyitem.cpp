@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qrectpropertyitem.h"
 #include "qpropertymodel.h"
 
@@ -53,7 +53,7 @@ QVariant QRectPropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QRect v = qvariant_cast<QRect>(m_metaProperty.read(m_parent->qObject()));
-                  QString label = QString("[X=%1, Y=%2, Width=%3, Height=%4]").arg(v.x()).arg(v.y()).arg(v.width()).arg(v.height());
+                  QString label = QString("[(%1, %2), %3 x %4]").arg(v.x()).arg(v.y()).arg(v.width()).arg(v.height());
                   return label;
                }
                break;

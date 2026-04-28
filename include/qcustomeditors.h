@@ -23,6 +23,7 @@
 
 #include <QDebug>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QDateTimeEdit>
 #include <QTimeEdit>
 #include <QPushButton>
@@ -50,6 +51,7 @@ class QPropertyModel;
 namespace Ui {
    class QStringListPropertyItemEditor;
    class QCustomObjectListPropertyItemEditor;
+   class QPalettePropertyItemEditor;
 }
 
 
@@ -72,6 +74,23 @@ class QCustomDoubleSpinBox : public QDoubleSpinBox
       QCustomDoubleSpinBox(QWidget *parent);
 
       ~QCustomDoubleSpinBox(){}
+
+};
+
+/*!
+ * \brief A QSpinBox configured for in-delegate use in a property browser.
+ *
+ * \details Provides a full-range integer spin-box suitable for
+ * property-browser delegate editors, matching Qt Creator behaviour.
+ */
+class QCustomSpinBox : public QSpinBox
+{
+      Q_OBJECT
+
+   public:
+      QCustomSpinBox(QWidget *parent);
+
+      ~QCustomSpinBox(){}
 
 };
 
@@ -624,18 +643,6 @@ class QImagePropertyItemEditor : public QPopUpPropertyItemEditor
        */
       virtual ~QImagePropertyItemEditor();
 
-   private slots:
-
-      /*!
-       * \brief Opens a file dialog and loads the selected image.
-       *
-       * \details Detects the image type (QImage / QPixmap / QBitmap) from
-       * m_imageType and stores the loaded image as m_value.
-       */
-      void onOpenEditorClicked() override;
-
-      void setUpChildWidget() override;
-
       /*!
        * \brief Sets the initial image \a value displayed in the editor.
        *
@@ -652,7 +659,18 @@ class QImagePropertyItemEditor : public QPopUpPropertyItemEditor
        */
       QVariant getValue() const override;
 
+   private slots:
+      /*!
+       * \brief Opens a file dialog and loads the selected image.
+       *
+       * \details Detects the image type (QImage / QPixmap / QBitmap) from
+       * m_imageType and stores the loaded image as m_value.
+       */
+      void onOpenEditorClicked() override;
+
    private:
+      void setUpChildWidget() override;
+
       QMetaType::Type m_imageType; /*!< The concrete image sub-type (QImage, QPixmap, or QBitmap). */
 
 };
@@ -737,6 +755,103 @@ class QFontPropertyItemEditor : public QPopUpPropertyItemEditor
        * \details Stores the accepted QFont as m_value and emits valueChanged().
        */
       void onColorAccepted();
+
+};
+
+/*!
+ * \brief Dropdown editor for QCursor properties with visual cursor display.
+ *
+ * \details Displays a QComboBox with all standard Qt cursor shapes.
+ * Shows both the cursor icon and name in the dropdown.
+ */
+class QPROPERTYMODEL_EXPORT QCursorPropertyItemEditor : public QBasePropertyItemEditor
+{
+      Q_OBJECT
+
+   public:
+      /*!
+       * \brief Constructs the cursor editor with the given \a parent.
+       *
+       * \param[in] parent The parent widget.
+       */
+      QCursorPropertyItemEditor(QWidget *parent);
+
+      /*!
+       * \brief Destructor.
+       */
+      virtual ~QCursorPropertyItemEditor();
+
+      /*!
+       * \brief Sets the initial cursor \a value displayed in the editor.
+       *
+       * \param[in] value The current QCursor wrapped in a QVariant.
+       */
+      void setValue(const QVariant& value) override;
+
+      /*!
+       * \brief Returns the currently selected cursor value.
+       *
+       * \returns The selected QCursor wrapped in a QVariant.
+       */
+      QVariant getValue() const override;
+
+   private slots:
+      void onCurrentIndexChanged(int index);
+
+   private:
+      void setUpChildWidget() override;
+
+      QComboBox* m_comboBox;
+
+};
+
+/*!
+ * \brief Popup editor that opens a palette editor dialog for QPalette properties.
+ *
+ * \details When the push-button is clicked a comprehensive dialog opens showing
+ * all palette color roles organized by color group (Active, Inactive, Disabled).
+ * Supports editing all standard color roles with visual color preview buttons.
+ */
+class QPROPERTYMODEL_EXPORT QPalettePropertyItemEditor : public QPopUpPropertyItemEditor
+{
+      Q_OBJECT
+
+   public:
+      /*!
+       * \brief Constructs the palette editor with the given \a parent.
+       *
+       * \param[in] parent The parent widget.
+       */
+      QPalettePropertyItemEditor(QWidget *parent);
+
+      /*!
+       * \brief Destructor.
+       */
+      virtual ~QPalettePropertyItemEditor();
+
+      /*!
+       * \brief Sets the initial palette \a value displayed in the editor.
+       *
+       * \param[in] value The current QPalette wrapped in a QVariant.
+       */
+      void setValue(const QVariant& value) override;
+
+   private slots:
+      void onOpenEditorClicked() override;
+
+   private:
+      void setUpChildWidget() override;
+      void populateColorRole(QPalette::ColorGroup group, QPalette::ColorRole role, 
+                            const QString& name, QGridLayout* layout, int row);
+      void setupColorButtons(QDialog* dialog, QPalette& palette);
+
+      struct ColorButton {
+         QPushButton* button;
+         QPalette::ColorGroup group;
+         QPalette::ColorRole role;
+      };
+      
+      QList<ColorButton> m_colorButtons;
 
 };
 

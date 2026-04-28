@@ -1,0 +1,20 @@
+# QPropertyModelConfig.cmake.in
+# CMake package configuration for QPropertyModel
+#
+# Copyright (c) 2014-2026 Caleb Buahin
+# SPDX-License-Identifier: MIT
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find required Qt components
+find_dependency(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGL LinguistTools)
+find_dependency(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGL LinguistTools)
+if(QT_VERSION_MAJOR EQUAL 6)
+    find_dependency(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/QPropertyModelTargets.cmake")
+
+check_required_components(QPropertyModel)

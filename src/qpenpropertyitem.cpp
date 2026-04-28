@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include <QPen>
 #include "qpenpropertyitem.h"
 #include "qpropertymodel.h"
@@ -89,11 +89,11 @@ void QPenPropertyItem::setChildValues()
          }
          else if (propertyName == "Join Style")
          {
-            tval = (int)pen.capStyle();
+            tval = (int)pen.joinStyle();
          }
          else if (propertyName == "Brush")
          {
-            tval = (int)pen.capStyle();
+            tval = QVariant::fromValue(pen.brush());
          }
 
          m_model->setData(child->index(), tval);
@@ -190,7 +190,7 @@ void QPenPropertyItem::onChildItemValueChanged(const QString& name, const QVaria
    {
       m_isSettingChildren = true;
 
-      QPen pen = qvariant_cast<QPen>(m_value);
+      QPen pen = qvariant_cast<QPen>(m_metaProperty.read(m_parent->qObject()));
 
       if (name == "Width")
       {

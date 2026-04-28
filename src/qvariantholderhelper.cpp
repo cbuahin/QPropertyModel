@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qvariantholderhelper.h"
 
 QVariantHolderHelper::QVariantHolderHelper(const QVariant& value, QObject* parent)

@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qsizepropertyitem.h"
 #include "qpropertymodel.h"
 
@@ -53,7 +53,7 @@ QVariant QSizePropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QSize size = qvariant_cast<QSize>( m_metaProperty.read(m_parent->qObject()));
-                  QString dis = QString::number(size.width()) + " X " + QString::number(size.height());
+                  QString dis = QString("%1 x %2").arg(size.width()).arg(size.height());
                   return dis;
                }
                break;
@@ -104,7 +104,7 @@ bool QSizePropertyItem::hasChildren()
 
       QSize size = qvariant_cast<QSize>( m_metaProperty.read(m_parent->qObject()));
 
-      QPropertyItem* width = new QPropertyItem(size.height(), "Width", this);
+      QPropertyItem* width = new QPropertyItem(size.width(), "Width", this);
       m_children.append(width);
       connect(width, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));

@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qchildpropertyitems.h"
 #include "qpropertymodel.h"
 
@@ -53,7 +53,7 @@ QVariant QChildPointFPropertyItem::data(int column, Qt::ItemDataRole  role) cons
             case Qt::WhatsThisRole:
                {
                   QPointF v = qvariant_cast<QPointF>(m_value);
-                  QString label = QString("[X=%1, Y=%2]").arg(v.x()).arg(v.y());
+                  QString label = QString("(%1, %2)").arg(v.x()).arg(v.y());
                   return label;
                }
                break;

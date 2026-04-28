@@ -67,8 +67,7 @@ class QBrushPropertyItem : public QVariantPropertyItem
       /*!
        * \brief Returns item flags.
        *
-       * \details Returns Qt::ItemIsEnabled | Qt::ItemIsSelectable (the brush is
-       * not directly editable at the top level; editing is done through children).
+       * \details Returns Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable.
        *
        * \returns Item flags for this node.
        */

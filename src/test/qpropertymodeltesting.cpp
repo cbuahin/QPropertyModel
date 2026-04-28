@@ -17,49 +17,83 @@
  * \todo
  */
 
-#include "stdafx.h"
+
 #include "qpropertymodeltesting.h"
 #include "qpropertymodel.h"
 #include "qpropertyitemdelegate.h"
 #include "tempobject.h"
 #include "qstringlistpropertyitem.h"
 #include "qcustomeditors.h"
+#include <QPushButton>
+#include <QToolBar>
 
 QPropertyModelTesting::QPropertyModelTesting(QWidget *parent)
-   : QMainWindow(parent)
+   : QMainWindow(parent), m_multiMode(false)
 {
    ui.setupUi(this);
 
-   QPropertyModel* model = new QPropertyModel(ui.treeView);
-   model->registerCustomPropertyItemType((QMetaType::Type) qMetaTypeId<TempObject*>(), &TempObjectPropertyItem::staticMetaObject);
-   model->registerCustomPropertyItemType((QMetaType::Type) qMetaTypeId<QList<QGraphicsScene*>>(), &TempObjectListPropertyItem::staticMetaObject);
+   m_model = new QPropertyModel(ui.treeView);
+   m_model->registerCustomPropertyItemType((QMetaType::Type) qMetaTypeId<TempObject*>(), &TempObjectPropertyItem::staticMetaObject);
+   m_model->registerCustomPropertyItemType((QMetaType::Type) qMetaTypeId<QList<QGraphicsScene*>>(), &TempObjectListPropertyItem::staticMetaObject);
 
+   QPropertyItemDelegate* modelDelegate = new QPropertyItemDelegate(m_model);
 
-   //model->registerCustomPropertyItemType(QMetaType::QStringList,&QStringListPropertyItem::staticMetaObject);
-
-   QPropertyItemDelegate* modelDelegate = new QPropertyItemDelegate(model);
-   //modelDelegate->registerCustomTypeEditorCreator(QMetaType::QStringList, new QStandardItemEditorCreator<QStringListPropertyItemEditor>());
-
-
-
-   ui.treeView->setModel(model);
+   ui.treeView->setModel(m_model);
    ui.treeView->setEditTriggers(QAbstractItemView::AllEditTriggers);
    ui.treeView->setItemDelegate(modelDelegate);
    ui.treeView->setAlternatingRowColors(true);
 
+   // Create two TempObjects with some different property values
+   TempObject* t1 = new TempObject(this);
+   t1->setName("Object A");
+   t1->setColor(QColor(Qt::red));
+   t1->setSize(QSize(100, 200));
 
+   TempObject* t2 = new TempObject(this);
+   t2->setName("Object B");
+   t2->setColor(QColor(Qt::blue));
+   t2->setSize(QSize(100, 200));  // same size as t1
 
-   TempObject* t = new TempObject(this);
-   QVariant variant = QVariant::fromValue(t);
-   model->setData(variant);
+   m_tempObj1 = t1;
+   m_tempObj2 = t2;
+
+   // Start in single-object mode
+   m_model->setData(QVariant::fromValue(static_cast<QObject*>(m_tempObj1)));
 
    ui.treeView->expandToDepth(1);
    ui.treeView->resizeColumnToContents(0);
    ui.treeView->resizeColumnToContents(1);
 
+   // Add a toolbar button to toggle multi-object mode
+   QToolBar* toolbar = addToolBar("Multi-Object");
+   QPushButton* toggleBtn = new QPushButton("Toggle Multi-Object (2 TempObjects)");
+   toolbar->addWidget(toggleBtn);
+   connect(toggleBtn, &QPushButton::clicked, this, &QPropertyModelTesting::onToggleMultiObject);
 }
 
 QPropertyModelTesting::~QPropertyModelTesting()
 {
 
+}
+
+void QPropertyModelTesting::onToggleMultiObject()
+{
+   m_multiMode = !m_multiMode;
+
+   if (m_multiMode)
+   {
+      QList<QObject*> objects;
+      objects << m_tempObj1 << m_tempObj2;
+      m_model->setData(objects);
+      statusBar()->showMessage("Multi-object mode: 2 TempObjects — mixed values show \xe2\x80\x94");
+   }
+   else
+   {
+      m_model->setData(QVariant::fromValue(m_tempObj1));
+      statusBar()->showMessage("Single-object mode: Object A");
+   }
+
+   ui.treeView->expandToDepth(1);
+   ui.treeView->resizeColumnToContents(0);
+   ui.treeView->resizeColumnToContents(1);
 }

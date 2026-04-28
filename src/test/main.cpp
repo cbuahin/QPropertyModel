@@ -17,7 +17,7 @@
  * \todo
  */
 
-#include "stdafx.h"
+
 #include "qpropertymodeltesting.h"
 #include <QApplication>
 

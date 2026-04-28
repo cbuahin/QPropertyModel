@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qfontfamilypropertyitem.h"
 
 QFontFamilyPropertyItem::QFontFamilyPropertyItem(const QVariant& value, const QString& name, QPropertyItem * parent)

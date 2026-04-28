@@ -10,10 +10,18 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qvariantpropertyItem.h"
 #include <QDate>
 #include <QDebug>
+#include <QSizePolicy>
+#include <QCursor>
+#include <QPolygon>
+#include <QTransform>
+#include <QMatrix4x4>
+#include <QPalette>
+#include <QKeySequence>
+#include <QMetaEnum>
 
 
 
@@ -30,6 +38,26 @@ QVariantPropertyItem::QVariantPropertyItem(const QVariant& value, const QMetaPro
       m_isEditable = m_metaProperty.isWritable();
       m_isSelectable = m_metaProperty.isReadable();
       m_canReset = m_metaProperty.isResettable();
+      
+      // Make complex types read-only since they can't be edited as strings
+      // Note: QKeySequence is editable via QKeySequenceEdit registered in delegate
+      // Note: QCursor and QPalette now have custom editors
+      switch (value.typeId())
+      {
+         case QMetaType::QSizePolicy:
+         case QMetaType::QPolygon:
+         case QMetaType::QPolygonF:
+         case QMetaType::QTransform:
+         case QMetaType::QMatrix4x4:
+         case QMetaType::QRegion:
+         case QMetaType::QTextLength:
+         case QMetaType::QTextFormat:
+         case QMetaType::QQuaternion:
+         case QMetaType::QVariantMap:
+         case QMetaType::QVariantHash:
+            m_isEditable = false;
+            break;
+      }
    }
 
 }
@@ -66,17 +94,69 @@ QVariant QVariantPropertyItem::data(int column, Qt::ItemDataRole  role) const
                   if(value.typeId() == QMetaType::QDateTime)
                   {
                      QDateTime dateTime = value.toDateTime();
-                     return dateTime.toString("MM/dd/yyyy hh:mm:ss AP");
+                     return dateTime.toString(Qt::ISODate);
                   }
                   else if(value.typeId() == QMetaType::QDate)
                   {
                      QDate date = value.toDate();
-                     return date.toString("MM/dd/yyyy");
+                     return date.toString(Qt::ISODate);
                   }
                   else if(value.typeId() == QMetaType::QTime)
                   {
                      QTime time = value.toTime();
-                     return time.toString("hh:mm:ss AP");
+                     return time.toString(Qt::ISODate);
+                  }
+                  else if(value.typeId() == QMetaType::QSizePolicy)
+                  {
+                     QSizePolicy sp = qvariant_cast<QSizePolicy>(value);
+                     QMetaEnum policyEnum = QMetaEnum::fromType<QSizePolicy::Policy>();
+                     const char* hName = policyEnum.valueToKey((int)sp.horizontalPolicy());
+                     const char* vName = policyEnum.valueToKey((int)sp.verticalPolicy());
+                     QString hPolicy = hName ? QString(hName) : QString::number((int)sp.horizontalPolicy());
+                     QString vPolicy = vName ? QString(vName) : QString::number((int)sp.verticalPolicy());
+                     return QString("[%1, %2, %3, %4]").arg(hPolicy, vPolicy).arg(sp.horizontalStretch()).arg(sp.verticalStretch());
+                  }
+                  else if(value.typeId() == QMetaType::QCursor)
+                  {
+                     QCursor cursor = qvariant_cast<QCursor>(value);
+                     static const char* shapes[] = {
+                        "Arrow", "UpArrow", "Cross", "Wait", "IBeam", "SizeVer", "SizeHor",
+                        "SizeBDiag", "SizeFDiag", "SizeAll", "Blank", "SplitV", "SplitH",
+                        "PointingHand", "Forbidden", "WhatsThis", "Busy", "OpenHand", "ClosedHand",
+                        "DragCopy", "DragMove", "DragLink"
+                     };
+                     int shape = (int)cursor.shape();
+                     if (shape >= 0 && shape < 22) {
+                        return QString(shapes[shape]);
+                     }
+                     return QString("Cursor(%1)").arg(shape);
+                  }
+                  else if(value.typeId() == QMetaType::QPolygon)
+                  {
+                     QPolygon poly = qvariant_cast<QPolygon>(value);
+                     return QString("Polygon(%1 points)").arg(poly.size());
+                  }
+                  else if(value.typeId() == QMetaType::QPolygonF)
+                  {
+                     QPolygonF poly = qvariant_cast<QPolygonF>(value);
+                     return QString("PolygonF(%1 points)").arg(poly.size());
+                  }
+                  else if(value.typeId() == QMetaType::QTransform)
+                  {
+                     return QString("Transform");
+                  }
+                  else if(value.typeId() == QMetaType::QMatrix4x4)
+                  {
+                     return QString("Matrix4x4");
+                  }
+                  else if(value.typeId() == QMetaType::QPalette)
+                  {
+                     return QString("Palette");
+                  }
+                  else if(value.typeId() == QMetaType::QKeySequence)
+                  {
+                     QKeySequence seq = qvariant_cast<QKeySequence>(value);
+                     return seq.toString(QKeySequence::NativeText);
                   }
                   else
                   {
@@ -99,7 +179,7 @@ bool QVariantPropertyItem::setData(const QVariant & value, Qt::ItemDataRole role
    switch (role)
    {
       case Qt::EditRole:
-         if (m_metaProperty.write(m_parent->qObject(), value))
+         if (m_parent->writePropertyToAll(m_metaProperty, value))
          {
             m_value = value;
             setChildValues();
@@ -122,7 +202,9 @@ void QVariantPropertyItem::resetData()
 {
    if (m_canReset)
    {
-      m_metaProperty.reset(m_parent->qObject());
+      // Reset all objects
+      for (QObject* obj : m_parent->qObjects())
+         m_metaProperty.reset(obj);
       m_value = m_metaProperty.read(m_parent->qObject());
    }
 }

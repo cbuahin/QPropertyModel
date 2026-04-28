@@ -10,7 +10,6 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
 #include "qcustomeditors.h"
 #include "qpropertymodel.h"
 #include <QEvent>

@@ -108,6 +108,18 @@ class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
       void setData(const QVariant& item);
 
       /*!
+       * \brief Replaces the model's data source with multiple QObjects.
+       *
+       * \details When multiple objects are provided, the model shows the
+       * properties of the common meta-object chain.  Properties whose values
+       * differ across the objects are displayed with a mixed-value indicator
+       * ("\xe2\x80\x94").  Editing a property writes the new value to all objects.
+       *
+       * \param[in] objects  The list of QObject pointers to inspect.
+       */
+      void setData(const QList<QObject*>& objects);
+
+      /*!
        * \brief Returns the fixed column count (always 2).
        *
        * \details Column 0 is the property name; column 1 is the editable value.
@@ -297,6 +309,7 @@ class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
       QVariantHolderHelper*    m_variantHolder;             /*!< \brief Wrapper used when a plain QVariant is shown. */
       static QMap<int, const QMetaObject*> m_registeredPropertyItems; /*!< \brief Type-to-creator registry shared across all instances. */
       bool m_wrapperUsed; /*!< \brief True when m_variantHolder owns the current data. */
+      QList<QObject*>          m_objects;                   /*!< \brief All objects in multi-object mode; empty otherwise. */
 };
 
 Q_DECLARE_METATYPE(QList<QObject*>)

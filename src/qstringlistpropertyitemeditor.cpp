@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include <QMenu>
 #include <QDialog>
 #include <QClipboard>

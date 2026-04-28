@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include <QBrush>
 #include "qbrushpropertyitem.h"
 #include "qpropertymodel.h"
@@ -105,22 +105,7 @@ bool QBrushPropertyItem::hasChildren()
 
 Qt::ItemFlags QBrushPropertyItem::flags() const
 {
-   Qt::ItemFlags  flags;
-
-   if (m_isCheckable)
-      flags = flags | Qt::ItemFlag::ItemIsUserCheckable;
-   if (m_isEnabled)
-      flags = flags | Qt::ItemFlag::ItemIsEnabled;
-   //if (m_isEditable)
-   //	flags = flags | Qt::ItemFlag::ItemIsEditable;
-   if (m_isEnabled)
-      flags = flags | Qt::ItemFlag::ItemIsEnabled;
-   if (m_isSelectable)
-      flags = flags | Qt::ItemFlag::ItemIsSelectable;
-   if (m_isTristate)
-      flags = flags | Qt::ItemFlag::ItemIsUserTristate;
-
-   return flags;
+   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
 void QBrushPropertyItem::onChildItemValueChanged(const QString& name, const QVariant& value)
@@ -141,7 +126,11 @@ void QBrushPropertyItem::onChildItemValueChanged(const QString& name, const QVar
       }
       else if (name == "Texture")
       {
-         brush.setTexture(qvariant_cast<QPixmap>(value));
+         QImage image = qvariant_cast<QImage>(value);
+         if (!image.isNull())
+         {
+            brush.setTexture(QPixmap::fromImage(image));
+         }
       }
 
       m_model->setData(m_index, brush);

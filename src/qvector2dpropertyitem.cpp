@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qvector2dpropertyitem.h"
 #include "qpropertymodel.h"
 #include <QVector2D>
@@ -55,7 +55,7 @@ QVariant QVector2DPropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QVector2D v = qvariant_cast<QVector2D>(m_metaProperty.read(m_parent->qObject()));
-                  QString label = QString("[X=%1, Y=%2]").arg(v.x()).arg(v.y());
+                  QString label = QString("(%1, %2)").arg(v.x()).arg(v.y());
                   return label;
                }
                break;

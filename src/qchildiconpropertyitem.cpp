@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qchildpropertyitems.h"
 #include <QBitmap>
 

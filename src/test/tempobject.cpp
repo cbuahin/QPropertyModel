@@ -17,7 +17,7 @@
  * \todo
  */
 
-#include "stdafx.h"
+
 #include "tempobject.h"
 
 TempObject::TempObject(QObject *parent)

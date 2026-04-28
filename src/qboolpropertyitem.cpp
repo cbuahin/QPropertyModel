@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qboolpropertyitem.h"
 
 QBoolPropertyItem::QBoolPropertyItem(const QVariant& value, const QMetaProperty& metaProperty, QObjectClassPropertyItem * parent)
@@ -71,7 +71,7 @@ bool QBoolPropertyItem::setData(const QVariant & value, Qt::ItemDataRole role)
    switch (role)
    {
       case Qt::CheckStateRole:
-         if (m_metaProperty.write(m_parent->qObject(), qvariant_cast<bool>(value)))
+         if (m_parent->writePropertyToAll(m_metaProperty, qvariant_cast<bool>(value)))
          {
             m_value = m_metaProperty.read(m_parent->qObject());
             emit valueChanged(m_name, m_value);

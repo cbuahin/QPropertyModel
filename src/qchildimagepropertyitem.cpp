@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "qchildpropertyitems.h"
 #include <QBitmap>
 

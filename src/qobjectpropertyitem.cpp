@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qobjectpropertyitem.h"
 #include "qobjectclasspropertyitem.h"
 
@@ -25,7 +25,6 @@ QObjectPropertyItem::QObjectPropertyItem(QObject* value, const QMetaProperty& pr
       m_canReset = prop.isResettable();
       m_property = prop;
       m_hasMetaProperty = true;
-
    }
    else
    {
@@ -33,7 +32,26 @@ QObjectPropertyItem::QObjectPropertyItem(QObject* value, const QMetaProperty& pr
       m_isEditable = true;
       m_isSelectable = true;
    }
-   m_objectvalue = value;
+   m_objectvalues.append(value);
+}
+
+QObjectPropertyItem::QObjectPropertyItem(const QList<QObject*>& values, const QMetaProperty& prop, QPropertyItem * parent)
+   : QPropertyItem(values.isEmpty() ? QVariant() : QVariant::fromValue(values.first()), prop.name(), parent), m_hasMetaProperty(false)
+{
+   if (prop.isValid())
+   {
+      m_isEditable = prop.isWritable();
+      m_canReset = prop.isResettable();
+      m_property = prop;
+      m_hasMetaProperty = true;
+   }
+   else
+   {
+      m_isEnabled = true;
+      m_isEditable = true;
+      m_isSelectable = true;
+   }
+   m_objectvalues = values;
 }
 
 QObjectPropertyItem::~QObjectPropertyItem()
@@ -43,6 +61,7 @@ QObjectPropertyItem::~QObjectPropertyItem()
 
 QVariant QObjectPropertyItem::data(int column , Qt::ItemDataRole role) const
 {
+   QObject* primary = m_objectvalues.isEmpty() ? nullptr : m_objectvalues.first();
    switch (column)
    {
       case QPropertyItem::Property:
@@ -59,10 +78,10 @@ QVariant QObjectPropertyItem::data(int column , Qt::ItemDataRole role) const
          switch (role)
          {
             case Qt::DisplayRole:
-               if(m_objectvalue)
+               if(primary)
                {
                   return QVariant();
-                  return m_objectvalue->metaObject()->className();
+                  return primary->metaObject()->className();
                }
                break;
          }
@@ -89,16 +108,17 @@ bool QObjectPropertyItem::setData(const QVariant & value, Qt::ItemDataRole role)
 
 int QObjectPropertyItem::rowCount() const
 {
-   if (!m_childrenSet && m_objectvalue)
+   if (!m_childrenSet && !m_objectvalues.isEmpty())
       const_cast<QObjectPropertyItem*>(this)->hasChildren();
    return m_children.count();
 }
 
 bool QObjectPropertyItem::hasChildren()
 {
-   if (!m_childrenSet && m_objectvalue)
+   QObject* primary = m_objectvalues.isEmpty() ? nullptr : m_objectvalues.first();
+   if (!m_childrenSet && primary)
    {
-      const QMetaObject* current = m_objectvalue->metaObject() ;
+      const QMetaObject* current = primary->metaObject();
 
       QList<const QMetaObject*> childMetaObjects;
 
@@ -110,8 +130,6 @@ bool QObjectPropertyItem::hasChildren()
          childMetaObjects.insert(0, temp);
       }
 
-      //childMetaObjects.removeFirst();
-
       m_childrenSet = true;
 
       if (childMetaObjects.count() > 0)
@@ -119,7 +137,7 @@ bool QObjectPropertyItem::hasChildren()
          for (int i = 0; i < childMetaObjects.count(); i++)
          {
             const QMetaObject* metaObject = childMetaObjects[i];
-            QObjectClassPropertyItem* propertyItem = new QObjectClassPropertyItem(m_objectvalue, metaObject, this);
+            QObjectClassPropertyItem* propertyItem = new QObjectClassPropertyItem(m_objectvalues, metaObject, this);
             m_children.append(propertyItem);
          }
 
@@ -136,5 +154,10 @@ bool QObjectPropertyItem::hasChildren()
 
 QObject* QObjectPropertyItem::qObject() const
 {
-   return m_objectvalue;
+   return m_objectvalues.isEmpty() ? nullptr : m_objectvalues.first();
+}
+
+QList<QObject*> QObjectPropertyItem::qObjects() const
+{
+   return m_objectvalues;
 }

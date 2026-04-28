@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include <QFontDatabase>
 #include "qcustomeditors.h"
 #include "qfontfamilypropertyitem.h"

@@ -58,66 +58,77 @@ class QPROPERTYMODEL_EXPORT QObjectClassPropertyItem : public QPropertyItem
       Q_INVOKABLE QObjectClassPropertyItem(QObject* value, const QMetaObject* metaObject, QPropertyItem* parent);
 
       /*!
+       * \brief Constructs a class-level property item for multiple QObjects.
+       *
+       * \details Used in multi-object selection mode.  All objects in
+       * \a values must share the same (or compatible) meta-object hierarchy.
+       * The first object in the list is treated as the "primary" object used
+       * for reading property values and constructing child items.
+       *
+       * \param[in] values      The list of QObject instances to reflect.
+       * \param[in] metaObject  The class-level QMetaObject to enumerate properties from.
+       * \param[in] parent      Parent property item.
+       */
+      QObjectClassPropertyItem(const QList<QObject*>& values, const QMetaObject* metaObject, QPropertyItem* parent);
+
+      /*!
        * \brief Destroys this item and all lazily created child property items.
        */
       virtual ~QObjectClassPropertyItem();
 
       /*!
        * \brief Returns data for the given column and role.
-       *
-       * \details Column 0 returns the class name styled with the background
-       * colour (Qt::BackgroundRole) and foreground colour (Qt::ForegroundRole)
-       * defined by s_backgroundColor / s_foregroundColor.  Column 1 is empty.
-       *
-       * \param[in] column  Target column (0 = Property, 1 = Value).
-       * \param[in] role    Qt item-data role.
-       * \returns The requested data, or an invalid QVariant.
        */
       QVariant data(int column = 1, Qt::ItemDataRole role = Qt::UserRole) const override;
 
       /*!
-       * \brief Sets data on the class-level item.
-       *
-       * \details Class-level header rows are not directly editable; this
-       * method is a no-op and always returns \c false.
-       *
-       * \param[in] value  Ignored.
-       * \param[in] role   Ignored.
-       * \returns Always \c false.
+       * \brief Sets data on the class-level item (no-op).
        */
       bool setData(const QVariant& value, Qt::ItemDataRole role = Qt::UserRole) override;
 
       /*!
        * \brief Returns \c true if the reflected class declares any own properties.
-       *
-       * \details On the first call, lazily populates the children list by
-       * iterating over the QMetaObject's own (non-inherited) Q_PROPERTYs and
-       * creating the appropriate QPropertyItem subclass for each.
-       *
-       * \returns \c true if any child property items were created.
        */
       bool hasChildren() override;
 
-      /*!\n       * \brief Returns the number of child property items.
-       *
-       * \details Triggers lazy child construction (via hasChildren()) on the
-       * first call so that rowCount() always reflects the actual property count.
-       *
-       * \returns The number of own-property child items.
+      /*!
+       * \brief Returns the number of child property items.
        */
       int rowCount() const override;
 
       /*!
-       * \brief Returns the QObject instance this class-level item reflects.
-       * \returns The QObject pointer passed at construction time.
+       * \brief Returns the primary QObject instance this class-level item reflects.
+       * \returns The first QObject pointer in the managed list.
        */
       QObject* qObject() const;
 
+      /*!
+       * \brief Returns all QObject instances managed by this class-level item.
+       * \returns The full list; single-element for single-object mode.
+       */
+      QList<QObject*> qObjects() const;
+
+      /*!
+       * \brief Returns \c true if this item manages more than one QObject.
+       */
+      bool isMultiObject() const;
+
+      /*!
+       * \brief Returns \c true if all managed objects have the same value for \a prop.
+       */
+      bool hasUniformValue(const QMetaProperty& prop) const;
+
+      /*!
+       * \brief Writes \a value to all managed objects via the given property.
+       * \returns \c true if at least the primary write succeeded.
+       */
+      bool writePropertyToAll(const QMetaProperty& prop, const QVariant& value);
+
    private:
-      const QMetaObject* m_metaObject;       /*!< \brief Class-level descriptor enumerated by this item. */
-      QObject*           m_objectvalue;      /*!< \brief The QObject whose properties are reflected. */
-      static QColor      s_backgroundColor; /*!< \brief Background colour for class-level header rows. */
-      static QColor      s_foregroundColor; /*!< \brief Foreground colour for class-level header rows. */
+      const QMetaObject*   m_metaObject;       /*!< \brief Class-level descriptor enumerated by this item. */
+      QList<QObject*>      m_objectvalues;     /*!< \brief The QObject instances whose properties are reflected. */
+      static QColor        s_backgroundColor;  /*!< \brief Background colour for class-level header rows. */
+      static QColor        s_foregroundColor;  /*!< \brief Foreground colour for class-level header rows. */
 };
 
 #endif // QOBJECTCLASSPROPERTYITEM_H

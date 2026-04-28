@@ -8,7 +8,7 @@ on:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
-    
+
   workflow_dispatch:
 
 # Restrict GitHub Pages deployment permissions
@@ -33,27 +33,21 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y doxygen graphviz
+          sudo apt-get install -y doxygen graphviz ninja-build
 
-      - name: Install Qt (header-only — needed for correct type resolution)
-        uses: jurplel/install-qt-action@v3
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
         with:
-          version: "6.5.3"
-          modules: "qtbase"
-          aqtversion: "==3.1.*"
+          version: '6.7.*'
+          arch: linux_gcc_64
           cache: true
 
-      - name: Install Linux GL dependencies
-        run: |
-          sudo apt-get install -y \
-            libgl1-mesa-dev \
-            libglu1-mesa-dev
-
       - name: Configure CMake (docs only)
-        run: |
-          cmake -B build \
-            -DQPROPERTYMODEL_BUILD_DOCS=ON \
-            -DQPROPERTYMODEL_BUILD_TESTS=OFF
+        run: >
+          cmake -B build
+          -DQPROPERTYMODEL_BUILD_DOCS=ON
+          -DQPROPERTYMODEL_BUILD_TESTS=OFF
+          -DQPROPERTYMODEL_BUILD_MANUAL_TEST=OFF
 
       - name: Build documentation
         run: cmake --build build --target QPropertyModel_docs

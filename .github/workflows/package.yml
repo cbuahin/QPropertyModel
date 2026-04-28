@@ -4,7 +4,6 @@
 name: Package
 
 on:
-  
   push:
     tags:
       - "v*.*.*"
@@ -17,7 +16,7 @@ on:
 
 jobs:
   package:
-    name: Package (${{ matrix.os }})
+    name: Package (${{ matrix.alias }})
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -25,11 +24,24 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            arch: x64
+            alias: Linux-x64
+            qt_arch: linux_gcc_64
+            cmake_osx_arch: ""
+
           - os: macos-latest
-            arch: x64
+            alias: macOS-arm64
+            qt_arch: clang_64
+            cmake_osx_arch: arm64
+
+          - os: macos-15-intel
+            alias: macOS-x64
+            qt_arch: clang_64
+            cmake_osx_arch: x86_64
+
           - os: windows-latest
-            arch: x64
+            alias: Windows-x64
+            qt_arch: win64_msvc2019_64
+            cmake_osx_arch: ""
 
     steps:
       - name: Checkout repository
@@ -45,27 +57,29 @@ jobs:
             echo "VERSION=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
         with:
-          version: "6.5.3"
-          modules: "qtbase"
-          aqtversion: "==3.1.*"
+          version: '6.7.*'
+          arch: ${{ matrix.qt_arch }}
           cache: true
 
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev
-
       - name: Configure CMake
-        run: |
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DQPROPERTYMODEL_BUILD_TESTS=OFF \
-            -DQPROPERTYMODEL_BUILD_SHARED=ON \
-            -DCMAKE_INSTALL_PREFIX=install
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_osx_arch }}
+          -DQPROPERTYMODEL_BUILD_TESTS=OFF
+          -DQPROPERTYMODEL_BUILD_SHARED=ON
+          -DCMAKE_INSTALL_PREFIX=install
 
       - name: Build
         run: cmake --build build --config Release --parallel
@@ -81,14 +95,13 @@ jobs:
         shell: bash
         run: |
           cd build
-          SUFFIX="${{ matrix.os }}-${{ matrix.arch }}"
+          SUFFIX="${{ matrix.alias }}"
           for f in QPropertyModel-*.zip QPropertyModel-*.tar.gz; do
             [ -f "$f" ] || continue
-            BASE="${f%.*}"
-            EXT="${f##*.}"
             if [[ "$f" == *.tar.gz ]]; then
-              BASE="${f%.tar.gz}"
-              EXT="tar.gz"
+              BASE="${f%.tar.gz}"; EXT="tar.gz"
+            else
+              BASE="${f%.*}"; EXT="${f##*.}"
             fi
             mv "$f" "${BASE}-${SUFFIX}.${EXT}"
           done
@@ -96,7 +109,7 @@ jobs:
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: packages-${{ matrix.os }}-${{ matrix.arch }}
+          name: packages-${{ matrix.alias }}
           path: |
             build/QPropertyModel-*.zip
             build/QPropertyModel-*.tar.gz

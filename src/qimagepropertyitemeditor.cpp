@@ -10,7 +10,6 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
 #include <QFileDialog>
 #include <QBitmap>
 #include <QIcon>
@@ -29,13 +28,13 @@ QImagePropertyItemEditor::~QImagePropertyItemEditor()
 
 void QImagePropertyItemEditor::onOpenEditorClicked()
 {
-   m_dialogOpen = true;
    QString filename = QFileDialog::getOpenFileName(
             this,
             tr("Open Image"),
-            QDir::currentPath(),
-            tr("All Images (*.bmp *.gif *.ico *.jpeg *.jpg *.mng *.pbm *.pgm *.svg *.svgz *.ico *.tga *.tif *.tiff *.wbmp *.xbm *.xpm)"));
-   m_dialogOpen = false;
+            QDir::homePath(),
+            tr("All Images (*.bmp *.gif *.ico *.jpeg *.jpg *.mng *.pbm *.pgm *.png *.svg *.svgz *.tga *.tif *.tiff *.wbmp *.xbm *.xpm)"),
+            nullptr,
+            QFileDialog::DontUseNativeDialog);
 
    if (!filename.isNull())
    {

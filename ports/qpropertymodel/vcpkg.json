@@ -9,7 +9,8 @@
     {
       "name": "qtbase",
       "default-features": false,
-      "features": ["widgets", "opengl"]
+      "features": ["widgets", "opengl"],
+      "version>=": "6.9.3"
     }
   ],
   "features": {

@@ -23,7 +23,7 @@ project(
 option(QPROPERTYMODEL_BUILD_TESTS       "Build unit tests"                    OFF)
 option(QPROPERTYMODEL_BUILD_DOCS        "Build Doxygen documentation"         OFF)
 option(QPROPERTYMODEL_BUILD_SHARED      "Build as shared library"             ON)
-option(QPROPERTYMODEL_BUILD_MANUAL_TEST "Build the manual UI test application" OFF)
+option(QPROPERTYMODEL_BUILD_MANUAL_TEST "Build the manual UI test application" ON)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # C++ standard
@@ -68,6 +68,7 @@ set(QPROPERTYMODEL_SOURCES
     src/qchildpointfpropertyitem.cpp
     src/qchildpointpropertyitem.cpp
     src/qcolorpropertyitemeditor.cpp
+    src/qcursorpropertyitemeditor.cpp
     src/qcustomeditors.cpp
     src/qenumpropertyitem.cpp
     src/qflagspropertyitem.cpp
@@ -79,13 +80,16 @@ set(QPROPERTYMODEL_SOURCES
     src/qimagepropertyitemeditor.cpp
     src/qlinefpropertyitem.cpp
     src/qlinepropertyitem.cpp
+    src/qmatrix4x4propertyitem.cpp
     src/qobjectclasspropertyitem.cpp
     src/qobjectlistpropertyitem.cpp
     src/qobjectlistpropertyitemeditor.cpp
     src/qobjectpropertyitem.cpp
+    src/qpalettepropertyitemeditor.cpp
     src/qpenpropertyitem.cpp
     src/qpointfpropertyitem.cpp
     src/qpointpropertyitem.cpp
+    src/qpolygonpropertyitem.cpp
     src/qpopuppropertyitemeditor.cpp
     src/qpropertyitem.cpp
     src/qpropertyitemdelegate.cpp
@@ -94,9 +98,11 @@ set(QPROPERTYMODEL_SOURCES
     src/qrectpropertyitem.cpp
     src/qselectfromlistpropertyitemeditor.cpp
     src/qsizefpropertyitem.cpp
+    src/qsizepolicypropertyitem.cpp
     src/qsizepropertyitem.cpp
     src/qstringlistpropertyitem.cpp
     src/qstringlistpropertyitemeditor.cpp
+    src/qtransformpropertyitem.cpp
     src/qvariantholderhelper.cpp
     src/qvariantlistpropertyItem.cpp
     src/qvariantlistpropertyitemeditor.cpp
@@ -119,12 +125,14 @@ set(QPROPERTYMODEL_HEADERS
     include/qimagepropertyitem.h
     include/qlinefpropertyitem.h
     include/qlinepropertyitem.h
+    include/qmatrix4x4propertyitem.h
     include/qobjectclasspropertyitem.h
     include/qobjectlistpropertyitem.h
     include/qobjectpropertyitem.h
     include/qpenpropertyitem.h
     include/qpointfpropertyitem.h
     include/qpointpropertyitem.h
+    include/qpolygonpropertyitem.h
     include/qpropertyitem.h
     include/qpropertyitemdelegate.h
     include/qpropertymodel.h
@@ -132,8 +140,10 @@ set(QPROPERTYMODEL_HEADERS
     include/qrectfpropertyitem.h
     include/qrectpropertyitem.h
     include/qsizefpropertyitem.h
+    include/qsizepolicypropertyitem.h
     include/qsizepropertyitem.h
     include/qstringlistpropertyitem.h
+    include/qtransformpropertyitem.h
     include/qvariantholderhelper.h
     include/qvariantlistpropertyitem.h
     include/qvariantpropertyItem.h
@@ -152,15 +162,15 @@ set(QPROPERTYMODEL_FORMS
 # ──────────────────────────────────────────────────────────────────────────────
 if(QT_VERSION_MAJOR EQUAL 6)
     if(QPROPERTYMODEL_BUILD_SHARED)
-        qt_add_library(QPropertyModel SHARED)
+        qt_add_library(QPropertyModel SHARED MANUAL_FINALIZATION)
     else()
-        qt_add_library(QPropertyModel STATIC)
+        qt_add_library(QPropertyModel STATIC MANUAL_FINALIZATION)
     endif()
     qt_add_resources(QPropertyModel "qpropertymodel_resources"
         PREFIX "/"
         FILES resources/qpropertymodel.qrc
     )
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    qt_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES})
 else()
     if(QPROPERTYMODEL_BUILD_SHARED)
         add_library(QPropertyModel SHARED)
@@ -171,7 +181,7 @@ else()
         PREFIX "/"
         FILES resources/qpropertymodel.qrc
     )
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    qt5_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES})
 endif()
 
 target_sources(QPropertyModel
@@ -196,6 +206,7 @@ target_include_directories(QPropertyModel
         $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/forms
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
@@ -278,8 +289,8 @@ set(CPACK_PACKAGE_VENDOR            "Caleb Buahin")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${PROJECT_DESCRIPTION}")
 set(CPACK_PACKAGE_VERSION           ${PROJECT_VERSION})
 set(CPACK_PACKAGE_CONTACT           "caleb.buahin@gmail.com")
-set(CPACK_RESOURCE_FILE_LICENSE     "${CMAKE_SOURCE_DIR}/License.md")
-set(CPACK_RESOURCE_FILE_README      "${CMAKE_SOURCE_DIR}/Readme.md")
+set(CPACK_RESOURCE_FILE_LICENSE     "${CMAKE_CURRENT_SOURCE_DIR}/License.md")
+set(CPACK_RESOURCE_FILE_README      "${CMAKE_CURRENT_SOURCE_DIR}/Readme.md")
 set(CPACK_GENERATOR                 "ZIP;TGZ")
 set(CPACK_ARCHIVE_FILE_NAME         "QPropertyModel-${PROJECT_VERSION}")
 include(CPack)

@@ -10,7 +10,7 @@
  * See License.md for the full license text.
  */
 
-#include "stdafx.h"
+
 #include "qlinepropertyitem.h"
 #include "qpropertymodel.h"
 #include "qchildpropertyitems.h"
@@ -54,7 +54,7 @@ QVariant QLinePropertyItem::data(int column, Qt::ItemDataRole  role) const
             case Qt::WhatsThisRole:
                {
                   QLine v = qvariant_cast<QLine>(m_metaProperty.read(m_parent->qObject()));
-                  QString label = QString("P1=[X=%1, Y=%2], P2=[X=%3, Y=%4]").arg(v.p1().x()).arg(v.p1().y()).arg(v.p2().x()).arg(v.p2().y());
+                  QString label = QString("[(%1, %2), (%3, %4)]").arg(v.p1().x()).arg(v.p1().y()).arg(v.p2().x()).arg(v.p2().y());
                   return label;
                }
                break;
@@ -111,7 +111,7 @@ bool QLinePropertyItem::hasChildren()
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
 
 
-      QChildPointPropertyItem* p2 = new QChildPointPropertyItem(qvariant_cast<QVariant>(line.p1()), "P2", this);
+      QChildPointPropertyItem* p2 = new QChildPointPropertyItem(qvariant_cast<QVariant>(line.p2()), "P2", this);
       m_children.append(p2);
       connect(p2, SIGNAL(valueChanged(const QString&, const QVariant&)), this,
               SLOT(onChildItemValueChanged(const QString&, const QVariant&)));
