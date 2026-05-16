@@ -124,7 +124,30 @@ class QPROPERTYMODEL_EXPORT QObjectClassPropertyItem : public QPropertyItem
        */
       bool writePropertyToAll(const QMetaProperty& prop, const QVariant& value);
 
+   public slots:
+      /*!
+       * \brief Re-queries the display labels for every child property item
+       *        and updates them via QPropertyItem::setName.
+       *
+       * \details Connected to the reflected QObject's
+       * \c displayLabelsChanged() signal when present.  Lets adapters whose
+       * labels depend on runtime context (unit system, locale) refresh
+       * the property tree without rebuilding it.
+       */
+      void refreshDisplayLabels();
+
    private:
+      /*!
+       * \brief Resolves the display label for \a property on the primary object.
+       *
+       * \details Lookup order:
+       *   1. \c Q_INVOKABLE \c displayLabelFor(QString) on the object — if it
+       *      returns a non-empty string, use it.
+       *   2. \c Q_CLASSINFO with the property name as key.
+       *   3. The raw Q_PROPERTY name.
+       */
+      QString resolveDisplayLabel(QObject* primary, const QMetaProperty& property) const;
+
       const QMetaObject*   m_metaObject;       /*!< \brief Class-level descriptor enumerated by this item. */
       QList<QObject*>      m_objectvalues;     /*!< \brief The QObject instances whose properties are reflected. */
       static QColor        s_backgroundColor;  /*!< \brief Background colour for class-level header rows. */

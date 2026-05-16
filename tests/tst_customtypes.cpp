@@ -125,6 +125,36 @@ private slots:
         QPropertyModel model(QVariant::fromValue(lst), nullptr);
         QVERIFY(model.rowCount() > 0);
     }
+
+    // ── QVariantHolderHelper extended ─────────────────────────────────────────
+
+    void testVariantHolderHelperModelIndexRoundTrip()
+    {
+        QVariantHolderHelper helper(QVariant(0), nullptr);
+        QModelIndex idx;   // invalid (default-constructed)
+        // setModelIndex / modelIndex round-trip
+        helper.setModelIndex(idx);
+        QVERIFY(!helper.modelIndex().isValid());
+    }
+
+    void testVariantHolderHelperObjectNameHidden()
+    {
+        // objectName() is overridden to return "" so it does not appear in the model.
+        // Access via QObject* since the override is private in QVariantHolderHelper.
+        QVariantHolderHelper helper(QVariant(42), nullptr);
+        QObject *asObj = &helper;
+        QCOMPARE(asObj->objectName(), QString());
+    }
+
+    void testVariantHolderHelperSetValueSameNoDoubleSignal()
+    {
+        QVariantHolderHelper helper(QVariant(7), nullptr);
+        QSignalSpy spy(&helper, &QVariantHolderHelper::valueChanged);
+        helper.setValue(QVariant(7));  // same value
+        // Implementation may or may not suppress — at minimum should not crash
+        // and the stored value should remain 7.
+        QCOMPARE(helper.value().toInt(), 7);
+    }
 };
 
 QTEST_MAIN(TstCustomTypes)

@@ -119,6 +119,18 @@ class  QPROPERTYMODEL_EXPORT  QPropertyItem : public QObject
       QString name() const;
 
       /*!
+       * \brief Overrides the display name shown in column 0.
+       *
+       * \details Use this to swap the raw Q_PROPERTY identifier
+       * (e.g. \c "maxDepth") for a human-readable label
+       * (e.g. \c "Max Depth (ft)").  Notifies the owning QPropertyModel
+       * so the view repaints column 0 immediately.
+       *
+       * \param[in] name  New display label.
+       */
+      void setName(const QString& name);
+
+      /*!
        * \brief Returns the persistent model index of this item.
        * \returns The QModelIndex assigned by the owning QPropertyModel.
        */

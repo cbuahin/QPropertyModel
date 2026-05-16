@@ -13,6 +13,7 @@
 
 #include "qobjectpropertyitem.h"
 #include "qobjectclasspropertyitem.h"
+#include "qpropertymodel.h"
 
 
 
@@ -80,7 +81,6 @@ QVariant QObjectPropertyItem::data(int column , Qt::ItemDataRole role) const
             case Qt::DisplayRole:
                if(primary)
                {
-                  return QVariant();
                   return primary->metaObject()->className();
                }
                break;
@@ -128,6 +128,19 @@ bool QObjectPropertyItem::hasChildren()
       {
          const QMetaObject* temp = current;
          childMetaObjects.insert(0, temp);
+      }
+
+      // Hide the inherited QObject class level (which only exposes the
+      // objectName property) unless the model has explicitly opted in.
+      // QObject is identified as the meta-object with no super-class.
+      const bool showQObjectName = m_model ? m_model->showQObjectName() : false;
+      if (!showQObjectName)
+      {
+         for (int i = childMetaObjects.size() - 1; i >= 0; --i)
+         {
+            if (childMetaObjects.at(i)->superClass() == nullptr)
+               childMetaObjects.removeAt(i);
+         }
       }
 
       m_childrenSet = true;

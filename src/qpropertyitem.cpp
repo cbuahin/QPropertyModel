@@ -55,6 +55,15 @@ QString QPropertyItem::name() const
    return m_name;
 }
 
+void QPropertyItem::setName(const QString& name)
+{
+   if (m_name == name)
+      return;
+   m_name = name;
+   if (m_model && m_index.isValid())
+      m_model->onDataChanged(m_index);
+}
+
 QModelIndex QPropertyItem::index() const
 {
    return m_index;

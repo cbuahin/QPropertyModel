@@ -361,8 +361,25 @@ bool QObjectClassPropertyItem::hasChildren()
 
                if (childProperty != nullptr)
                {
+                  // Honour adapter-supplied display labels (Q_INVOKABLE
+                  // displayLabelFor) or Q_CLASSINFO overrides. Falls back
+                  // to the raw Q_PROPERTY name when neither is present.
+                  const QString lbl = resolveDisplayLabel(primaryObj, property);
+                  if (lbl != QString::fromLatin1(property.name()))
+                     childProperty->setName(lbl);
                   m_children.append(childProperty);
                }
+            }
+
+            // Subscribe to the adapter's displayLabelsChanged() signal (if it
+            // declares one) so unit-system / locale switches refresh the
+            // labels in place without rebuilding the property tree.
+            if (primaryObj &&
+                primaryObj->metaObject()->indexOfSignal("displayLabelsChanged()") >= 0)
+            {
+               QObject::connect(primaryObj, SIGNAL(displayLabelsChanged()),
+                                this, SLOT(refreshDisplayLabels()),
+                                Qt::UniqueConnection);
             }
 
             if (m_children.count())
@@ -379,6 +396,62 @@ bool QObjectClassPropertyItem::hasChildren()
    }
 
    return false;
+}
+
+QString QObjectClassPropertyItem::resolveDisplayLabel(QObject* primary,
+                                                     const QMetaProperty& property) const
+{
+   const QString rawName = QString::fromLatin1(property.name());
+
+   if (primary)
+   {
+      // 1. Q_INVOKABLE displayLabelFor(QString) on the adapter.
+      const int idx = primary->metaObject()->indexOfMethod(
+         "displayLabelFor(QString)");
+      if (idx >= 0)
+      {
+         QString result;
+         const bool ok = QMetaObject::invokeMethod(
+            primary, "displayLabelFor", Qt::DirectConnection,
+            Q_RETURN_ARG(QString, result), Q_ARG(QString, rawName));
+         if (ok && !result.isEmpty())
+            return result;
+      }
+   }
+
+   // 2. Q_CLASSINFO("<property>", "Pretty Name") on the reflected class.
+   if (m_metaObject)
+   {
+      const int ci = m_metaObject->indexOfClassInfo(property.name());
+      if (ci >= 0)
+      {
+         const QString v = QString::fromUtf8(m_metaObject->classInfo(ci).value());
+         if (!v.isEmpty())
+            return v;
+      }
+   }
+
+   // 3. Fallback — the raw Q_PROPERTY identifier.
+   return rawName;
+}
+
+void QObjectClassPropertyItem::refreshDisplayLabels()
+{
+   QObject* primary = m_objectvalues.isEmpty() ? nullptr : m_objectvalues.first();
+   if (!primary || !m_metaObject)
+      return;
+
+   int startIndex = 0;
+   if (const QMetaObject* base = m_metaObject->superClass())
+      startIndex = base->propertyCount();
+
+   const int total = m_metaObject->propertyCount() - startIndex;
+   const int n = qMin(total, m_children.size());
+   for (int i = 0; i < n; ++i)
+   {
+      const QMetaProperty prop = m_metaObject->property(startIndex + i);
+      m_children[i]->setName(resolveDisplayLabel(primary, prop));
+   }
 }
 
 QObject* QObjectClassPropertyItem::qObject() const

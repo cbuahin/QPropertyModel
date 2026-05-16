@@ -136,10 +136,8 @@ Qt::ItemFlags QSizePropertyItem::flags() const
       flags = flags | Qt::ItemFlag::ItemIsUserCheckable;
    if (m_isEnabled)
       flags = flags | Qt::ItemFlag::ItemIsEnabled;
-   //if (m_isEditable)
-   //	flags = flags | Qt::ItemFlag::ItemIsEditable;
-   if (m_isEnabled)
-      flags = flags | Qt::ItemFlag::ItemIsEnabled;
+   if (m_isEditable)
+      flags = flags | Qt::ItemFlag::ItemIsEditable;
    if (m_isSelectable)
       flags = flags | Qt::ItemFlag::ItemIsSelectable;
    if (m_isTristate)

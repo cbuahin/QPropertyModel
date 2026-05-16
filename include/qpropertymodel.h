@@ -271,6 +271,31 @@ class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
        */
       bool registerCustomPropertyItemType(int userType, const QMetaObject* metaObject);
 
+      /*!
+       * \brief Returns whether the inherited \c QObject::objectName property is shown.
+       *
+       * \details When \c false (the default), the \c QObject class level is
+       * omitted from the property tree built for any QObject-derived data
+       * source, so neither the \c QObject group header nor its sole
+       * \c objectName child appears.  Many applications wrap non-Qt domain
+       * types in QObjects purely to enable property reflection and have no
+       * use for the inherited object name; hiding it removes that noise.
+       *
+       * \returns \c true if \c objectName is exposed; \c false otherwise.
+       */
+      bool showQObjectName() const;
+
+      /*!
+       * \brief Sets whether the inherited \c QObject::objectName property is shown.
+       *
+       * \details The change is applied immediately and triggers a model reset
+       * so any attached view rebuilds.  Defaults to \c false.
+       *
+       * \param[in] show  \c true to expose \c objectName (and its enclosing
+       *                  \c QObject class header); \c false to hide it.
+       */
+      void setShowQObjectName(bool show);
+
    public slots:
       /*!
        * \brief Internal slot connected to QPropertyItem::valueChanged() to
@@ -280,9 +305,29 @@ class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
        */
       void onDataChanged(const QModelIndex& index);
 
+      /*!
+       * \brief Emits dataChanged for every property-value cell in the tree
+       *        without triggering a full model reset.
+       *
+       * \details Call this after the underlying QObject's properties have been
+       *          updated externally (e.g. from an undo command or a geometry
+       *          edit) so the attached QTreeView re-reads and re-renders all
+       *          visible values.  QVariantPropertyItem::data() always reads live
+       *          from the object via QMetaProperty::read(), so no cached data
+       *          becomes stale — only the view repaint is missing.
+       *
+       *          The traversal is recursive: it covers the root group rows and
+       *          all nested property rows at any depth.  Expansion state is
+       *          preserved because beginResetModel() is never called.
+       */
+      void refreshValues();
+
    private:
       /*! \brief Checks whether \a metaObject ultimately inherits QPropertyItem. */
       bool checkIfSuperClassIsPropertyItem(const QMetaObject* metaObject);
+
+      /*! \brief Recursive helper for refreshValues(). */
+      void refreshValuesRecursive(const QModelIndex &parentIdx, QPropertyItem *item);
 
       /*!
        * \brief Creates the root property item from a QVariant of the given type.
@@ -309,6 +354,7 @@ class QPROPERTYMODEL_EXPORT QPropertyModel : public QAbstractItemModel
       QVariantHolderHelper*    m_variantHolder;             /*!< \brief Wrapper used when a plain QVariant is shown. */
       static QMap<int, const QMetaObject*> m_registeredPropertyItems; /*!< \brief Type-to-creator registry shared across all instances. */
       bool m_wrapperUsed; /*!< \brief True when m_variantHolder owns the current data. */
+      bool m_showQObjectName; /*!< \brief When true, the inherited QObject::objectName property is exposed; default false. */
       QList<QObject*>          m_objects;                   /*!< \brief All objects in multi-object mode; empty otherwise. */
 };
 

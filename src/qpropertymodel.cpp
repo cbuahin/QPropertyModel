@@ -28,7 +28,7 @@ QRect m_geometry;
 QMap<int, const QMetaObject*> QPropertyModel::m_registeredPropertyItems = QMap<int, const QMetaObject*>();
 
 QPropertyModel::QPropertyModel(QObject* parent)
-   :QAbstractItemModel(parent), m_wrapperUsed(false)
+   :QAbstractItemModel(parent), m_wrapperUsed(false), m_showQObjectName(false)
 {
 
    m_rootPropertyItem = nullptr;
@@ -40,7 +40,7 @@ QPropertyModel::QPropertyModel(QObject* parent)
 }
 
 QPropertyModel::QPropertyModel(QObject* item, QObject* parent)
-   : QAbstractItemModel(parent)
+   : QAbstractItemModel(parent), m_wrapperUsed(false), m_showQObjectName(false)
 {
    m_rootPropertyItem = nullptr;
    m_variantHolder = new QVariantHolderHelper(QVariant(), this);
@@ -53,7 +53,7 @@ QPropertyModel::QPropertyModel(QObject* item, QObject* parent)
 }
 
 QPropertyModel::QPropertyModel(const QVariant& item, QObject* parent)
-   : QAbstractItemModel(parent)
+   : QAbstractItemModel(parent), m_wrapperUsed(false), m_showQObjectName(false)
 {
    m_rootPropertyItem = nullptr;
    m_variantHolder = new QVariantHolderHelper(QVariant(), this);
@@ -373,6 +373,62 @@ bool QPropertyModel::registerCustomPropertyItemType(int userType, const QMetaObj
 void QPropertyModel::onDataChanged(const QModelIndex & index)
 {
    emit dataChanged(index, index);
+}
+
+void QPropertyModel::refreshValues()
+{
+   if (!m_rootPropertyItem) return;
+   refreshValuesRecursive(QModelIndex(), m_rootPropertyItem);
+}
+
+void QPropertyModel::refreshValuesRecursive(const QModelIndex &parentIdx, QPropertyItem *item)
+{
+   const int n = item->rowCount();
+   if (n <= 0) return;
+
+   // Emit dataChanged covering the value column (col 1) for all children
+   // of this parent.  QVariantPropertyItem::data() reads live from the
+   // QObject via QMetaProperty::read(), so the view gets fresh values.
+   const QModelIndex first = index(0, 1, parentIdx);
+   const QModelIndex last  = index(n - 1, 1, parentIdx);
+   if (first.isValid() && last.isValid())
+      emit dataChanged(first, last, {Qt::DisplayRole, Qt::EditRole});
+
+   // Recurse into each child in case it has its own children (e.g. nested
+   // struct properties like QPointF → X / Y).
+   for (int r = 0; r < n; ++r) {
+      const QModelIndex childParent = index(r, 0, parentIdx);
+      QPropertyItem *child = childParent.isValid()
+         ? static_cast<QPropertyItem *>(childParent.internalPointer()) : nullptr;
+      if (child && child->rowCount() > 0)
+         refreshValuesRecursive(childParent, child);
+   }
+}
+
+bool QPropertyModel::showQObjectName() const
+{
+   return m_showQObjectName;
+}
+
+void QPropertyModel::setShowQObjectName(bool show)
+{
+   if (m_showQObjectName == show)
+      return;
+
+   m_showQObjectName = show;
+
+   if (!m_rootPropertyItem)
+      return;
+
+   if (!m_objects.isEmpty())
+   {
+      setData(m_objects);
+      return;
+   }
+
+   QVariant current = rootQVariantItem();
+   if (current.isValid())
+      setData(current);
 }
 
 bool QPropertyModel::checkIfSuperClassIsPropertyItem(const QMetaObject* metaObject)

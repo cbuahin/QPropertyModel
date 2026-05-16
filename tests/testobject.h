@@ -67,6 +67,12 @@ class TestObject : public QObject
     Q_PROPERTY(QTime       timeProp     READ timeProp     WRITE setTimeProp)
     Q_PROPERTY(QDateTime   dateTimeProp READ dateTimeProp WRITE setDateTimeProp)
     Q_PROPERTY(QUrl        urlProp      READ urlProp      WRITE setUrlProp)
+    // Enum property — tests QEnumPropertyItem
+    Q_PROPERTY(Qt::PenStyle  penStyleProp  READ penStyleProp  WRITE setPenStyleProp)
+    // Read-only property — no WRITE, tests ItemIsEditable suppression
+    Q_PROPERTY(QString       readOnlyProp  READ readOnlyProp)
+    // Resettable property — tests canReset() / resetData()
+    Q_PROPERTY(int resettableProp READ resettableProp WRITE setResettableProp RESET resetResettableProp)
 
 public:
     explicit TestObject(QObject *parent = nullptr);
@@ -95,7 +101,11 @@ public:
     QTime       timeProp()     const { return m_time; }
     QDateTime   dateTimeProp() const { return m_dateTime; }
     QUrl        urlProp()      const { return m_url; }
+    Qt::PenStyle penStyleProp() const { return m_penStyle; }
+    QString     readOnlyProp()  const { return m_readOnly; }
+    int         resettableProp() const { return m_resettable; }
 
+    // ...existing setters...
     void setStringProp(const QString &v)       { m_string = v; }
     void setIntProp(int v)                     { m_int = v; }
     void setDoubleProp(double v)               { m_double = v; }
@@ -120,6 +130,9 @@ public:
     void setTimeProp(const QTime &v)           { m_time = v; }
     void setDateTimeProp(const QDateTime &v)   { m_dateTime = v; }
     void setUrlProp(const QUrl &v)             { m_url = v; }
+    void setPenStyleProp(Qt::PenStyle v)       { m_penStyle = v; }
+    void setResettableProp(int v)              { m_resettable = v; }
+    void resetResettableProp()                 { m_resettable = 0; }
 
 private:
     QString     m_string    {"Hello QPropertyModel"};
@@ -146,6 +159,47 @@ private:
     QTime       m_time      {QTime::currentTime()};
     QDateTime   m_dateTime  {QDateTime::currentDateTime()};
     QUrl        m_url       {"https://github.com/cbuahin/QPropertyModel"};
+    Qt::PenStyle m_penStyle {Qt::SolidLine};
+    QString     m_readOnly  {"read-only value"};
+    int         m_resettable{42};
+};
+
+// ---------------------------------------------------------------------------
+// ClassInfoTestObject — used to test Q_CLASSINFO display label resolution
+// ---------------------------------------------------------------------------
+class ClassInfoTestObject : public QObject
+{
+    Q_OBJECT
+    Q_CLASSINFO("myProp", "My Pretty Name")
+    Q_PROPERTY(int myProp READ myProp WRITE setMyProp)
+public:
+    explicit ClassInfoTestObject(QObject *parent = nullptr) : QObject(parent) {}
+    int  myProp() const     { return m_val; }
+    void setMyProp(int v)   { m_val = v; }
+private:
+    int m_val {0};
+};
+
+// ---------------------------------------------------------------------------
+// DisplayLabelTestObject — used to test Q_INVOKABLE displayLabelFor() label resolution
+// ---------------------------------------------------------------------------
+class DisplayLabelTestObject : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(int myProp READ myProp WRITE setMyProp)
+public:
+    explicit DisplayLabelTestObject(QObject *parent = nullptr) : QObject(parent) {}
+    Q_INVOKABLE QString displayLabelFor(const QString &name) const
+    {
+        if (name == "myProp") return "My Pretty Name";
+        return {};
+    }
+    int  myProp() const     { return m_val; }
+    void setMyProp(int v)   { m_val = v; }
+signals:
+    void displayLabelsChanged();
+private:
+    int m_val {0};
 };
 
 #endif // TESTOBJECT_H

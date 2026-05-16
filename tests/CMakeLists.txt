@@ -49,3 +49,46 @@ qpm_add_test(tst_customtypes
     testobject.cpp
     testobject.h
 )
+
+qpm_add_test(tst_bugs
+    tst_bugs.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_qobjectclasspropertyitem
+    tst_qobjectclasspropertyitem.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_qobjectpropertyitem
+    tst_qobjectpropertyitem.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_typed_properties
+    tst_typed_properties.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_composite_properties
+    tst_composite_properties.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_enum_properties
+    tst_enum_properties.cpp
+    testobject.cpp
+    testobject.h
+)
+
+qpm_add_test(tst_edge_cases
+    tst_edge_cases.cpp
+    testobject.cpp
+    testobject.h
+)
+

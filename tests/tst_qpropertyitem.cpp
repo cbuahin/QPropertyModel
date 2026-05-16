@@ -118,6 +118,91 @@ private slots:
         QPropertyItem strItem(QVariant(QString("x")), "s", nullptr);
         QCOMPARE((int)strItem.type(), (int)QMetaType::QString);
     }
+
+    void testChildPropertyItemsEmptyList()
+    {
+        QPropertyItem item(QVariant(1), "x", nullptr);
+        QVERIFY(item.childPropertyItems().isEmpty());
+    }
+
+    void testFlagsTristate()
+    {
+        QPropertyItem item(QVariant(), "t", nullptr);
+        item.setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserTristate);
+        QVERIFY(item.flags().testFlag(Qt::ItemIsUserTristate));
+        QVERIFY(item.isTristate());
+    }
+
+    void testFlagsCheckable()
+    {
+        QPropertyItem item(QVariant(), "c", nullptr);
+        item.setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+        QVERIFY(item.flags().testFlag(Qt::ItemIsUserCheckable));
+        QVERIFY(item.isCheckable());
+    }
+
+    void testIsEditable()
+    {
+        QPropertyItem item(QVariant(), "e", nullptr);
+        // Default = editable
+        QVERIFY(item.isEditable());
+        item.setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);  // no editable
+        QVERIFY(!item.isEditable());
+    }
+
+    void testIsEnabled()
+    {
+        QPropertyItem item(QVariant(), "en", nullptr);
+        QVERIFY(item.isEnabled());
+    }
+
+    void testIsSelectable()
+    {
+        QPropertyItem item(QVariant(), "s", nullptr);
+        QVERIFY(item.isSelectable());
+    }
+
+    void testCanResetTrueAfterModelAttach()
+    {
+        // canReset() is false on plain QPropertyItem (no QMetaProperty.isResettable).
+        // This is tested through the model for QVariantPropertyItem which sets m_canReset.
+        QPropertyItem item(QVariant(0), "v", nullptr);
+        QVERIFY(!item.canReset());
+    }
+
+    void testDataToolTipRole()
+    {
+        QPropertyItem item(QVariant("ttip"), "p", nullptr);
+        QVariant tt = item.data(QPropertyItem::Value, Qt::ToolTipRole);
+        QCOMPARE(tt.toString(), QString("ttip"));
+    }
+
+    void testDataStatusTipRole()
+    {
+        QPropertyItem item(QVariant("stip"), "p", nullptr);
+        QVariant st = item.data(QPropertyItem::Value, Qt::StatusTipRole);
+        QCOMPARE(st.toString(), QString("stip"));
+    }
+
+    void testDataInvalidColumn()
+    {
+        QPropertyItem item(QVariant(1), "x", nullptr);
+        // Column 2 is out of range - should return invalid QVariant
+        QVariant d = item.data(2, Qt::DisplayRole);
+        QVERIFY(!d.isValid());
+    }
+
+    void testValueChangedSignalContent()
+    {
+        QPropertyItem item(QVariant(0), "myName", nullptr);
+        QSignalSpy spy(&item, &QPropertyItem::valueChanged);
+        item.setData(QVariant(55), Qt::EditRole);
+        QCOMPARE(spy.count(), 1);
+        // First argument is the property name
+        QCOMPARE(spy.at(0).at(0).toString(), QString("myName"));
+        // Second argument is the new value
+        QCOMPARE(spy.at(0).at(1).toInt(), 55);
+    }
 };
 
 QTEST_MAIN(TstQPropertyItem)
