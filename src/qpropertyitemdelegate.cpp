@@ -71,7 +71,7 @@ QPropertyItemDelegate::QPropertyItemDelegate(QObject *parent)
 
    factory->registerEditor(QMetaType::QDateTime, new QItemEditorCreator<QCustomDateTimeEdit>("dateTime"));
 
-   factory->registerEditor(QMetaType::QDate, new QItemEditorCreator<QCustomDateEdit>("dateTime"));
+   factory->registerEditor(QMetaType::QDate, new QItemEditorCreator<QCustomDateEdit>("date"));
 
    factory->registerEditor(QMetaType::QTime, new QItemEditorCreator<QCustomTimeEdit>("time"));
 

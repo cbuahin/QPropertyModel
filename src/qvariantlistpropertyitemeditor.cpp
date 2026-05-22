@@ -174,6 +174,5 @@ void QVariantListPropertyItemEditor::close()
    m_state  = m_editorDialog->saveGeometry();
    m_windowState = (int) m_editorDialog->windowState();
    m_geometry = m_editorDialog->geometry();
-   qDebug() << "QVariant List";
 }
 

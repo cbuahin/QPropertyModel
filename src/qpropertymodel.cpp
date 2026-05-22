@@ -433,24 +433,7 @@ void QPropertyModel::setShowQObjectName(bool show)
 
 bool QPropertyModel::checkIfSuperClassIsPropertyItem(const QMetaObject* metaObject)
 {
-   if (metaObject->superClass())
-   {
-      const QMetaObject* superClass = metaObject->superClass();
-
-      if (!QString(superClass->className()).compare(QPropertyItem::staticMetaObject.className(), Qt::CaseSensitive))
-      {
-         return true;
-      }
-      else
-      {
-         if (superClass->superClass())
-         {
-            return checkIfSuperClassIsPropertyItem(superClass);
-         }
-      }
-   }
-
-   return false;
+   return metaObject->inherits(&QPropertyItem::staticMetaObject);
 }
 
 bool QPropertyModel::createRootPropertyItemByType(int userType, const QVariant& item)
@@ -494,7 +477,6 @@ QPropertyItem* QPropertyModel::createPropertyItemByType(int userType, const QVar
    {
       const QMetaObject* metaObject = m_registeredPropertyItems[userType];
 
-      qDebug() << metaObject->className();
 
       propItem = (QPropertyItem*)metaObject->newInstance(Q_ARG(const QVariant&, item), Q_ARG(const QMetaProperty&, property), Q_ARG(QPropertyItem*, parent));
 

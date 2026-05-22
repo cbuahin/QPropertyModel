@@ -22,6 +22,14 @@ macro(qpm_add_test TEST_NAME)
 
     target_compile_definitions(${TEST_NAME} PRIVATE QT_DEPRECATED_WARNINGS)
 
+    # On Windows the shared QPropertyModel.dll must be in the same directory as
+    # the test executable so the loader can find it without PATH manipulation.
+    if(WIN32)
+        set_target_properties(${TEST_NAME} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:QPropertyModel>
+        )
+    endif()
+
     add_test(
         NAME    ${TEST_NAME}
         COMMAND ${TEST_NAME}

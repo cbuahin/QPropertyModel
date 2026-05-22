@@ -151,6 +151,61 @@ class QCustomTimeEdit : public QTimeEdit
 };
 
 /*!
+ * \brief A composite editor for timespan values combining a days QSpinBox with a
+ *        QTimeEdit (HH:mm:ss).
+ *
+ * \details Exposes a single bindable \c totalSeconds Q_PROPERTY (qint64) that
+ * sums the two sub-widgets. Suitable as a property-browser delegate editor or
+ * as a standalone form widget for any "duration with day granularity" input —
+ * SWMM time-steps, sampling intervals, watchdog periods, etc.
+ *
+ * The user-facing layout is `[ N d ] [ HH:mm:ss ]` where the spinbox carries
+ * the day count (default range 0–365) and the time edit carries the
+ * sub-day component. Changes to either sub-widget emit \c totalSecondsChanged
+ * with the combined seconds value.
+ */
+class QPROPERTYMODEL_EXPORT QCustomTimespanEdit : public QWidget
+{
+      Q_OBJECT
+      Q_PROPERTY(qint64 totalSeconds READ totalSeconds WRITE setTotalSeconds
+                 NOTIFY totalSecondsChanged USER true)
+
+   public:
+      /*!
+       * \brief Constructs the timespan editor with the given \a parent.
+       *
+       * \param[in] parent The parent widget.
+       */
+      explicit QCustomTimespanEdit(QWidget *parent = nullptr);
+
+      ~QCustomTimespanEdit() override = default;
+
+      /*! \brief Returns the combined timespan in seconds (days·86400 + h·3600 + m·60 + s). */
+      [[nodiscard]] qint64 totalSeconds() const;
+
+      /*! \brief Returns the upper bound of the day QSpinBox. */
+      [[nodiscard]] int maximumDays() const;
+
+      /*! \brief Sets the upper bound of the day QSpinBox (default 365). */
+      void setMaximumDays(int days);
+
+   public slots:
+      /*! \brief Splits \a secs into days + HH:mm:ss and updates both sub-widgets. */
+      void setTotalSeconds(qint64 secs);
+
+   signals:
+      /*! \brief Emitted whenever either sub-widget changes the combined value. */
+      void totalSecondsChanged(qint64 secs);
+
+   private slots:
+      void onSubWidgetChanged();
+
+   private:
+      QSpinBox  *m_daysSpin = nullptr;
+      QTimeEdit *m_timeEdit = nullptr;
+};
+
+/*!
  * \brief Base class for all property item editors used by QPropertyItemDelegate.
  *
  * \details Provides a uniform interface for in-place editors inside a QTreeView.
@@ -682,13 +737,20 @@ class QImagePropertyItemEditor : public QPopUpPropertyItemEditor
  * On acceptance the chosen colour is stored as the editor value and
  * valueChanged() is emitted so the model is updated immediately.
  */
-class QColorPropertyItemEditor : public QPopUpPropertyItemEditor
+class QColorPropertyItemEditor : public QBasePropertyItemEditor
 {
       Q_OBJECT
 
    public:
       /*!
        * \brief Constructs the colour picker editor with the given \a parent.
+       *
+       * \details The editor is a single full-row push button whose
+       * background previews the current colour (with a checkerboard
+       * underlay when the alpha channel is below 255) and whose text
+       * displays the hex / RGBA value, matching the colour-button style
+       * used elsewhere in the host application.  Clicking the button
+       * opens a modal QColorDialog with \c ShowAlphaChannel enabled.
        *
        * \param[in] parent The parent widget.
        */
@@ -706,15 +768,33 @@ class QColorPropertyItemEditor : public QPopUpPropertyItemEditor
        */
       void setValue(const QVariant& value) override;
 
+      /*!
+       * \brief Returns the currently-selected colour.
+       *
+       * \returns The current QColor wrapped in a QVariant.
+       */
+      QVariant getValue() const override;
+
    private slots:
       /*!
-       * \brief Slot invoked when the QColorDialog is accepted.
+       * \brief Slot invoked when the user clicks the colour-preview button.
        *
-       * \details Stores the accepted QColor as m_value and emits valueChanged().
+       * \details Opens a modal QColorDialog initialised to the current
+       * colour with \c ShowAlphaChannel enabled.  If the user accepts the
+       * dialog, the new colour is stored and \c valueChanged() is emitted
+       * so the property model commits immediately.
        */
-      void onColorAccepted();
+      void onPickColor();
 
+   private:
+      /*!
+       * \brief Updates the preview button's background, foreground and
+       *        text to reflect \c m_color.
+       */
+      void restylePreviewButton();
 
+      QPushButton *m_previewButton; /*!< Inline colour-preview button. */
+      QColor       m_color;         /*!< Currently-held colour. */
 };
 
 /*!

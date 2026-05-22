@@ -155,7 +155,6 @@ void QStringListPropertyItemEditor::close()
    m_state  = m_editorDialog->saveGeometry();
    m_windowState = (int) m_editorDialog->windowState();
    m_geometry = m_editorDialog->geometry();
-   qDebug() << "String list Object";
    emit valueChanged(this);
 }
 
